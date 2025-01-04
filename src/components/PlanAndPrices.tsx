@@ -45,7 +45,7 @@ export function PlanAndPrices({
         <p className={`text-6xl font-bold m-8 ${priceColor}`}>{price}</p>
 
         <div className="m-4" role="list">
-          {description.map((item, index) => (
+          {description.map((item) => (
             <div className="flex items-center gap-2 mb-3">
               <Image
                 src={icon}
