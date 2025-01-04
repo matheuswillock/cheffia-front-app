@@ -46,8 +46,9 @@ export function PlanAndPricesSection() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {cardPlanAndPrices.map((card) => (
+          {cardPlanAndPrices.map((card, index) => (
             <PlanAndPrices
+              key={index}
               planTitle={card.planTitle}
               price={card.price}
               description={card.description}

@@ -30,7 +30,7 @@ export function ApresentationSection() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {items.map((i, index) => (
           <ApresentationItem
-            key={index}
+            Key={index}
             ItemTitle={i.title}
             ItemDescription={i.description}
             imagePath={i.icon}
