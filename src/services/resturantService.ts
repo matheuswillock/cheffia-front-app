@@ -1,10 +1,15 @@
 import axios from 'axios';
 
-const API_URL = 'https://api.example.com/restaurants';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const registerRestaurant = async (data: any) => {
   try {
-    const response = await axios.post(API_URL, data);
+    const response = await axios.post(`${API_URL}/api/v1/restaurants/register`, data, {
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+    console.log(response);
     return response.data;
   } catch (error) {
     console.error('Error registering restaurant:', error);

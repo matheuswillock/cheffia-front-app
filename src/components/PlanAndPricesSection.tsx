@@ -1,6 +1,6 @@
-import Check from "../assets/check.svg";
-import CheckInDefautlColor from "../assets/check-in-default-color.svg";
-import { PlanAndPrices } from "./PlanAndPrices";
+import Check from "@/assets/check.svg";
+import CheckInDefautlColor from "@/assets/check-in-default-color.svg";
+import { PlanAndPrices } from "@/components/PlanAndPrices";
 
 export function PlanAndPricesSection() {
   const cardPlanAndPrices = [
