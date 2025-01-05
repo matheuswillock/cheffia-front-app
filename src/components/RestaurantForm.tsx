@@ -1,5 +1,4 @@
 "use client"
-import { Alert } from "@nextui-org/alert";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingSpin from "@/assets/loading-spin.svg";
@@ -18,9 +17,15 @@ import { formSchema } from "@/utils/validation";
 import { FormData } from "@/types/formTypes";
 import { useState } from "react";
 import Image from "next/image";
+import Alert from "./ui/Alert";
+
+
 
 export default function RestaurantForm() {
   const [loading, setLoading] = useState(false);
+  const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);
+  const [closeAlertFail, setCloseAlertFail] = useState(false);
+
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -40,35 +45,49 @@ export default function RestaurantForm() {
     try {
       const response = await handleRegisterRestaurant(data);
       console.log("Restaurant registered successfully:", response);
+      setCloseAlertSuccess(true);
+      form.reset();
     } catch (error) {
       console.error("Failed to register restaurant:", error);
+      setCloseAlertFail(true);
     }
     setLoading(false);
   };
 
   return (
     <>
-      {/* <div className="flex items-center justify-center w-full my-4">
-        <Alert
-          color="success"
-          description={description}
-          isVisible={true}
-          title={title}
-          variant="solid"
-          // onClose={() => setIsVisible(false)}
-        />
-      </div> */}
+      <h2 className="scroll-m-20 border-b border-primary pb-2 text-5xl font-semibold tracking-tight first:mt-0">
+        Cadastre seu restaurante
+      </h2>
+
+      <Alert
+        IsOpen={closeAlertSuccess}
+        SetCloseAlert={setCloseAlertSuccess}
+        Title="Restaurante cadastrado"
+        Message="Seu restaurante foi cadastrado com sucesso!"
+        type="success"
+      />
+
+      <Alert
+        IsOpen={closeAlertFail}
+        SetCloseAlert={setCloseAlertFail}
+        Title="Ocorreu um erro ao cadastrar"
+        Message="Não foi possível cadastrar o restaurante, tente novamente."
+        type="fail"
+      />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex flex-col w-full gap-8 mt-20 mb-16 mx-auto">
+          <div className="flex flex-col w-full gap-8 mt-12 mb-16 mx-auto">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${form.formState.errors.name && "text-red-600"}`}
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.name && "text-red-600"
+                    }`}
                   >
                     Nome do restaurante
                   </FormLabel>
@@ -98,7 +117,11 @@ export default function RestaurantForm() {
               name="address"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
-                  <FormLabel className={`text-3xl font-medium ml-2 ${form.formState.errors.address && "text-red-600"}`}>	
+                  <FormLabel
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.address && "text-red-600"
+                    }`}
+                  >
                     Endereço
                   </FormLabel>
                   <FormControl>
@@ -127,7 +150,11 @@ export default function RestaurantForm() {
               name="phoneNumber"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
-                  <FormLabel className={`text-3xl font-medium ml-2 ${form.formState.errors.phoneNumber && "text-red-600"}`}>
+                  <FormLabel
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.phoneNumber && "text-red-600"
+                    }`}
+                  >
                     Telefone
                   </FormLabel>
                   <FormControl>
@@ -168,7 +195,11 @@ export default function RestaurantForm() {
               name="email"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
-                  <FormLabel className={`text-3xl font-medium ml-2 ${form.formState.errors.email && "text-red-600"}`}>
+                  <FormLabel
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.email && "text-red-600"
+                    }`}
+                  >
                     Email
                   </FormLabel>
                   <FormControl>
@@ -197,7 +228,11 @@ export default function RestaurantForm() {
               name="password"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
-                  <FormLabel className={`text-3xl font-medium ml-2 ${form.formState.errors.password && "text-red-600"}`}>
+                  <FormLabel
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.password && "text-red-600"
+                    }`}
+                  >
                     Senha
                   </FormLabel>
                   <FormControl>
@@ -227,7 +262,11 @@ export default function RestaurantForm() {
               name="ownerFullName"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
-                  <FormLabel className={`text-3xl font-medium ml-2 ${form.formState.errors.ownerFullName && "text-red-600"}`}>
+                  <FormLabel
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.ownerFullName && "text-red-600"
+                    }`}
+                  >
                     Nome do proprietário
                   </FormLabel>
                   <FormControl>
@@ -256,7 +295,11 @@ export default function RestaurantForm() {
               name="document"
               render={({ field }) => (
                 <FormItem className="flex flex-col w-full gap-2 items-start">
-                  <FormLabel className={`text-3xl font-medium ml-2 ${form.formState.errors.document && "text-red-600"}`}>
+                  <FormLabel
+                    className={`text-3xl font-medium ml-2 ${
+                      form.formState.errors.document && "text-red-600"
+                    }`}
+                  >
                     Documento
                   </FormLabel>
                   <FormControl>
