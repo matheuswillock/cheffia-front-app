@@ -12,14 +12,13 @@ export default function Home() {
       <main className="mt-32">
         <section className=" flex flex-col justify-items-center items-center hero text-center py-20 gap-4">
           <div className="flex items-center flex-col gap-6 mb-8">
-            
-            <h2 className="text-6xl font-bold text-defaultForeground">
+            <h2 className="text-6xl font-bold text-foreground">
               <TextAnimate animation="slideUp" by="word">
                 Simplifique os pedidos com Cheffia
               </TextAnimate>
             </h2>
 
-            <h3 className="tracking-normal text-3xl text-defaultDarkForeground">
+            <h3 className="tracking-normal text-3xl text-muted-foreground">
               <TextAnimate animation="slideUp" by="word">
                 O Cheffia é a solução completa para gerenciar pedidos, melhorar
                 a experiência do cliente e aumentar suas vendas
@@ -27,12 +26,14 @@ export default function Home() {
             </h3>
           </div>
 
-          <PulsatingButton
-            className=" text-defaultButtonColor bg-defaultButtonBackgroung max-w-96 h-24 px-20 text-4xl font-semibold "
-            pulseColor="#a1a1aa"
-          >
-            <Link href="register/restaurant">Começar</Link>
-          </PulsatingButton>
+          <Link href="register/restaurant">
+            <PulsatingButton
+              className="bg-button-solid text-background max-w-96 h-24 px-20 text-4xl font-bold "
+              pulseColor="#0a4d00"
+            >
+              Começar
+            </PulsatingButton>
+          </Link>
         </section>
         <ApresentationSection />
         <PlanAndPricesSection />

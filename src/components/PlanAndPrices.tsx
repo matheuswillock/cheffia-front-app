@@ -15,7 +15,7 @@ export function PlanAndPrices({
   isSelected,
   icon,
 }: PropsPlanAndprices) {
-    const titleColor = isSelected ? "" : "defaultForeground";
+    const titleColor = isSelected ? "" : "foreground";
 
     const priceColor = isSelected
       ? ""
@@ -28,8 +28,8 @@ export function PlanAndPrices({
     hover:scale-110 hover:shadow-lg
     ${
       isSelected
-        ? "bg-defaultForeground text-defaultButtonColor border-defaultDarkForeground border-4"
-        : "bg-cardBackground border-cardBorder text-defaultForeground"
+        ? "bg-card-selected text-background border-card-border border-4"
+        : "bg-card border-muted text-card-foreground border-4"
     }
   `;
 

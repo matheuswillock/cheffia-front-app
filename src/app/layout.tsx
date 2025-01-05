@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.className} bg-defaultBackground h-full text-defaultForeground antialiased`}
+        className={`${roboto.className} bg-Background h-full text-foreground antialiased`}
       >
         {children}
       </body>

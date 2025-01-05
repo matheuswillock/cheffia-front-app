@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+// import {nextui} from "@nextui-org/react";
 
 export default {
     darkMode: ["class"],
@@ -6,23 +7,31 @@ export default {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+		// "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
   	extend: {
   		colors: {
-  			defaultBackground: '#09090b',
-  			defaultForeground: '#E1E1E6',
-  			defaultDarkForeground: '#a1a1aa',
-  			defaultButtonColor: '#09090b',
-  			defaultButtonDarkColor: '#09090b',
-  			defaultButtonBackgroung: '#E1E1E6',
-  			defaultButtonDarkBakground: '#a1a1aa',
+  			// defaultBackground: '#09090b',
+  			// defaultForeground: '#E1E1E6',
+  			// defaultDarkForeground: '#a1a1aa',
+  			// defaultButtonColor: '#09090b',
+  			// defaultButtonDarkColor: '#09090b',
+  			// defaultButtonBackgroung: '#E1E1E6',
+  			// defaultButtonDarkBakground: '#a1a1aa',
+
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
+					selected: 'hsl(var(--primary))',
+					border: 'hsl(var(--primary-foreground))',
   				foreground: 'hsl(var(--card-foreground))'
   			},
+				button: {
+					DEFAULT: 'hsl(var(--primary-foreground))',
+					solid: 'hsl(var(--primary))',
+				},
   			popover: {
   				DEFAULT: 'hsl(var(--popover))',
   				foreground: 'hsl(var(--popover-foreground))'
