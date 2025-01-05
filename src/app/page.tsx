@@ -31,7 +31,7 @@ export default function Home() {
             className=" text-defaultButtonColor bg-defaultButtonBackgroung max-w-96 h-24 px-20 text-4xl font-semibold "
             pulseColor="#a1a1aa"
           >
-            <Link href="#">Começar</Link>
+            <Link href="register/restaurant">Começar</Link>
           </PulsatingButton>
         </section>
         <ApresentationSection />
