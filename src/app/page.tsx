@@ -1,6 +1,6 @@
 import { ApresentationSection } from "@/components/ApresentationSection";
 import { PlanAndPricesSection } from "@/components/PlanAndPricesSection";
-import { Sidebar } from "@/components/SideBar";
+import { Navbar } from "@/components/Navbar";
 import PulsatingButton from "@/components/ui/pulsating-button";
 import { TextAnimate } from "@/components/ui/text-animate";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="container mx-auto p-4 text-foreground">
-      <Sidebar />
+      <Navbar />
       <main className="mt-32">
         <section className=" flex flex-col justify-items-center items-center hero text-center py-20 gap-4">
           <div className="flex items-center flex-col gap-6 mb-8">

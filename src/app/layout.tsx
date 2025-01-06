@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Roboto } from "next/font/google";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -24,7 +25,10 @@ export default function RootLayout({
       <body
         className={`${roboto.className} bg-Background h-full text-foreground antialiased`}
       >
-        {children}
+        {/* <SidebarProvider>
+          <SidebarTrigger /> */}
+          {children}
+        {/* </SidebarProvider> */}
       </body>
     </html>
   );
