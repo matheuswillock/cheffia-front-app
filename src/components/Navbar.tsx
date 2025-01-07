@@ -7,7 +7,7 @@ export function Navbar() {
     <aside className="p-6">
       <nav className="flex justify-between items-center mt-12">
         <Link href={"/"}>
-          <h1 className="text-5xl font-bold text-foreground">Cheffia</h1>
+          <h1 className="text-3xl font-bold text-foreground">Cheffia</h1>
         </Link>
 
         <div className="flex items-center">
@@ -15,7 +15,7 @@ export function Navbar() {
           <NavbarButton text={"Preços"} href={"#"} />
 
           <Button 
-            className="bg-button text-foreground hover:bg-button-solid hover:text-background h-16 w-14 rounded-xl px-20 text-3xl font-bold"
+            className="bg-button text-foreground hover:bg-button-solid hover:text-background h-12 w-2 rounded-xl px-20 text-xl font-bold"
           >
             <Link href="#">Login</Link>
           </Button>

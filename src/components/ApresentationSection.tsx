@@ -26,7 +26,7 @@ export function ApresentationSection() {
   ];
 
   return (
-    <section className="features py-20">
+    <section className="features py-20 my-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {items.map((item, index) => (
           <ApresentationItem

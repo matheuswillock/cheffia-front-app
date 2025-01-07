@@ -25,10 +25,7 @@ export default function RootLayout({
       <body
         className={`${roboto.className} bg-Background h-full text-foreground antialiased`}
       >
-        {/* <SidebarProvider>
-          <SidebarTrigger /> */}
-          {children}
-        {/* </SidebarProvider> */}
+        {children}
       </body>
     </html>
   );

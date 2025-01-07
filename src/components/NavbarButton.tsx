@@ -9,7 +9,7 @@ export default function NavbarButton({ text, href }: NavbarButtonprops) {
   return (
     <Button
       variant="link"
-      className="mr-4 text-muted-foreground hover:text-primary text-1xl font-semibold"
+      className="mr-4 text-muted-foreground hover:text-primary text-xl font-semibold"
     >
       <Link href={href}>{text}</Link>
     </Button>
