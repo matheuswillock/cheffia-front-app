@@ -26,7 +26,6 @@ export default function RestaurantForm() {
   const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);
   const [closeAlertFail, setCloseAlertFail] = useState(false);
 
-
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,8 +54,8 @@ export default function RestaurantForm() {
   };
 
   return (
-    <>
-      <h2 className="scroll-m-20 border-b border-primary pb-2 text-5xl font-semibold tracking-tight first:mt-0">
+    <div className="mx-auto my-6 border border-zinc-600 rounded-xl p-10 overflow-hidden bg-background">
+      <h2 className="scroll-m-20 border-b border-primary pb-2 text-4xl font-semibold tracking-tight first:mt-0">
         Cadastre seu restaurante
       </h2>
 
@@ -78,14 +77,14 @@ export default function RestaurantForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex flex-col w-full gap-8 mt-12 mb-16 mx-auto">
+          <div className="flex flex-col w-full gap-6 mt-12 mb-12 mx-auto">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.name && "text-red-600"
                     }`}
                   >
@@ -96,16 +95,16 @@ export default function RestaurantForm() {
                       {...field}
                       className={`border-[1.5px] ${
                         form.formState.errors.name
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      } h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      } h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="Nome do restaurante"
                       onBlur={async () => {
                         await form.trigger("name");
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.name?.message}
                   </FormMessage>
                 </FormItem>
@@ -116,9 +115,9 @@ export default function RestaurantForm() {
               control={form.control}
               name="address"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.address && "text-red-600"
                     }`}
                   >
@@ -129,16 +128,16 @@ export default function RestaurantForm() {
                       {...field}
                       className={`border-[1.5px] ${
                         form.formState.errors.address
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      }   h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      }   h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="Endereço"
                       onBlur={async () => {
                         await form.trigger("address");
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.address?.message}
                   </FormMessage>
                 </FormItem>
@@ -149,9 +148,9 @@ export default function RestaurantForm() {
               control={form.control}
               name="phoneNumber"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.phoneNumber && "text-red-600"
                     }`}
                   >
@@ -162,9 +161,9 @@ export default function RestaurantForm() {
                       {...field}
                       className={`border-[1.5px] ${
                         form.formState.errors.phoneNumber
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      }   h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      }   h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="(11) 99999-9999"
                       onBlur={async () => {
                         await form.trigger("phoneNumber");
@@ -183,7 +182,7 @@ export default function RestaurantForm() {
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.phoneNumber?.message}
                   </FormMessage>
                 </FormItem>
@@ -194,9 +193,9 @@ export default function RestaurantForm() {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.email && "text-red-600"
                     }`}
                   >
@@ -207,16 +206,16 @@ export default function RestaurantForm() {
                       {...field}
                       className={`border-[1.5px] ${
                         form.formState.errors.email
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      }   h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      }   h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="Email"
                       onBlur={async () => {
                         await form.trigger("email");
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.email?.message}
                   </FormMessage>
                 </FormItem>
@@ -227,9 +226,9 @@ export default function RestaurantForm() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.password && "text-red-600"
                     }`}
                   >
@@ -241,16 +240,16 @@ export default function RestaurantForm() {
                       type="password"
                       className={`border-[1.5px] ${
                         form.formState.errors.password
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      }   h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      }   h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="Senha"
                       onBlur={async () => {
                         await form.trigger("password");
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.password?.message}
                   </FormMessage>
                 </FormItem>
@@ -261,9 +260,9 @@ export default function RestaurantForm() {
               control={form.control}
               name="ownerFullName"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.ownerFullName && "text-red-600"
                     }`}
                   >
@@ -274,16 +273,16 @@ export default function RestaurantForm() {
                       {...field}
                       className={`border-[1.5px] ${
                         form.formState.errors.ownerFullName
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      }   h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      }   h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="Nome do proprietário"
                       onBlur={async () => {
                         await form.trigger("ownerFullName");
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.ownerFullName?.message}
                   </FormMessage>
                 </FormItem>
@@ -294,9 +293,9 @@ export default function RestaurantForm() {
               control={form.control}
               name="document"
               render={({ field }) => (
-                <FormItem className="flex flex-col w-full gap-2 items-start">
+                <FormItem className="flex flex-col w-full items-start">
                   <FormLabel
-                    className={`text-3xl font-medium ml-2 ${
+                    className={`text-xl font-medium ml-2 ${
                       form.formState.errors.document && "text-red-600"
                     }`}
                   >
@@ -307,9 +306,9 @@ export default function RestaurantForm() {
                       {...field}
                       className={`border-[1.5px] ${
                         form.formState.errors.document
-                          ? "border-red-600 border-2"
+                          ? "border-red-600"
                           : "border-zinc-800"
-                      }   h-20 w-full text-3xl font-base transition-all duration-800 rounded-xl`}
+                      }   h-14 w-full text-xl font-base transition-all duration-800 rounded-xl`}
                       placeholder="Documento"
                       onBlur={async () => {
                         await form.trigger("document");
@@ -334,7 +333,7 @@ export default function RestaurantForm() {
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="ml-2 text-2xl text-red-600">
+                  <FormMessage className="ml-2 text-xl text-red-600">
                     {form.formState.errors.document?.message}
                   </FormMessage>
                 </FormItem>
@@ -344,14 +343,14 @@ export default function RestaurantForm() {
           <div className="flex justify-center">
             <Button
               type="submit"
-              className=" bg-button hover:bg-button-solid hover:text-background rounded-xl text-foreground h-20 w-[90%] text-3xl font-bold transition-all duration-900"
+              className=" bg-button hover:bg-button-solid hover:text-background rounded-xl text-foreground h-16 w-[90%] text-3xl font-bold transition-all duration-900"
               disabled={!form.formState.isValid || loading}
             >
               {loading ? (
                 <Image
                   src={LoadingSpin}
                   alt="Loading"
-                  className="h-14 w-14 animate-spin"
+                  className="h-12 w-12 animate-spin"
                 />
               ) : (
                 "Cadastrar"
@@ -360,6 +359,6 @@ export default function RestaurantForm() {
           </div>
         </form>
       </Form>
-    </>
+    </div>
   );
 }
