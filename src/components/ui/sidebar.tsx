@@ -3,7 +3,8 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import PanelLeft  from "@/assets/panel-left.svg"
+import Image from "next/image"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -271,17 +272,24 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn(
+        "h-8 w-8 mt-5 ml-4 rounded-xl",
+        className
+      )}
       onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
+        onClick?.(event);
+        toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeft />
+      <Image
+        src={PanelLeft}
+        alt={"Botão para fechar o menu lateral"}
+        className="w-6 h-6"
+      />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
-  )
+  );
 })
 SidebarTrigger.displayName = "SidebarTrigger"
 

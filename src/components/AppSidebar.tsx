@@ -1,53 +1,138 @@
-
+"use client"
+import * as React from "react";
 import Calendar from "@/assets/calendar.svg";
 import Inbox from "@/assets/inbox.svg";
 import Search from "@/assets/search.svg";
 import Settings from "@/assets/settings.svg";
 import house from "@/assets/house.svg";
-
+import NavUser from "@/components/sidebarContent/NavUser";
+import SquareTerminal from "@/assets/square-terminal.svg";
+import Settings2 from "@/assets/settings-2.svg";
+import Bot from "@/assets/bot.svg";
+import BookOpen from "@/assets/book-open.svg";
+import NavMain from "./sidebarContent/NavMain";
+import NavProjects from "./sidebarContent/NavProjects";
+import Frame from "@/assets/frame.svg";
+import PieChart from "@/assets/chart-pie.svg";
+import MapIcon from "@/assets/map.svg";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
-  SidebarProvider,
-  SidebarTrigger,
   SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarGroupLabel
 } from "./ui/sidebar";
-import Link from "next/link";
-import Image from "next/image";
 
-// Menu items.
-const items = [
+const user = {
+  name: "shadcn",
+  email: "m@example.com",
+  avatar: "@/avatars/shadcn.jpg",
+};
+
+const navMainContent = [
   {
-    title: "house",
+    title: "Playground",
     url: "#",
-    icon: house,
+    icon: SquareTerminal,
+    isActive: true,
+    items: [
+      {
+        title: "History",
+        url: "#",
+      },
+      {
+        title: "Starred",
+        url: "#",
+      },
+      {
+        title: "Settings",
+        url: "#",
+      },
+    ],
   },
   {
-    title: "Inbox",
+    title: "Models",
     url: "#",
-    icon: Inbox,
+    icon: Bot,
+    items: [
+      {
+        title: "Genesis",
+        url: "#",
+      },
+      {
+        title: "Explorer",
+        url: "#",
+      },
+      {
+        title: "Quantum",
+        url: "#",
+      },
+    ],
   },
   {
-    title: "Calendar",
+    title: "Documentation",
     url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
+    icon: BookOpen,
+    items: [
+      {
+        title: "Introduction",
+        url: "#",
+      },
+      {
+        title: "Get Started",
+        url: "#",
+      },
+      {
+        title: "Tutorials",
+        url: "#",
+      },
+      {
+        title: "Changelog",
+        url: "#",
+      },
+    ],
   },
   {
     title: "Settings",
     url: "#",
-    icon: Settings,
+    icon: Settings2,
+    items: [
+      {
+        title: "General",
+        url: "#",
+      },
+      {
+        title: "Team",
+        url: "#",
+      },
+      {
+        title: "Billing",
+        url: "#",
+      },
+      {
+        title: "Limits",
+        url: "#",
+      },
+    ],
+  },
+];
+
+const projects = [
+  {
+    name: "Design Engineering",
+    url: "#",
+    icon: Frame,
+  },
+  {
+    name: "Sales & Marketing",
+    url: "#",
+    icon: PieChart,
+  },
+  {
+    name: "Travel",
+    url: "#",
+    icon: MapIcon,
   },
 ];
 
@@ -55,33 +140,19 @@ export default function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
-        <SidebarGroup className="flex flex-col gap-6 pt-group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel className="text-5xl">
-            Application
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-2xl mx-2 my-3">
+            Cheffia
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="text-3xl h-14">
-                    <Link href={item.url}>
-                      {/* <item.icon width={100} height={100} className="" /> */}
-                      <Image
-                        src={item.icon}
-                        alt={""}
-                        width={26}
-                        height={26}
-                        color="hsl(var(--foreground))"
-                      />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <NavMain item={navMainContent} />
+            <NavProjects projects={projects} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
