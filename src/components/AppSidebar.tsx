@@ -6,7 +6,8 @@ import Search from "@/assets/search.svg";
 import Settings from "@/assets/settings.svg";
 import house from "@/assets/house.svg";
 import NavUser from "@/components/sidebarContent/NavUser";
-import SquareTerminal from "@/assets/square-terminal.svg";
+import SquareMenu from "@/assets/square-menu.svg";
+//import SquareTerminal from "@/assets/square-terminal.svg";
 import Settings2 from "@/assets/settings-2.svg";
 import Bot from "@/assets/bot.svg";
 import BookOpen from "@/assets/book-open.svg";
@@ -32,17 +33,17 @@ const user = {
 
 const navMainContent = [
   {
-    title: "Playground",
+    title: "Menu",
     url: "#",
-    icon: SquareTerminal,
+    icon: SquareMenu,
     isActive: true,
     items: [
       {
-        title: "History",
-        url: "#",
+        title: "Editar",
+        url: "restaurant/menu/edit",
       },
       {
-        title: "Starred",
+        title: "promoções",
         url: "#",
       },
       {

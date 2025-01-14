@@ -4,7 +4,7 @@ import { Roboto } from "next/font/google";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const roboto = Roboto({
-  weight: ["400", "700"],
+  weight: ["300", "400", "500", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
   display: "swap",
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.className} bg-Background h-full text-foreground antialiased`}
+        className={`${roboto.className} bg-Background h-full text-foreground subpixel-antialiased`}
       >
         {children}
       </body>
