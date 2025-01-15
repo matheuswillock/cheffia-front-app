@@ -23,7 +23,7 @@ export default function BadgeItems({item, index, handleDelete} : BadgeItemsProps
         </Badge>
       </TooltipTrigger>
       <TooltipContent 
-        className="bg-red-500 bg-opacity-80 text-foreground font-base text-lg rounded-xl p-2"        
+        className="bg-red-500 bg-opacity-80 text-foreground font-base text-xs rounded-xl p-2"        
       >
         Clique para deletar
       </TooltipContent>

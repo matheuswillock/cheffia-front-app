@@ -1,12 +1,10 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
-import Image from 'next/image';
-import Plus from "@/assets/plus.svg";
-import { JSX, useState } from "react";
-import { Badge } from "../ui/badge";
+import { useState } from "react";
 import BadgeItems from "./BadgeItems";
 import { Label } from "../ui/label";
+import { FaPlus } from "react-icons/fa";
 
 interface InteractiveInputProps {
   onChange: (value: string) => void;
@@ -42,29 +40,31 @@ export default function InputItems({ onChange }: InteractiveInputProps) {
 
         <div className="col-span-1 w-full flex items-end">
           <Button 
-            className="rounded-xl bg-primary text-background font-bold text-lg w-full h-12"
+            className="rounded-xl bg-button text-foreground hover:text-background font-bold text-lg w-full h-12"
             onClick={handleAddItem}
           >
-            <Image src={Plus} alt={"Adicionar um ingrediente ao item do Menu"} /> Add Item
+            <FaPlus /> Add Item
           </Button>
         </div>
 
 
       </div>
-
-      <div className="flex w-full items-center ">
+      
+      <div className="flex flex-wrap gap-2 w-full overflow-auto">
         {items.map((item, index) => (
-          <BadgeItems 
+          <BadgeItems
+            key={index}
             item={item}
-            index={index} 
+            index={index}
             handleDelete={(index: number) => {
               const newItems = items.filter((_, i) => i !== index);
               setItems(newItems);
               onChange(newItems.join(", "));
-            }}          
+            }}
           />
         ))}
       </div>
+
     </div>
   );
 }

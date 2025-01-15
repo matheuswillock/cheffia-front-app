@@ -64,7 +64,7 @@ export default function EditMenuPage(menuItems: MenuItem[]) {
 
         <CardContent>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
-            <div className="p-4  border-muted border-4 rounded-xl">
+            <div className="p-4  border-border border-4 rounded-xl">
               {initialMenuItems.map((item, index) => (
                 <div
                   key={index}
@@ -119,16 +119,16 @@ export default function EditMenuPage(menuItems: MenuItem[]) {
                     </div>
 
                     <div className="flex flex-col gap-2 self-end items-end">
-                      <Button className="rounded-xl w-24 bg-red-500 hover:bg-red-600 text-background font-bold text-lg">
+                      <Button className="rounded-xl w-24 bg-red-500 hover:bg-red-600 text-background hover:text-foreground font-bold text-lg">
                         Deletar
                       </Button>
-                      <Button className="rounded-xl w-24 font-bold text-lg">
+                      <Button className="rounded-xl w-24 font-bold text-lg bg-button text-foreground hover:bg-button-solid hover:text-background">
                         Editar
                       </Button>
                     </div>
                   </div>
 
-                  <Separator className="my-4" />
+                  <Separator className="my-4 bg-muted" />
                 </div>
               ))}
             </div>
@@ -166,7 +166,7 @@ export default function EditMenuPage(menuItems: MenuItem[]) {
                   </div>
 
                   <div className="flex justify-end w-full">
-                    <Button className="rounded-xl bg-primary text-background font-bold text-lg w-full h-14">
+                    <Button className="rounded-xl bg-button text-foregroundadd hover:text-background font-bold text-lg w-full h-14">
                       <FaEdit /> Add Menu Item
                     </Button>
                   </div>
