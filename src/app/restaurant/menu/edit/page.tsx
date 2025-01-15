@@ -57,7 +57,7 @@ export default function EditMenuPage(menuItems: MenuItem[]) {
 
   return (
     <div className="container mx-auto p-4">
-      <Card className="mt-16">
+      <Card className="mt-16 shadow-md drop-shadow-4xl shadow-sidebar-primary-foreground rounded-xl">
         <CardHeader>
           <h2 className="">Edit Menu</h2>
         </CardHeader>
@@ -177,12 +177,6 @@ export default function EditMenuPage(menuItems: MenuItem[]) {
             </div>
           </div>
         </CardContent>
-
-        <CardFooter>
-          {/* <Button onClick={handleAddMenuItem}>
-            <FaEdit /> Add Menu Item
-          </Button> */}
-        </CardFooter>
       </Card>
     </div>
   );

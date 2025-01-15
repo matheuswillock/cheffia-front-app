@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Roboto } from "next/font/google";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Inter_Tight } from "next/font/google";
 
-const roboto = Roboto({
+
+const inter = Inter_Tight({
   weight: ["300", "400", "500", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.className} bg-Background h-full text-foreground subpixel-antialiased`}
+        className={`${inter.className} bg-Background h-full text-foreground subpixel-antialiased`}
       >
         {children}
       </body>
