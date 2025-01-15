@@ -23,7 +23,7 @@ export default function NavProjects({projects}: NavProjectsProps) {
       <SidebarMenu>
         {projects.map((item, index) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
               <Link href={item.url}>
                 <Image src={item.icon} alt={`icone do item ${item.icon}`} />
                 <span>{item.name}</span>
@@ -71,7 +71,7 @@ export default function NavProjects({projects}: NavProjectsProps) {
           </SidebarMenuItem>
         ))}
         <SidebarMenuItem>
-          <SidebarMenuButton>
+          <SidebarMenuButton className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
             <Image src={MoreHorizontal} alt={""}/>
             <span>More projects</span>
           </SidebarMenuButton>

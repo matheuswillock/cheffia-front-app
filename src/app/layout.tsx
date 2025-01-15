@@ -12,7 +12,7 @@ const inter = Inter_Tight({
 
 export const metadata: Metadata = {
   title: "Cheffia",
-  description: "App de gestão para restaurantes",
+  description: "Diga adeus aos erros nos pedidos!",
 };
 
 export default function RootLayout({

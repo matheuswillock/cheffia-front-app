@@ -47,17 +47,17 @@ export default function NavMain({ item }: NavMainProps) {
               <SidebarMenuButton 
                 asChild 
                 tooltip={item.title}
-                className="rounded-xl mb-2"
+                className="rounded-xl mb-2 bg-transparent hover:bg-primary-foreground hover:bg-opacity-10"
               >
                 <Link href={item.url}>
                   <Image src={item.icon} alt={""} />
-                  <span className="text-lg">{item.title}</span>
+                  <span className="text-lg ">{item.title}</span>
                 </Link>
               </SidebarMenuButton>
               {item.items?.length ? (
                 <>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuAction className="data-[state=open]:rotate-90 rounded-lg">
+                    <SidebarMenuAction className="data-[state=open]:rotate-90 rounded-xl hover:bg-primary-foreground hover:bg-opacity-10">
                       <ChevronRight />
                       <span className="sr-only">Toggle</span>
                     </SidebarMenuAction>
@@ -65,10 +65,10 @@ export default function NavMain({ item }: NavMainProps) {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubItem key={subItem.title} >
+                          <SidebarMenuSubButton asChild className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
                             <Link href={subItem.url}>
-                              <span>{subItem.title}</span>
+                              <span className="rounded-xl ">{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

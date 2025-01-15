@@ -38,12 +38,12 @@ export default function navUser({ user }: NavUserProps) {
 
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+      <SidebarMenuItem >
+        <DropdownMenu >
+          <DropdownMenuTrigger asChild className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground h-16 rounded-xl mb-2 h"
+              className="data-[state=open]:bg-primary-foreground data-[state=open]:text-sidebar-accent-foreground h-16 rounded-xl mb-2 h"
             >
               <Avatar className="h-10 w-10 rounded-xl">
                 <AvatarImage
@@ -60,7 +60,7 @@ export default function navUser({ user }: NavUserProps) {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl bg-background shadow-lg border-border/20"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -77,30 +77,27 @@ export default function navUser({ user }: NavUserProps) {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
+            <DropdownMenuGroup className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
+              <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
                 <Bell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
               <LogOut />
               Log out
             </DropdownMenuItem>
