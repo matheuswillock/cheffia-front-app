@@ -31,8 +31,10 @@ export default function MenuListToEdit({items} : MenuListToEditProps) {
 
               <div className="w-32 h-40 rounded-xl bg-hero-pattern">
                 <Image
-                  src={Burguer}
+                  src={"https://imgix.cosmicjs.com/f5928670-d690-11ef-bee4-3bb1d3c55332-burguer.jpg"}
                   alt={""}
+                  width={128}
+                  height={160}
                   className="rounded-xl h-full"
                 />
               </div>
