@@ -1,3 +1,4 @@
+import { AddMenuItem } from './../services/menuService';
 import { z } from "zod";
 
 export const formSchema = z.object({
@@ -14,4 +15,17 @@ export const formSchema = z.object({
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome deve conter apenas letras"),
   document: z.string().min(11, "O documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)")
     .max(18, "O documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)"),
+});
+
+export const AddMenuItemSchema = z.object({
+  name: z.string().min(3, "O nome do item deve ter no mínimo 3 caracteres"),
+  description: z.string().min(3, "A descrição do item deve ter no mínimo 3 caracteres"),
+  price: z.number().min(0.01, "O preço do item deve ser maior que 0"),
+  ingredients: z.array(
+    z.string().min(3, "Cada ingrediente deve ter no mínimo 3 caracteres")
+  ).min(1, "A lista de ingredientes não pode ser vazia"),
+  itemMedia: z.instanceof(File).refine(file => file instanceof File, {
+    message: "Insira um arquivo de mídia válido para o item"
+  }),
+  restaurantId: z.string().uuid("O ID do restaurante é obrigatório")
 });

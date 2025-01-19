@@ -1,0 +1,273 @@
+import InputPrice from "@/components/MenuContent/InputPrice";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { AddMenuItemData } from "@/types/formTypes";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AddMenuItemSchema } from "@/utils/validation";
+import { Button } from "../ui/button";
+import { FaEdit, FaPlus } from "react-icons/fa";
+import { Input } from "../ui/input";
+import BadgeItems from "./BadgeItems";
+import { handleAddMenuItem } from "@/business/restaurant/menu/menuBusiness";
+
+interface MenuFormProps {
+  restaurantId: string;
+}
+
+export default function MenuForm({ restaurantId } : MenuFormProps) {
+    const [items, setItems] = useState<string[]>([]);
+    const [currentItem, setCurrentItem] = useState<string>("");
+  
+    const handleAddItem = () => {
+      if (currentItem.trim() !== "") {
+        setItems([...items, currentItem]);
+        setCurrentItem("");
+        // onChange && onChange([...items, currentItem].join(", "));
+      }
+    };
+
+  const form = useForm<AddMenuItemData>({
+    resolver: zodResolver(AddMenuItemSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      description: "",
+      price: 0,
+      ingredients: [],
+      itemMedia: undefined,
+      restaurantId: restaurantId
+    }
+  })
+
+  const onSubmit = (data: AddMenuItemData) => {
+    // Add menu item
+    console.log("Add menu item:", data);
+    handleAddMenuItem(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}> 
+        <div className="flex flex-col gap-4">
+
+          <div className="flex flex-col gap-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel htmlFor="name" className={`pl-2 ${
+                    form.formState.errors.name && "text-red-500"
+                  }`}>
+                    Nome do item
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Pizza de marguerita"
+                      className={`rounded-xl h-12 ${
+                        form.formState.errors.name
+                          ? "border-red-600"
+                          : "border-zinc-800"
+                      }`}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={async() => {
+                        await form.trigger("name")                                    
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage className="pl-2 text-base text-red-500">
+                    {form.formState.errors.name?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel htmlFor="price" className={`pl-2 ${
+                    form.formState.errors.price && "text-red-500"
+                  }`}>
+                    Preço
+                  </FormLabel>
+                  <FormControl>
+                    <InputPrice 
+                      onChange={(value) => {
+                        const numericValue = value.replace(/[^\d,]/g, '').replace(',', '.');
+                        field.onChange(parseFloat(numericValue));
+                      }}
+                      controlProps={field} 
+                      handleBlur={async () => await form.trigger("price")}                             
+                    />
+                  </FormControl>
+                  <FormMessage className="pl-2 text-base text-red-500">
+                    {form.formState.errors.price?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="itemMedia"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel 
+                    htmlFor="itemMedia" 
+                    className={`pl-2  ${
+                      form.formState.errors.itemMedia && "text-red-500"
+                    }`}
+                  >
+                    Imagem
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      id="itemMedia" 
+                      type="file" 
+                      className="rounded-xl" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        console.log('e.target.files', e.target.files);
+                        field.onChange(file);
+                      }}
+                      onBlur={() => form.trigger("itemMedia")}
+                    />
+                  </FormControl>
+                  <FormMessage className="pl-2 text-base text-red-500">
+                    {form.formState.errors.itemMedia?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="ingredients"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel 
+                    htmlFor="ingredients" 
+                    className={`pl-2 ${
+                      form.formState.errors.ingredients && "text-red-500"
+                    }`}
+                  >  
+                    Ingredientes
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex w-full items-center space-x-2 flex-col gap-4">
+                      <div className="grid grid-cols-3 gap-3 w-full">
+                        <div className=" col-span-2 flex flex-col gap-2 w-full">
+                          <Input
+                          {...field}
+                          type="text"
+                          placeholder="Insira os Ingredientes"
+                          className="rounded-xl h-12"
+                          value={currentItem}
+                          onChange={(e) => {
+                            field.onChange([...items, e.target.value]);
+                            setCurrentItem(e.target.value);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                            handleAddItem();
+                            }
+                          }}
+                          onBlur={async () => await form.trigger("ingredients")}
+                          />
+                        </div>
+                
+                        <div className="col-span-1 w-full flex items-end">
+                          <Button 
+                            className="rounded-xl bg-button text-foreground hover:text-background font-semibold text-base w-full h-12"
+                            onClick={handleAddItem}
+                          >
+                            <FaPlus /> Add Item
+                          </Button>
+                        </div>                        
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2 w-full overflow-auto">
+                        {items.map((item, index) => (
+                          <BadgeItems
+                            key={index}
+                            item={item}
+                            index={index}
+                            handleDelete={(index: number) => {
+                              const newItems = items.filter((_, i) => i !== index);
+                              setItems(newItems);
+                              field.onChange(newItems);
+                            }}
+                          />
+                        ))}
+                      </div>
+                
+                    </div>
+                  </FormControl>
+                  <FormMessage className="pl-2 text-base text-red-500">
+                    {form.formState.errors.ingredients?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField 
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel 
+                    htmlFor="description" 
+                    className={`pl-2  ${
+                      form.formState.errors.description && "text-red-500"
+                    }`}
+                  >
+                    Descrição
+                  </FormLabel>
+                  <FormControl className="flex flex-col">
+                    <Textarea 
+                      {...field}
+                      placeholder="Insira uma breve descrição." 
+                      className="rounded-xl"
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={async () => {
+                          await form.trigger("description")
+                          console.log('!form.formState.isValid', form.formState.isValid)
+                          console.log('form.formState.isDirty', form.formState.isDirty)
+                          console.log('Object.keys(form.formState.errors)', Object.keys(form.formState.errors))
+                        }
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage className="pl-2 text-base text-red-500">
+                    {form.formState.errors.description?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+              
+          </div>
+
+          <div className="flex justify-end w-full">
+            <Button 
+              className="rounded-xl bg-button text-foregroundadd hover:text-background font-semibold text-base w-full h-14"
+              type="submit"
+              disabled={
+                !form.formState.isDirty || 
+                !form.formState.isValid || 
+                Object.keys(form.formState.errors).length > 0
+              }
+            >
+              <FaEdit /> Add Menu Item
+            </Button>
+          </div>
+
+        </div>
+      </form>
+    </Form>
+  );
+}

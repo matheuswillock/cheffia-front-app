@@ -1,8 +1,16 @@
 import { Input } from "../ui/input";
 import { useState } from "react";
 import { Label } from "../ui/label";
+import { ControllerRenderProps } from "react-hook-form";
+import { AddMenuItemData } from "@/types/formTypes";
 
-export default function InputPrice() {
+interface InputPriceProps {
+  onChange: (value: string) => void;
+  handleBlur: () => void;
+  controlProps: ControllerRenderProps<AddMenuItemData, "price">
+}
+
+export default function InputPrice({onChange, controlProps, handleBlur} : InputPriceProps) {
   const [value, setValue] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,17 +27,19 @@ export default function InputPrice() {
     }
 
     setValue(`R$ ${inputValue}`);
+    onChange(inputValue);
   };
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label htmlFor="price" className="pl-2">Preço</Label>
       <Input
+        {...controlProps}
         type="text"
         placeholder="R$ 10,00"
         className="rounded-xl col-span-2 h-12"
         value={value}
         onChange={handleChange}
+        onBlur={handleBlur}
       />
     </div>
 

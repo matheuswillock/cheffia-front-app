@@ -19,8 +19,6 @@ import { useState } from "react";
 import Image from "next/image";
 import Alert from "./ui/Alert";
 
-
-
 export default function RestaurantForm() {
   const [loading, setLoading] = useState(false);
   const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);

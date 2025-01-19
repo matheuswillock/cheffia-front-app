@@ -23,7 +23,7 @@ export default function Alert({ SetCloseAlert, Title, Message, type, IsOpen}: Al
           type === "success"
             ? "border-primary bg-primary-foreground"
             : "border-destructive bg-red-700"
-        } flex flex-row justify-between gap-4 border-[3px]  rounded-xl h-36 px-6 fixed top-56 left-1/3 transform -translate-x-1/2 w-11/12 max-w-4xl z-50`}
+        } flex flex-row justify-between gap-4 border-[3px] rounded-xl h-36 px-6 fixed transform -translate-x-1/2 w-11/12 max-w-2xl z-50 margin-auto `}
         style={{}}
       >
         <Image
