@@ -60,65 +60,64 @@ textarea {
 
   :root {
     --background: 0 0% 18%;
-    /* dark gray */
+
     --foreground: 0 0% 92%;
-    /* light gray */
+    
     --card: 158, 20% 26%;
-    /* dark green */
+
     --card-foreground: 0 0% 92%;
-    /* light gray */
+
     --popover: 158 32% 36%;
-    /* green */
+
     --popover-foreground: 0 0% 92%;
-    /* light gray */
+
     --primary: 158 98% 50%;
-    /* bright green */
+
     --primary-foreground: 158 20% 26%;
-    /* dark green */
+
     --secondary: 162 70% 48%;
-    /* teal */
+
     --secondary-foreground: 0 0% 92%;
-    /* light gray */
+
     --muted: 158 32% 36%;
-    /* green */
+
     --muted-foreground: 0 0% 92%;
-    /* light gray */
+
     --accent: 158 98% 50%;
-    /* bright green */
+
     --accent-foreground: 0 0% 92%;
-    /* light gray */
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 85.7% 97.3%;
-    /* light gray */
+
     --border: 158 20% 26%;
-    /* dark green */
-    /* --input: 158 20% 26%; */
+
     --input: 240 3.7% 15.9%;
-    /* dark green */
+
     --ring: 158 98% 50%;
-    /* bright green */
+
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    /* dark gray */
+
     --sidebar-background: 0 0% 18%;
-    /* dark gray */
+
     --sidebar-foreground: 0 0% 92%;
-    /* light gray */
+
     --sidebar-primary: 158 98% 50%;
-    /* bright green */
+
     --sidebar-primary-foreground: 158 20% 26%;
-    /* dark green */
+
     --sidebar-accent: 162 70% 48%;
-    /* teal */
+
     --sidebar-accent-foreground: 0 0% 92%;
-    /* light gray */
+
     --sidebar-border: 158 20% 26%;
-    /* dark green */
+
     --sidebar-ring: 158 98% 50%;
-    /* bright green */
+
   }
 
   .dark {
@@ -154,7 +153,7 @@ textarea {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+  } 
 }
 
 

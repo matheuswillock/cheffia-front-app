@@ -1,7 +1,7 @@
 import InputPrice from "@/components/MenuContent/InputPrice";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AddMenuItemData } from "@/types/formTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,22 +11,27 @@ import { FaEdit, FaPlus } from "react-icons/fa";
 import { Input } from "../ui/input";
 import BadgeItems from "./BadgeItems";
 import { handleAddMenuItem } from "@/business/restaurant/menu/menuBusiness";
+import { Output } from "@/models/Output";
+import LoadingSpin from "@/assets/loading-spin.svg";
+import Image from "next/image";
 
 interface MenuFormProps {
   restaurantId: string;
+  reloadMenuItemsList: (success: boolean) => void;
 }
 
-export default function MenuForm({ restaurantId } : MenuFormProps) {
-    const [items, setItems] = useState<string[]>([]);
-    const [currentItem, setCurrentItem] = useState<string>("");
-  
-    const handleAddItem = () => {
-      if (currentItem.trim() !== "") {
-        setItems([...items, currentItem]);
-        setCurrentItem("");
-        // onChange && onChange([...items, currentItem].join(", "));
-      }
-    };
+export default function MenuForm({ restaurantId, reloadMenuItemsList} : MenuFormProps) {
+  const [items, setItems] = useState<string[]>([]);
+  const [currentItem, setCurrentItem] = useState<string>("");
+  const [loadingButton, setLoadingButton] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAddItem = () => {
+    if (currentItem.trim() !== "") {
+      setItems([...items, currentItem]);
+      setCurrentItem("");
+    }
+  };
 
   const form = useForm<AddMenuItemData>({
     resolver: zodResolver(AddMenuItemSchema),
@@ -39,12 +44,44 @@ export default function MenuForm({ restaurantId } : MenuFormProps) {
       itemMedia: undefined,
       restaurantId: restaurantId
     }
-  })
+  });
 
-  const onSubmit = (data: AddMenuItemData) => {
-    // Add menu item
-    console.log("Add menu item:", data);
-    handleAddMenuItem(data);
+  const resetForm = () => {
+    form.reset({
+      name: "",
+      description: "",
+      price: 0,
+      ingredients: [],
+      itemMedia: undefined,
+      restaurantId: restaurantId
+    });
+    setItems([]);
+    setCurrentItem("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const onSubmit = async (data: AddMenuItemData) => {
+    try {
+      setLoadingButton(true);
+      console.log('data', data);
+      const result: Output = await handleAddMenuItem(data);
+
+      if (result.isValid) {
+        console.log('Menu item added successfully', result.result);
+        resetForm();
+        reloadMenuItemsList(true);
+      } else {
+        console.error('Error adding menu item', result.errorMessages);
+        reloadMenuItemsList(false);
+      }
+
+      setLoadingButton(false);
+
+    } catch (error) {
+      console.error('Error adding menu item', error);
+    }
   };
 
   return (
@@ -132,10 +169,10 @@ export default function MenuForm({ restaurantId } : MenuFormProps) {
                       className="rounded-xl" 
                       onChange={(e) => {
                         const file = e.target.files?.[0] || null;
-                        console.log('e.target.files', e.target.files);
                         field.onChange(file);
                       }}
                       onBlur={() => form.trigger("itemMedia")}
+                      ref={fileInputRef}
                     />
                   </FormControl>
                   <FormMessage className="pl-2 text-base text-red-500">
@@ -174,7 +211,7 @@ export default function MenuForm({ restaurantId } : MenuFormProps) {
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                            handleAddItem();
+                              handleAddItem();
                             }
                           }}
                           onBlur={async () => await form.trigger("ingredients")}
@@ -236,9 +273,6 @@ export default function MenuForm({ restaurantId } : MenuFormProps) {
                       onChange={(e) => field.onChange(e.target.value)}
                       onBlur={async () => {
                           await form.trigger("description")
-                          console.log('!form.formState.isValid', form.formState.isValid)
-                          console.log('form.formState.isDirty', form.formState.isDirty)
-                          console.log('Object.keys(form.formState.errors)', Object.keys(form.formState.errors))
                         }
                       }
                     />
@@ -262,7 +296,18 @@ export default function MenuForm({ restaurantId } : MenuFormProps) {
                 Object.keys(form.formState.errors).length > 0
               }
             >
-              <FaEdit /> Add Menu Item
+              {loadingButton ? (
+                <Image
+                  src={LoadingSpin}
+                  alt="Loading"
+                  className="h-12 w-12 animate-spin"
+                />
+              ) : (
+                <>
+                  <FaEdit /> Add Menu Item
+                </>
+              )}
+
             </Button>
           </div>
 

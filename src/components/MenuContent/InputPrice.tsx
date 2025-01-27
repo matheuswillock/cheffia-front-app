@@ -1,5 +1,5 @@
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { ControllerRenderProps } from "react-hook-form";
 import { AddMenuItemData } from "@/types/formTypes";
@@ -12,6 +12,10 @@ interface InputPriceProps {
 
 export default function InputPrice({onChange, controlProps, handleBlur} : InputPriceProps) {
   const [value, setValue] = useState("");
+
+  useEffect(() => {
+    setValue(controlProps.value ? `R$ ${controlProps.value.toString().replace('.', ',')}` : "");
+  }, [controlProps.value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let inputValue = e.target.value;
@@ -39,7 +43,10 @@ export default function InputPrice({onChange, controlProps, handleBlur} : InputP
         className="rounded-xl col-span-2 h-12"
         value={value}
         onChange={handleChange}
-        onBlur={handleBlur}
+        onBlur={() => {
+          // setValue(`R$ ${value.replace("R$ ", "")}`);
+          handleBlur();
+        }}
       />
     </div>
 

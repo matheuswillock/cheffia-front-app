@@ -1,4 +1,4 @@
-import { InputToRegisterRestaurant } from '@/models/InputToRegisterRestaurant';
+import { InputToRegisterRestaurant } from '@/models/dtos/InputToRegisterRestaurant';
 import { Output } from '@/models/Output';
 import axios from 'axios';
 

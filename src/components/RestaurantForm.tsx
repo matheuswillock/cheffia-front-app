@@ -40,8 +40,9 @@ export default function RestaurantForm() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
+      console.log("RESTAURANTFORM - 43 | Data:", data);
       const response = await handleRegisterRestaurant(data);
-      console.log("Restaurant registered successfully:", response);
+      console.log("RESTAURANTFORM - 45 | Restaurant registered successfully:", response);
       setCloseAlertSuccess(true);
       form.reset();
     } catch (error) {
