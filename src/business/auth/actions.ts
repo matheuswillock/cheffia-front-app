@@ -6,10 +6,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Provider } from "@supabase/auth-js";
 
-
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
+
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -79,6 +79,7 @@ export const signInActionWithProvider = async () => {
   }
 
   if (data.url) {
+    console.log("Redirecting to", data.url);
     return redirect(data.url);
   }
 

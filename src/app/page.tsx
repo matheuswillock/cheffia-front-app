@@ -26,7 +26,7 @@ export default function Home() {
             </h3>
           </div>
 
-          <Link href="register/restaurant">
+          <Link href="/sign-up">
             <PulsatingButton
               className="bg-button-solid text-background max-w-96 h-20 px-20 text-4xl font-bold "
               pulseColor="#0a4d00"

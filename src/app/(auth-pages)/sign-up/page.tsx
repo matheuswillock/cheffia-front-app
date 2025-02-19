@@ -1,9 +1,11 @@
-import React from 'react';
+import RestaurantForm from "@/components/RestaurantForm";
 
 export default function SignUpPage()  {
   return (
-    <div>
-      <h1>Sign-Up</h1>
+    <div className="min-h-full bg-background p-6 md:p-10">
+      <div className="w-full mx-auto max-w-sm md:max-w-3xl">
+        <RestaurantForm />
+      </div>
     </div>
   );
 };

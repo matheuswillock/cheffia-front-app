@@ -14,17 +14,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { handleRegisterRestaurant } from "@/business/restaurant/restaurantBusiness";
 import { formSchema } from "@/utils/validation";
-import { FormData } from "@/types/formTypes";
-import { useState } from "react";
+import { FormData as RegisterFormData } from "@/types/formTypes";
+import { FormEvent, useState } from "react";
 import Image from "next/image";
 import Alert from "./ui/Alert";
+import { signUpAction } from "@/business/auth/actions";
 
 export default function RestaurantForm() {
   const [loading, setLoading] = useState(false);
   const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);
   const [closeAlertFail, setCloseAlertFail] = useState(false);
 
-  const form = useForm<FormData>({
+  const form = useForm<RegisterFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -37,14 +38,22 @@ export default function RestaurantForm() {
     },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     setLoading(true);
     try {
+      const data = e.currentTarget;
       console.log("RESTAURANTFORM - 43 | Data:", data);
-      const response = await handleRegisterRestaurant(data);
-      console.log("RESTAURANTFORM - 45 | Restaurant registered successfully:", response);
+      // TODO: refatorar este método para tratar a criação do restaurante
+      // const response = await handleRegisterRestaurant(data);
+      // console.log("RESTAURANTFORM - 45 | Restaurant registered successfully:", response);
+
+      const formData = new FormData(data);
+
+      console.log("RESTAURANTFORM - 51 | Form Data:", formData);
+      await signUpAction(formData);
+
       setCloseAlertSuccess(true);
-      form.reset();
+      // form.reset();
     } catch (error) {
       console.error("Failed to register restaurant:", error);
       setCloseAlertFail(true);
@@ -75,7 +84,7 @@ export default function RestaurantForm() {
       />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit}>
           <div className="flex flex-col w-full gap-6 mt-12 mb-12 mx-auto">
             <FormField
               control={form.control}

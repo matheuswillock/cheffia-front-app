@@ -17,7 +17,7 @@ export function Navbar() {
           <Button 
             className="bg-button text-foreground hover:bg-button-solid hover:text-background h-12 w-2 rounded-xl px-20 text-xl font-bold"
           >
-            <Link href="/login">Login</Link>
+            <Link href="/sign-in">Login</Link>
           </Button>
         </div>
       </nav>

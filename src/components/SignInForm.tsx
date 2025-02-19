@@ -31,18 +31,17 @@ export function SignInForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden bg-background">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="px-6 md:px-8 my-4 gap-4 flex flex-col justify-center">
+          <div className="px-6 md:px-8 mb-12 mt-8 gap-4 flex flex-col justify-center">
             <form  onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
-
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Olá Cheffia</h1>
-                  <p className="text-balance text-xl text-muted-foreground">
+                  <p className="text-balance text-xl  text-foreground/70">
                     Acesse a sua conta
                   </p>
                 </div>
 
-                <div className="grid gap-2">
+                <div className="grid gap-2 mb-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -75,7 +74,7 @@ export function SignInForm({
 
                 <Button
                   type="submit"
-                  className="w-full rounded-xl text-lg font-semibold"
+                  className="w-full rounded-xl text-lg font-semibold bg-button text-foreground hover:bg-button-solid hover:text-background"
                 >
                   Login
                 </Button>
@@ -83,7 +82,7 @@ export function SignInForm({
               </div>
             </form>
 
-            <div className="flex flex-col gap-4">
+            {/* <div className="flex flex-col gap-4">
 
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                 <span className="relative z-10 bg-background px-2 text-muted-foreground">
@@ -110,14 +109,15 @@ export function SignInForm({
               <div className="text-center text-sm">
                 Não tem uma conta?{" "}
                 <a
-                  href="#"
+                  href="/sign-up"
                   className="hover:underline underline-offset-4 hover:text-primary "
                 >
                   Inscreva-se
                 </a>
               </div>
 
-            </div>
+            </div> */}
+
           </div>
 
           <div className="relative hidden bg-muted md:block">
