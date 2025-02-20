@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter_Tight({
   weight: ["300", "400", "500", "700"],
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-Background h-full text-foreground subpixel-antialiased`}
       >
+        <Analytics/>
         {children}
       </body>
     </html>
