@@ -11,6 +11,10 @@
     "prefix": ""
   },
   "aliases": {
+    "src": "@/src",
+    "app": "@/src/app",
+    "globals": "@/src/app/styles/globals",
+    "assets": "@/src/assets",
     "components": "@/components",
     "utils": "@/lib/utils",
     "ui": "@/components/ui",

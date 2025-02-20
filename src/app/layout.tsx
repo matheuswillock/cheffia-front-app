@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import { Roboto } from "next/font/google";
+import type { Metadata } from "next";
+import { Inter_Tight } from "next/font/google";
 
-const roboto = Roboto({
-  weight: ["400", "700"],
+const inter = Inter_Tight({
+  weight: ["300", "400", "500", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
   display: "swap",
@@ -11,7 +11,7 @@ const roboto = Roboto({
 
 export const metadata: Metadata = {
   title: "Cheffia",
-  description: "App de gestão para restaurantes",
+  description: "Diga adeus aos erros nos pedidos!",
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.className} bg-defaultBackground h-full text-defaultForeground antialiased`}
+        className={`${inter.className} bg-Background h-full text-foreground subpixel-antialiased`}
       >
         {children}
       </body>

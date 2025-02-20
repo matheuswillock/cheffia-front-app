@@ -1,6 +1,6 @@
-import Check from "../assets/check.svg";
-import CheckInDefautlColor from "../assets/check-in-default-color.svg";
-import { PlanAndPrices } from "./PlanAndPrices";
+import Check from "@/assets/check.svg";
+import CheckInDefautlColor from "@/assets/check-in-default-color.svg";
+import { PlanAndPrices } from "@/components/PlanAndPrices";
 
 export function PlanAndPricesSection() {
   const cardPlanAndPrices = [
@@ -40,14 +40,15 @@ export function PlanAndPricesSection() {
   ];
 
     return (
-      <section className="pricing py-20">
-        <h2 className="text-3xl font-bold text-center mb-12 text-defaultForeground">
+      <section className="pricing py-12">
+        <h2 className="text-4xl font-bold text-center mb-12 text-defaultForeground">
           Planos e Preços
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {cardPlanAndPrices.map((card) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {cardPlanAndPrices.map((card, index) => (
             <PlanAndPrices
+              key={index}
               planTitle={card.planTitle}
               price={card.price}
               description={card.description}

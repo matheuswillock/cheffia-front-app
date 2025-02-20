@@ -1,27 +1,31 @@
 import type { Config } from "tailwindcss";
+// import {nextui} from "@nextui-org/react";
 
 export default {
     darkMode: ["class"],
     content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}"
   ],
   theme: {
   	extend: {
+			backgroundImage: {
+				'hero-pattern': "url('/img/hero-pattern.svg')",
+        'footer-texture': "url('/img/footer-texture.png')",
+      },
   		colors: {
-  			defaultBackground: '#09090b',
-  			defaultForeground: '#E1E1E6',
-  			defaultDarkForeground: '#a1a1aa',
-  			defaultButtonColor: '#09090b',
-  			defaultButtonDarkColor: '#09090b',
-  			defaultButtonBackgroung: '#E1E1E6',
-  			defaultButtonDarkBakground: '#a1a1aa',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
+  				selected: 'hsl(var(--primary))',
+  				border: 'hsl(var(--primary-foreground))',
   				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			button: {
+  				DEFAULT: 'hsl(var(--primary-foreground))',
+  				solid: 'hsl(var(--primary))'
   			},
   			popover: {
   				DEFAULT: 'hsl(var(--popover))',
@@ -56,6 +60,16 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
   		borderRadius: {
@@ -75,7 +89,14 @@ export default {
   					boxShadow: '0 0 0 8px var(--pulse-color)'
   				}
   			}
-  		}
+  		},
+			dropShadow: {
+				'3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
+				'4xl': [
+					'0 35px 35px rgba(0, 0, 0, 0.25)',
+					'0 45px 65px rgba(0, 0, 0, 0.15)'
+				]
+			}
   	}
   },
   plugins: [require("tailwindcss-animate")],

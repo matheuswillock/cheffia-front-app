@@ -26,14 +26,14 @@ export function ApresentationSection() {
   ];
 
   return (
-    <section className="features py-20">
+    <section className="features py-20 my-16">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {items.map((i, index) => (
+        {items.map((item, index) => (
           <ApresentationItem
-            key={index}
-            ItemTitle={i.title}
-            ItemDescription={i.description}
-            imagePath={i.icon}
+            Key={index}
+            ItemTitle={item.title}
+            ItemDescription={item.description}
+            imagePath={item.icon}
           />
         ))}
       </div>
