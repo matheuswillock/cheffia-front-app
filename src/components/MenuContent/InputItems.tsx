@@ -21,7 +21,9 @@ export default function InputItems({ onChange, controlProps, handleBlur }: Inter
     if (currentItem.trim() !== "") {
       setItems([...items, currentItem]);
       setCurrentItem("");
-      onChange && onChange([...items, currentItem].join(", "));
+      if (onChange) {
+        onChange([...items, currentItem].join(", "));
+      }
     }
   };
 
@@ -68,7 +70,9 @@ export default function InputItems({ onChange, controlProps, handleBlur }: Inter
             handleDelete={(index: number) => {
               const newItems = items.filter((_, i) => i !== index);
               setItems(newItems);
-              onChange && onChange(newItems.join(", "));
+              if (onChange) {
+                onChange(newItems.join(", "));
+              }
             }}
           />
         ))}

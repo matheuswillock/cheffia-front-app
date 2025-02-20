@@ -19,7 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  UseSidebar,
 } from "../ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -32,7 +32,7 @@ interface NavUserProps {
 }
 
 export default function navUser({ user }: NavUserProps) {
-  const { isMobile } = useSidebar();
+  const { isMobile } = UseSidebar();
 
   return (
     <SidebarMenu>

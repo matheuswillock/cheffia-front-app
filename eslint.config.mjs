@@ -16,7 +16,7 @@ const eslintConfig = [
       "react/jsx-key": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
       "no-console": ["warn", { "allow": ["warn", "error"] }],
-      "@typescript - eslint / no - explicit - any": "off",
+      "@typescript-eslint/no-explicit-any": "off",
     }
   }
 ];
