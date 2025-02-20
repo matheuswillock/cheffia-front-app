@@ -9,18 +9,13 @@ import CircleX from "@/assets/circle-x.svg";
 import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/services/restaurant/menu/menuBusiness";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 
-interface EditMenuPageProps {
-  menuItems: MenuItem[];
-  restaurantId: string;
-}
-
-export default function EditMenuPage({ menuItems, restaurantId } : EditMenuPageProps) {
+export default function EditMenuPage() {
   const [loadError, setLoadError] = useState(false);
   const [loadErorMessage, setLoadErrorMessage] = useState("");
   const [loadingDeleteItem, setLoadingDeleteItem] = useState(false);
   const [loadingEditItem, setLoadingEditItem] = useState(false);
   const [loadingMenuItems, setLoadingMenuItems] = useState(false);
-  const [menuItemsList, setMenuItemsList] = useState<MenuItem[]>(menuItems);
+  const [menuItemsList, setMenuItemsList] = useState<MenuItem[]>(new Array<MenuItem>());
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState('');
   const [showErrorAlert, setShowErrorAlert] = useState(false);

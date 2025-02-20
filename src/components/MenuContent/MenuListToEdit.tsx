@@ -29,9 +29,9 @@ export default function MenuListToEdit({items = [], handleDeleteButton, loadingB
 
         ) : (      
           <>
-            {items.map((item, index) => (
+            {items.map((item) => (
               <div
-                key={index}
+                key={item.id}
                 className="flex items-center flex-col items-baseline justify-between p-4 gap-4"
               >
                 <div
