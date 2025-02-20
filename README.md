@@ -23,20 +23,12 @@ cd cheffia-front-app
 
 2. Instale as dependências
 ```bash
-npm install
-# ou
-yarn install
-# ou
-pnpm install
+bun install
 ```
 
 3. Inicie o servidor de desenvolvimento
 ```bash
-npm run dev
-# ou
-yarn dev
-# ou
-pnpm dev
+bun run dev
 ```
 
 O projeto estará disponível em [http://localhost:3000](http://localhost:3000)
@@ -48,8 +40,6 @@ O projeto estará disponível em [http://localhost:3000](http://localhost:3000)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Supabase](https://supabase.com/)
-- [Auth0](https://auth0.com/)
-- [Framer Motion](https://www.framer.com/motion/)
 
 ## 📦 Estrutura do Projeto
 
@@ -57,10 +47,16 @@ O projeto segue a estrutura padrão do Next.js 15 com App Router, organizado da 
 
 ```
 src/
-  ├── app/           # Rotas e páginas
+  ├── app/          # Rotas e páginas
+  ├── assets/       # recursos svg    
   ├── components/    # Componentes reutilizáveis
+  ├── externalServices/    # Serviços com API externas
   ├── lib/          # Utilitários e configurações
-  └── styles/       # Estilos globais
+  ├── models/          # Classes de modelos
+  ├── services/          # Regras de negócios
+  ├── types/          # Esquemas de modelos para formulários da aplicação
+  ├── utils/       # Utilidades para serviços como supabase e validações de formulários
+  
 ```
 
 ## 📝 Licença
