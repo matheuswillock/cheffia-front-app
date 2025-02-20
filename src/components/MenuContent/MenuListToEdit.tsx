@@ -1,12 +1,11 @@
 import { StaticImageData } from "next/image";
 import ImageOff from "@/assets/image-off.svg";
 import Image from 'next/image';
-import { JSX, useState } from "react";
+import { JSX } from "react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import LoadingSpin from "@/assets/loading-spin.svg";
-import { handleDeleteMenuItem } from "@/business/restaurant/menu/menuBusiness";
 
 interface MenuListToEditProps {
   items: MenuItem[];

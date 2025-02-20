@@ -1,7 +1,7 @@
 import { InputToAddMenuItem } from "@/models/dtos/InputToAddMenuItem";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import { Output } from "@/models/Output";
-import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/services/menuService";
+import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/externalServices/menuService";
 import { AddMenuItemData } from "@/types/formTypes";
 
 export const handleAddMenuItem = async (data: AddMenuItemData): Promise<Output> => {
@@ -20,7 +20,6 @@ export const handleGetAllMenuItems = async (restaurantId: string): Promise<MenuI
     const output = await GetAllMenuItems(restaurantId);
     
     if (output.isValid && output.result) {
-      console.log('24 - MenuBusiness -> handleGetAllMenuItems | Menu items fetched:', output.result);
       return output.result.items as MenuItem[];
     }    
 

@@ -1,10 +1,5 @@
 "use client"
 import * as React from "react";
-import Calendar from "@/assets/calendar.svg";
-import Inbox from "@/assets/inbox.svg";
-import Search from "@/assets/search.svg";
-import Settings from "@/assets/settings.svg";
-import house from "@/assets/house.svg";
 import NavUser from "@/components/sidebarContent/NavUser";
 import SquareMenu from "@/assets/square-menu.svg";
 //import SquareTerminal from "@/assets/square-terminal.svg";

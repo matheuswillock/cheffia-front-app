@@ -22,7 +22,7 @@ export default function NavProjects({projects}: NavProjectsProps) {
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item, index) => (
-          <SidebarMenuItem key={item.name}>
+          <SidebarMenuItem key={index}>
             <SidebarMenuButton asChild className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
               <Link href={item.url}>
                 <Image src={item.icon} alt={`icone do item ${item.icon}`} />

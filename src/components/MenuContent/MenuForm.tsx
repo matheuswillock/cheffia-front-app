@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import { FaEdit, FaPlus } from "react-icons/fa";
 import { Input } from "../ui/input";
 import BadgeItems from "./BadgeItems";
-import { handleAddMenuItem } from "@/business/restaurant/menu/menuBusiness";
+import { handleAddMenuItem } from "@/services/restaurant/menu/menuBusiness";
 import { Output } from "@/models/Output";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import Image from "next/image";
@@ -65,11 +65,9 @@ export default function MenuForm({ restaurantId, reloadMenuItemsList} : MenuForm
   const onSubmit = async (data: AddMenuItemData) => {
     try {
       setLoadingButton(true);
-      console.log('data', data);
       const result: Output = await handleAddMenuItem(data);
 
       if (result.isValid) {
-        console.log('Menu item added successfully', result.result);
         resetForm();
         reloadMenuItemsList(true);
       } else {

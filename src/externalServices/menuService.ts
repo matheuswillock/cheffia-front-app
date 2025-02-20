@@ -1,4 +1,4 @@
-import { InputItem, InputToAddMenuItem } from "@/models/dtos/InputToAddMenuItem";
+import { InputItem } from "@/models/dtos/InputToAddMenuItem";
 import { Output } from "@/models/Output";
 import axios from "axios";
 
@@ -21,7 +21,6 @@ export const AddMenuItemToMenu = async (input: InputItem, media: File , restaura
       }
     });
 
-    console.log('MenuService - 22 | response', response);
     return response.data;
   } catch (error) {
     console.error('Error adding item to menu:', error);
@@ -37,7 +36,7 @@ export const GetAllMenuItems = async (restaurantId: string): Promise<Output> => 
         'accept': '*/*'
       }
     });
-    console.log(response);
+
     return response.data;
   } catch (error) {
     console.error('Error getting all menu items:', error);
@@ -54,7 +53,6 @@ export const DeleteMenuItem = async (itemId: string): Promise<Output> => {
       }
     });
 
-    console.log('MenuService - 22 | response', response);
     return response.data;
   } catch (error) {
     console.error('Error deleting item from menu:', error);

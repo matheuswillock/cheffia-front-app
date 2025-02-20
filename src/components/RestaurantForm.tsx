@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { handleRegisterRestaurant } from "@/business/restaurant/restaurantBusiness";
 import { formSchema } from "@/utils/validation";
 import { FormData as RegisterFormData } from "@/types/formTypes";
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import Alert from "./ui/Alert";
-import { signUpAction } from "@/business/auth/actions";
+import { signUp } from "@/services/auth/actions";
+// import { signUp } from "@/app/(auth-pages)/sign-in/actions";
+
 
 export default function RestaurantForm() {
   const [loading, setLoading] = useState(false);
@@ -39,26 +40,28 @@ export default function RestaurantForm() {
   });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setLoading(true);
     try {
       const data = e.currentTarget;
-      console.log("RESTAURANTFORM - 43 | Data:", data);
       // TODO: refatorar este método para tratar a criação do restaurante
       // const response = await handleRegisterRestaurant(data);
       // console.log("RESTAURANTFORM - 45 | Restaurant registered successfully:", response);
 
       const formData = new FormData(data);
 
-      console.log("RESTAURANTFORM - 51 | Form Data:", formData);
-      await signUpAction(formData);
+      // devo armazenar este método em uma const?
 
       setCloseAlertSuccess(true);
-      // form.reset();
+      form.reset();
+
+      await signUp(formData);
+      setLoading(false);
+      return
     } catch (error) {
       console.error("Failed to register restaurant:", error);
       setCloseAlertFail(true);
     }
-    setLoading(false);
   };
 
   return (

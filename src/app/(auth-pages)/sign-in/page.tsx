@@ -1,12 +1,11 @@
-"use client";
-
-import { signInAction, signInActionWithProvider } from "@/business/auth/actions";
+"use client"
+import { signIn, signInActionWithProvider } from "@/services/auth/actions";
 import { SignInForm } from "@/components/SignInForm";
 
 export default function SignInPage() {
 
   const handleSignIn = async (formData: FormData) => {
-    await signInAction(formData);
+    await signIn(formData);
   };
 
   const handleGoogleSignIn = async () => {
@@ -16,7 +15,7 @@ export default function SignInPage() {
   return (
     <div className="flex min-h-svh flex-col items-center bg-background justify-center p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
-        <SignInForm 
+        <SignInForm
           onSignIn={handleSignIn} 
           googleSignIn={handleGoogleSignIn}
         />

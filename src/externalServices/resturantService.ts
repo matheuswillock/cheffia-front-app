@@ -11,7 +11,6 @@ export const registerRestaurant = async (data: InputToRegisterRestaurant): Promi
         'Access-Control-Allow-Origin': '*'
       }
     });
-    console.log(response);
     return response.data;
   } catch (error) {
     console.error('Error registering restaurant:', error);

@@ -1,6 +1,6 @@
 import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
 import { Output } from "@/models/Output";
-import { registerRestaurant } from "@/services/resturantService";
+import { registerRestaurant } from "@/externalServices/resturantService";
 import { FormData } from "@/types/formTypes";
 
 

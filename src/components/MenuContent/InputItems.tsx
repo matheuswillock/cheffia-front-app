@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import BadgeItems from "./BadgeItems";
-import { Label } from "../ui/label";
 import { FaPlus } from "react-icons/fa";
 import { ControllerRenderProps } from "react-hook-form";
 import { AddMenuItemData } from "@/types/formTypes";

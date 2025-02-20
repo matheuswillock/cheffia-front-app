@@ -6,9 +6,8 @@ import MenuForm from "@/components/MenuContent/MenuForm";
 import MenuListToEdit from "@/components/MenuContent/MenuListToEdit";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import CircleX from "@/assets/circle-x.svg";
-import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/business/restaurant/menu/menuBusiness";
+import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/services/restaurant/menu/menuBusiness";
 import { MenuItem } from "@/models/menuModels/MenuItem";
-import { set } from "zod";
 
 interface EditMenuPageProps {
   menuItems: MenuItem[];
@@ -29,7 +28,6 @@ export default function EditMenuPage({ menuItems, restaurantId } : EditMenuPageP
 
   const reLoadMenuItems = (success: boolean) => {
     if (success) {
-      console.log("Show Success message", success);
       setShowSuccessMessage("Item adicionado com sucesso.");
       setShowSuccessAlert(true);
       fetchMenuItems();
@@ -37,7 +35,6 @@ export default function EditMenuPage({ menuItems, restaurantId } : EditMenuPageP
     }
     setShowErrorMessage("Ocorreu um erro ao adicionar o item.");
     setShowErrorAlert(true);
-    console.log("Show Error message", success);
   }
 
   const fetchMenuItems = async () => {
