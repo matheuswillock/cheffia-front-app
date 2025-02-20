@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar";
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem, UseSidebar } from "../ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import MoreHorizontal from "@/assets/move-horizontal.svg";
 import Folder from "@/assets/folder.svg";
@@ -16,7 +16,7 @@ interface NavProjectsProps {
 }
 
 export default function NavProjects({projects}: NavProjectsProps) {
-  const { isMobile } = useSidebar();
+  const { isMobile } = UseSidebar();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Projects</SidebarGroupLabel>
