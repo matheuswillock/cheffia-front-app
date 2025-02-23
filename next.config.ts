@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
 
 module.exports = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/dashboard/:id',
+        destination: '/dashboard/[id]',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

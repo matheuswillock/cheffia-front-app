@@ -17,3 +17,13 @@ export const registerRestaurant = async (data: InputToRegisterRestaurant): Promi
     throw error;
   }
 };
+
+export const getRestaurantById = async (id: string): Promise<Output> => {
+  try {
+    const response = await axios.get(`${API_URL}/api/v1/restaurants/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting restaurant:', error);
+    throw error;
+  }
+};

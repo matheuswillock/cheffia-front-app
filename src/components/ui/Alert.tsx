@@ -22,9 +22,8 @@ export default function Alert({ SetCloseAlert, Title, Message, type, IsOpen}: Al
         className={`${
           type === "success"
             ? "border-primary bg-primary-foreground"
-            : "border-destructive bg-red-700"
-        } flex flex-row justify-between gap-4 border-[3px] rounded-xl h-36 px-6 fixed transform -translate-x-1/2 w-11/12 max-w-2xl z-50 margin-auto `}
-        style={{}}
+            : "border-destructive bg-[#503535]"
+        } flex flex-row justify-between gap-4 border-4 rounded-xl h-36 px-6 fixed transform -translate-x-1/2 w-11/12 max-w-2xl z-50 margin-auto `}
       >
         <Image
           src={icon}
@@ -35,14 +34,19 @@ export default function Alert({ SetCloseAlert, Title, Message, type, IsOpen}: Al
         />
 
         <div className="flex flex-col items-start gap-2 flex-grow justify-center">
-          <div className="text-4xl font-bold">{Title}</div>
-          <div className="text-2xl text-muted-foreground">{Message}</div>
+          <div className="text-2xl font-bold">{Title}</div>
+          <div className="text-xl text-muted-foreground">{Message}</div>
         </div>
 
+        {/* // TODO: Add hover do background do botão de acordo com o tipo de alerta */}
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full w-10 h-10 mt-[2.15rem]"
+          className={`${
+            type === "success"
+              ? "hover:bg-[#03fca15e]"
+              : "hover:bg-[#fc03035e]"	              
+          } rounded-full w-10 h-10 mt-[2.15rem]`}
           onClick={() => SetCloseAlert(false)}
         >
           <Image src={X} alt={"botão para fechar o alerta"} />
