@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
-import { createClient } from "./supabase/client";
+import { createClient as createServerClient } from "./supabase/server";
+// import { useRouter } from "next/navigation";
+// import { createClient } from "./supabase/client"; // client
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.
@@ -14,23 +16,4 @@ export function encodedRedirect(
   message: string,
 ) {
   return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
-}
-
-export async function redirectToDashboard(id: string) {
-  return redirect("/dashboard/" + id);
-}
-
-export async function checkUserSession() {
-  const supabase = createClient();
-
-  const {
-    error,
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    return redirect("/sign-in");
-  }
-
-  return user;
 }

@@ -1,14 +1,14 @@
 "use client"
 import { SignUpForm } from "@/components/SignUpContent/SignUpForm";
-import { signInActionWithProvider, signUp } from "@/services/auth/actions";
+import { signUp, signUpActionWithProvider } from "@/services/auth/actions";
 
 export default function SignUpPage()  {
   const handleSignUp = async (formData: FormData) => {
     await signUp(formData);
   };
 
-  const handleGoogleSignIn = async () => {
-    await signInActionWithProvider();
+  const handleGoogleSignUp = async () => {
+    await signUpActionWithProvider();
   };
 
   return (
@@ -16,7 +16,7 @@ export default function SignUpPage()  {
       <div className="w-full max-w-sm md:max-w-3xl">
         <SignUpForm 
           onSignUp={handleSignUp} 
-          googleSignIn={handleGoogleSignIn}
+          googleSignUp={handleGoogleSignUp}
         />
       </div>
     </div>

@@ -12,16 +12,17 @@ import { UseSignUpForm } from "@/hooks/UseForms";
 
 interface SignInFormProps extends ComponentProps<"div"> {
   onSignUp: (formData: FormData) => void;
-  googleSignIn: () => void;
+  googleSignUp: () => void;
 }
 
 export function SignUpForm({
   className,
-  googleSignIn,
+  googleSignUp,
   onSignUp,
   ...props
 }: SignInFormProps) {
   const form = UseSignUpForm();
+  
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSignUp(new FormData(e.currentTarget));
@@ -105,7 +106,7 @@ export function SignUpForm({
 
               <div className="flex justify-center items-center">
                 <Button 
-                  onClick={googleSignIn}
+                  onClick={googleSignUp}
                   variant="outline" 
                   className="w-full rounded-xl font-semibold"
                 >

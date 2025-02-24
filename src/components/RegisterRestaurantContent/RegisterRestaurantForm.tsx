@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import { Form } from "@/components/ui/form";
 import { UseRegisterRestaurantForm } from "@/hooks/UseForms";
@@ -19,23 +19,29 @@ interface RegisterRestaurantFormProps {
 }
 
 export default function RegisterRestaurantForm({
-  ownerFullName, 
-  email, 
-  id, 
-  avatarUrl, 
+  ownerFullName,
+  email,
+  id,
+  avatarUrl,
   emailVerified,
-} : RegisterRestaurantFormProps) {
+}: RegisterRestaurantFormProps) {
   const [loading, setLoading] = useState(false);
   const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);
   const [closeAlertFail, setCloseAlertFail] = useState(false);
   const router = useRouter();
 
-  const form = UseRegisterRestaurantForm({ ownerFullName, email, id, avatarUrl, emailVerified});
+  const form = UseRegisterRestaurantForm({
+    ownerFullName,
+    email,
+    id,
+    avatarUrl,
+    emailVerified,
+  });
 
   const dataToSubmit = (e: FormEvent<HTMLFormElement>) => {
     const formData = new FormData(e.currentTarget);
     return {
-      ownerFullName: ownerFullName || formData.get("ownerFullName") as string,
+      ownerFullName: ownerFullName || (formData.get("ownerFullName") as string),
       email: email,
       emailVerified: emailVerified,
       name: formData.get("name") as string,
@@ -62,11 +68,9 @@ export default function RegisterRestaurantForm({
 
       setTimeout(() => {
         setCloseAlertSuccess(false);
-        // await redirectToDashboard(response.RestaurantId);        
-        router.push(`/dashboard/`);
-        // redirect(`/dashboard/${response.RestaurantId}`);
+        console.log("Redirecting to dashboard...", `/dashboard/${response.RestaurantId}`);
+        router.push(`/dashboard/${response.RestaurantId}`);
       }, 3000);
-
     } catch (error) {
       console.error("Failed to register restaurant:", error);
       setCloseAlertFail(true);
@@ -99,7 +103,6 @@ export default function RegisterRestaurantForm({
       <Form {...form}>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col w-full gap-6 mt-12 mb-12 mx-auto">
-
             <RestaurantFormField
               control={form.control}
               name="name"
@@ -151,7 +154,7 @@ export default function RegisterRestaurantForm({
               />
             )}
 
-            <RestaurantFormField 
+            <RestaurantFormField
               control={form.control}
               name="document"
               label="Documento"
@@ -163,7 +166,6 @@ export default function RegisterRestaurantForm({
               }}
               changeEventType="document"
             />
-
           </div>
           <div className="flex justify-center">
             <Button

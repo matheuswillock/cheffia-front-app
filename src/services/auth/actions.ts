@@ -39,11 +39,12 @@ export async function signUp(formData: FormData) {
     redirect('/error')
   }
 
-  revalidatePath('/', 'layout')
+  // TODO: validar se este revalidate está correto pois aqui é cliente e não server
+  // revalidatePath('/', 'layout')
   redirect('/register/restaurant')
 }
 
-export const signInActionWithProvider = async () => {
+const authenticateWithOAuth = async () => {
   const supabase = await createClient();
   // const origin = (await headers()).get("origin");
 
@@ -59,13 +60,31 @@ export const signInActionWithProvider = async () => {
   });
 
   if (error) {
-    console.error(error.message);
+    console.error("Erro no authenticateWithOAuth", error.message);
     return redirect("/sign-in");
   }
+
+  return data;
+}
+
+export const signInActionWithProvider = async () => {
+  const data = await authenticateWithOAuth();
+
+  console.log("atenticando com provider", data);
 
   if (data.url) {
     return redirect(data.url);
   }
 
-  return redirect("/sign-in");
+  return redirect("/dashboard");
+};
+
+export const signUpActionWithProvider = async () => {
+  const data = await authenticateWithOAuth();
+
+  if (data.url) {
+    return redirect(data.url);
+  }
+
+  redirect('/register/restaurant')
 };
