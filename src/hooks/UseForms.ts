@@ -2,11 +2,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddMenuItemSchema, RegisterRestaurantFormSchema, signUpFormSchema } from "@/utils/validation";
 import { AddMenuItemData, RegisterRestaurantFormData, SignUpFormData } from "@/types/formTypes";
-import { UUID } from "crypto";
 
 interface UseRegisterRestaurantFormProps {
   ownerFullName?: string;
-  email: string;
+  email?: string;
   avatarUrl?: string;
   emailVerified: boolean;
   id: string;
@@ -25,21 +24,16 @@ export function UseRegisterRestaurantForm({
       name: "",
       address: "",
       phoneNumber: "",
-      email: "",
-      supabaseId: "",
-      ownerFullName: "",
-      emailVerified: false,
-      providerAvatarUrl: "",
+      email: email || "",
+      supabaseId: id || "",
+      ownerFullName: ownerFullName ||"",
+      emailVerified: emailVerified,
+      providerAvatarUrl: avatarUrl || "",
       document: "",
     },
   });
 
-  form.setValue("ownerFullName", ownerFullName || "");
-  form.setValue("email", email);
-  form.setValue("supabaseId", id);
-  form.setValue("providerAvatarUrl", avatarUrl || "");
-  form.setValue("emailVerified", emailVerified);
-
+  console.log(form.getValues());
   return form;
 }
 

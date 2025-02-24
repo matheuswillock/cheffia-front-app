@@ -1,6 +1,6 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "@/components/ui/input";
-import { Control, ControllerRenderProps, FieldValues, Path } from "react-hook-form";
+import { Control, FieldValues, Path } from "react-hook-form";
 
 interface RestaurantFormFieldProps<T extends FieldValues> {
   control: Control<T>;
@@ -53,7 +53,7 @@ export default function RestaurantFormField<T extends FieldValues>({
     field.onChange(maskedValue);
     e.target.value = maskedValue;
   }
-
+  
   return (
     <FormField
       control={control}
@@ -77,7 +77,6 @@ export default function RestaurantFormField<T extends FieldValues>({
                   : "border-zinc-800"
               } h-14 w-full text-sm font-base transition-all duration-800 rounded-xl`}
               placeholder={placeholder}
-              value={field.value}
               onBlur={blurEvent}
               onChange={(e) => {
                 if (changeEventType) {

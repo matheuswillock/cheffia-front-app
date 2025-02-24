@@ -8,8 +8,7 @@ import Image from "next/image";
 import Alert from "../ui/Alert";
 import RestaurantFormField from "./RestaurantFormField";
 import { handleRegisterRestaurant } from "@/services/restaurant/restaurantBusiness";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface RegisterRestaurantFormProps {
   ownerFullName?: string;
@@ -19,10 +18,17 @@ interface RegisterRestaurantFormProps {
   id: string;
 }
 
-export default function RegisterRestaurantForm({ownerFullName, email, id, avatarUrl, emailVerified} : RegisterRestaurantFormProps) {
+export default function RegisterRestaurantForm({
+  ownerFullName, 
+  email, 
+  id, 
+  avatarUrl, 
+  emailVerified,
+} : RegisterRestaurantFormProps) {
   const [loading, setLoading] = useState(false);
   const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);
   const [closeAlertFail, setCloseAlertFail] = useState(false);
+  const router = useRouter();
 
   const form = UseRegisterRestaurantForm({ ownerFullName, email, id, avatarUrl, emailVerified});
 
@@ -45,7 +51,6 @@ export default function RegisterRestaurantForm({ownerFullName, email, id, avatar
   // TODO: add tratativa de erro para o caso de erro no cadastro do restaurante;
   // TODO: Add Redirect para a página de dashboard após o cadastro do restaurante;
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-
     try {
       e.preventDefault();
       setLoading(true);
@@ -57,8 +62,9 @@ export default function RegisterRestaurantForm({ownerFullName, email, id, avatar
 
       setTimeout(() => {
         setCloseAlertSuccess(false);
-        revalidatePath('/', 'layout')
-        redirect(`/dashboard/${response.RestaurantId}`);
+        // await redirectToDashboard(response.RestaurantId);        
+        router.push(`/dashboard/`);
+        // redirect(`/dashboard/${response.RestaurantId}`);
       }, 3000);
 
     } catch (error) {
@@ -131,17 +137,19 @@ export default function RegisterRestaurantForm({ownerFullName, email, id, avatar
               changeEventType="phone"
             />
 
-            <RestaurantFormField 
-              control={form.control}
-              name="ownerFullName"
-              label="Nome do proprietário"
-              type="text"
-              placeholder="Nome do proprietário"
-              errorMessage={form.formState.errors.ownerFullName?.message}
-              blurEvent={async () => {
-                await form.trigger("ownerFullName");
-              }}
-            />
+            {!ownerFullName && (
+              <RestaurantFormField
+                control={form.control}
+                name="ownerFullName"
+                label="Nome do proprietário"
+                type="text"
+                placeholder="Nome do proprietário"
+                errorMessage={form.formState.errors.ownerFullName?.message}
+                blurEvent={async () => {
+                  await form.trigger("ownerFullName");
+                }}
+              />
+            )}
 
             <RestaurantFormField 
               control={form.control}
