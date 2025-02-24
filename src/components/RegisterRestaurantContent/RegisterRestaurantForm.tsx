@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { FormEvent, useState } from "react";
 import Image from "next/image";
 import Alert from "../ui/Alert";
-import { signUp } from "@/services/auth/actions";
 import RestaurantFormField from "./RestaurantFormField";
 import { handleRegisterRestaurant } from "@/services/restaurant/restaurantBusiness";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 interface RegisterRestaurantFormProps {
   ownerFullName?: string;
@@ -24,6 +25,7 @@ export default function RegisterRestaurantForm({ownerFullName, email, id, avatar
   const [closeAlertFail, setCloseAlertFail] = useState(false);
 
   const form = UseRegisterRestaurantForm({ ownerFullName, email, id, avatarUrl, emailVerified});
+
   const dataToSubmit = (e: FormEvent<HTMLFormElement>) => {
     const formData = new FormData(e.currentTarget);
     return {
@@ -39,21 +41,26 @@ export default function RegisterRestaurantForm({ownerFullName, email, id, avatar
     };
   };
 
-  // TODO: add trataiva de erro para o caso de restaurante já cadastrado;
+  // TODO: add tratativa de erro para o caso de restaurante já cadastrado;
   // TODO: add tratativa de erro para o caso de erro no cadastro do restaurante;
   // TODO: Add Redirect para a página de dashboard após o cadastro do restaurante;
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      console.log("RESTAURANTFORM - 44 | Registering restaurant:", dataToSubmit(e));
-      const response = await handleRegisterRestaurant(dataToSubmit(e));
-      console.log("RESTAURANTFORM - 45 | Restaurant registered successfully:", response);
 
+    try {
+      e.preventDefault();
+      setLoading(true);
+      const response = await handleRegisterRestaurant(dataToSubmit(e));
+      console.log(response);
       setCloseAlertSuccess(true);
       form.reset();
       setLoading(false);
-      return
+
+      setTimeout(() => {
+        setCloseAlertSuccess(false);
+        revalidatePath('/', 'layout')
+        redirect(`/dashboard/${response.RestaurantId}`);
+      }, 3000);
+
     } catch (error) {
       console.error("Failed to register restaurant:", error);
       setCloseAlertFail(true);

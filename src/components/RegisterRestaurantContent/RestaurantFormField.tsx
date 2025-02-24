@@ -77,6 +77,7 @@ export default function RestaurantFormField<T extends FieldValues>({
                   : "border-zinc-800"
               } h-14 w-full text-sm font-base transition-all duration-800 rounded-xl`}
               placeholder={placeholder}
+              value={field.value}
               onBlur={blurEvent}
               onChange={(e) => {
                 if (changeEventType) {

@@ -1,27 +1,25 @@
-import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
 import { Output } from "@/models/Output";
-import { registerRestaurant } from "@/externalServices/restaurantService";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
+import { OutputRegisterRestaurant } from "@/models/dtos/OutputRegisterRestaurant";
+import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
+import { getRestaurantById, registerRestaurant } from "@/externalServices/restaurantService";
 
-export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData): Promise<Output> => {
+// TODO: Add infos completas de endereço: cep, cidade, estado, bairro, complemento;
+export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData): Promise<OutputRegisterRestaurant> => {
   try {
     data.document = data.document.replace(/[^0-9]/g, "");
     data.phoneNumber = data.phoneNumber.replace(/[^0-9]/g, "");
 
-    console.log('data:', data);
-    console.log('InputToRegisterRestaurant.fromFormData(data):', InputToRegisterRestaurant.fromFormData(data));
-
     const response = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
-    return response;
+    
+    return OutputRegisterRestaurant.fromOutputResult(response);
   } catch (error) {
     console.error('Error registering restaurant:', error);
     throw error;
   }
 };
 
-// TODO: Add get Restaurant by id;
-export const getRestaurantById = async (id
-: string): Promise<Output> => {
+export const handleGetRestaurantById = async (id: string): Promise<Output> => {
   try {
     const response = await getRestaurantById(id);
     return response;

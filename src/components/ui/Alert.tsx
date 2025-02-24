@@ -37,8 +37,7 @@ export default function Alert({ SetCloseAlert, Title, Message, type, IsOpen}: Al
           <div className="text-2xl font-bold">{Title}</div>
           <div className="text-xl text-muted-foreground">{Message}</div>
         </div>
-
-        {/* // TODO: Add hover do background do botão de acordo com o tipo de alerta */}
+        
         <Button
           variant="ghost"
           size="icon"
