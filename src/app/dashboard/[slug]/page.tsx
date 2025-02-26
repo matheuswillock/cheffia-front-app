@@ -1,6 +1,7 @@
 "use client";
 
-import AppSidebar from "@/components/AppSidebar";
+import AppSidebar from "@/components/DashboardContent/AppSidebar";
+import DashboardLoading from "@/components/DashboardContent/DashboardLoading";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
 import { handleGetRestaurantById } from "@/services/restaurant/restaurantBusiness";
@@ -24,12 +25,20 @@ export default function DashboardPage() {
   }, [slug]);
 
   if (!userMetadata) {
-    return <div>Loading...</div>;
+    return (
+      <DashboardLoading/>
+    );
   }
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar 
+        Name={userMetadata.name}
+        Email={userMetadata.email}
+        Avatar={userMetadata.providerAvatarUrl}
+        Id={userMetadata.supabaseId}
+        RestaurantId={userMetadata.id}
+      />
       <main>
         <SidebarTrigger />
       </main>

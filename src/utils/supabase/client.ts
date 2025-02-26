@@ -16,7 +16,10 @@ export async function checkUserSession() {
     data: { user }
   } = await supabase.auth.getUser();
 
+  console.log(user);
+
   if (error || !user) {
+    console.log(error);
     return redirect("/sign-in");
   }
 

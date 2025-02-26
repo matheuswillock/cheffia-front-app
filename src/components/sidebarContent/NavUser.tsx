@@ -34,6 +34,14 @@ interface NavUserProps {
 export default function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
 
+  const handleAvatarFallback = () => {
+    const nameParts = user.name.split(" ");
+    const initials = nameParts.length > 1
+      ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
+      : `${nameParts[0][0]}`;
+    return initials.toUpperCase();
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem >
@@ -43,12 +51,16 @@ export default function NavUser({ user }: NavUserProps) {
               size="lg"
               className="data-[state=open]:bg-primary-foreground data-[state=open]:text-sidebar-accent-foreground h-16 rounded-xl mb-2 h"
             >
-              <Avatar className="h-10 w-10 rounded-xl">
+              <Avatar className="h-12 w-12 rounded-xl">
                 <AvatarImage
-                  src={"https://github.com/shadcn.png"}
+                  src={user.avatar}
                   alt={user.name}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "";
+                  }}
                 />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{handleAvatarFallback()}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
@@ -95,6 +107,7 @@ export default function NavUser({ user }: NavUserProps) {
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
+            {/* TODO: Add o evento de logout */}
             <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
               <LogOut />
               Log out

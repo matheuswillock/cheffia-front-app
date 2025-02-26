@@ -69,7 +69,7 @@ export default function RegisterRestaurantForm({
       setTimeout(() => {
         setCloseAlertSuccess(false);
         console.log("Redirecting to dashboard...", `/dashboard/${response.RestaurantId}`);
-        router.push(`/dashboard/${response.RestaurantId}`);
+        router.push(`/dashboard/${id}`);
       }, 3000);
     } catch (error) {
       console.error("Failed to register restaurant:", error);

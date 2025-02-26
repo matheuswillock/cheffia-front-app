@@ -1,7 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient as createServerClient } from "./supabase/server";
-// import { useRouter } from "next/navigation";
-// import { createClient } from "./supabase/client"; // client
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.

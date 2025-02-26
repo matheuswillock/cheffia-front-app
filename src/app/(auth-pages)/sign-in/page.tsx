@@ -17,7 +17,7 @@ export default function SignInPage() {
       <div className="w-full max-w-sm md:max-w-3xl">
         <SignInForm
           onSignIn={handleSignIn} 
-          googleSignIn={signInActionWithProvider}
+          googleSignIn={handleGoogleSignIn}
         />
       </div>
     </div>

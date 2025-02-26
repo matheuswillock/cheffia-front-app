@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { headers } from 'next/headers'
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
@@ -46,12 +47,12 @@ export async function signUp(formData: FormData) {
 
 const authenticateWithOAuth = async () => {
   const supabase = await createClient();
-  // const origin = (await headers()).get("origin");
+  const origin = (await headers()).get("origin");
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `http://localhost:3000/auth/callback`,
+      redirectTo: `${origin}/auth/callback`,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
@@ -65,12 +66,10 @@ const authenticateWithOAuth = async () => {
   }
 
   return data;
-}
+};
 
 export const signInActionWithProvider = async () => {
   const data = await authenticateWithOAuth();
-
-  console.log("atenticando com provider", data);
 
   if (data.url) {
     return redirect(data.url);
