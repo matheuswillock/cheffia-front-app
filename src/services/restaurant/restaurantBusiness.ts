@@ -1,9 +1,11 @@
-import { Output } from "@/models/Output";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
 import { OutputRegisterRestaurant } from "@/models/dtos/OutputRegisterRestaurant";
 import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
 import { getRestaurantById, registerRestaurant } from "@/externalServices/restaurantService";
 import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
+import useWebSocket from "@/hooks/useWebSocket";
+
+const API_URL_WEBSOCKET = "your_websocket_url_here"; // Define the API_URL_WEBSOCKET constant
 
 // TODO: Add infos completas de endereço: cep, cidade, estado, bairro, complemento;
 export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData): Promise<OutputRegisterRestaurant> => {
@@ -38,4 +40,10 @@ export const handleGetRestaurantById = async (id: string): Promise<OutputGetRest
     console.error('Error getting restaurant:', error);
     throw error;
   }
+}
+
+export const handleRestaurantWebSocket = (restaurantId: string) => {
+  const { messages, sendMessage } = useWebSocket(`${API_URL_WEBSOCKET}/order-hub/connect/${restaurantId}/true`);
+
+  return { messages, sendMessage };
 }

@@ -67,7 +67,7 @@ export default function NavMain({ item }: NavMainProps) {
                         <SidebarMenuSubItem key={subItem.title} >
                           <SidebarMenuSubButton asChild className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
                             <Link href={subItem.url}>
-                              <span className="rounded-xl ">{subItem.title}</span>
+                              <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

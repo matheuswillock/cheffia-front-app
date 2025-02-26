@@ -4,12 +4,12 @@ import * as React from "react";
 import NavUser from "@/components/sidebarContent/NavUser";
 import SquareMenu from "@/assets/square-menu.svg";
 import Settings2 from "@/assets/settings-2.svg";
-import Bot from "@/assets/bot.svg";
+import ClipBoardPenLine from "@/assets/clipboard-pen-line.svg";
 import BookOpen from "@/assets/book-open.svg";
 import Frame from "@/assets/frame.svg";
 import PieChart from "@/assets/chart-pie.svg";
 import MapIcon from "@/assets/map.svg";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarTrigger } from "../ui/sidebar";
 import NavMain from "../sidebarContent/NavMain";
 import NavProjects from "../sidebarContent/NavProjects";
 
@@ -98,10 +98,10 @@ export default function AppSidebar({
     {
       title: "Pedidos",
       url: "#",
-      icon: Bot,
+      icon: ClipBoardPenLine,
       items: [
         {
-          title: "Ver Pedidos",
+          title: "Central de Pedidos",
           url: "#",
         },
         {
@@ -175,6 +175,7 @@ export default function AppSidebar({
           <SidebarGroupLabel className="text-2xl mx-2 my-3">
             Cheffia
           </SidebarGroupLabel>
+
           <SidebarGroupContent>
             <NavMain item={navMainContent} />
             {/* Verificar se este componente vai ser necessário em algum momento */}

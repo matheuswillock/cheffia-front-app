@@ -1,4 +1,5 @@
 "use client";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from 'next/image';
 import { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import LoadingSpin from "@/assets/loading-spin.svg";
 import CircleX from "@/assets/circle-x.svg";
 import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/services/restaurant/menu/menuBusiness";
 import { MenuItem } from "@/models/menuModels/MenuItem";
+import { useParams } from "next/navigation";
 
 export default function EditMenuPage() {
   const [loadError, setLoadError] = useState(false);
@@ -20,6 +22,8 @@ export default function EditMenuPage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState('');
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState('');
+  const {slug} = useParams();
+  
 
   const reLoadMenuItems = (success: boolean) => {
     if (success) {
@@ -35,7 +39,7 @@ export default function EditMenuPage() {
   const fetchMenuItems = async () => {
     setLoadingMenuItems(true);
     try {
-      const response = await handleGetAllMenuItems("f62de497-fbd3-427b-a227-42ef11bd3c2c");
+      const response = await handleGetAllMenuItems(slug as string);
 
       if (response && response.length > 0) {
         setMenuItemsList(response);      
@@ -114,7 +118,7 @@ export default function EditMenuPage() {
             <div className="p-4 border-muted-fore border-4 rounded-xl flex flex-col gap-4">
               <h3 className="text-xl font-semibold">Add Menu Item</h3>
               <MenuForm 
-                restaurantId={"f62de497-fbd3-427b-a227-42ef11bd3c2c"} 
+                restaurantId={slug as string} 
                 reloadMenuItemsList={(success: boolean) => reLoadMenuItems(success)}
               />
             </div>
