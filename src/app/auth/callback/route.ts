@@ -10,18 +10,22 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error, data } = await supabase.auth.exchangeCodeForSession(code);
 
-    console.log('data', data)
+    // // TODO: ADD LOGS
+    // console.log('GET -> createClient | data', data)
+    // console.log('GET -> createClient | error', error)
+
+    // console.log('GET -> createClient | Next', next)
+    // console.log('GET -> createClient | origin', origin)
+    // console.log('GET -> createClient | searchParams', searchParams)
 
     if (!error) {
       const forwardedHost = request.headers.get('x-forwarded-host');
       const isLocalEnv = process.env.NODE_ENV === 'development';
 
-      // Fetch the user's restaurant slug
-      // const { data: user } = await supabase.auth.getUser();
+      // TODO: add validate ID to redirect to /register/restaurant or to /dashboard
+      await checkUserSession();            
 
-      const { id } = await checkUserSession();      
-      
-      const redirectUrl = id ? `/dashboard/${id}` : next;
+      const redirectUrl = next;
 
       if (isLocalEnv) {
         return NextResponse.redirect(`${origin}${redirectUrl}`);
