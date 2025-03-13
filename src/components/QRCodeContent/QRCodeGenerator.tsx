@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { QRCodeSVG } from "qrcode.react"
 import { useReactToPrint } from "react-to-print"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Download, Printer, Eye, Grid2X2, Grid3X3 } from "lucide-react"
 import { toast } from "sonner"
+import jszip from "jszip"
 
 // TODO: Capturar o slug para ter o ID do restaurante
 export default function QRCodeGenerator() {
@@ -19,6 +20,27 @@ export default function QRCodeGenerator() {
   const [layout, setLayout] = useState<"2x2" | "3x3">("2x2")
   const [showPreview, setShowPreview] = useState(true)
   const printRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Draw QR codes on canvas after component mounts
+    Array.from({ length: tableCount }, (_, i) => {
+      const tableNumber = i + 1
+      const svg = document.getElementById(`qr-svg-${tableNumber}`) as unknown as SVGElement
+      const canvas = document.getElementById(`qr-canvas-${tableNumber}`) as HTMLCanvasElement
+      if (svg && canvas) {
+        const svgData = new XMLSerializer().serializeToString(svg)
+        const img = new Image()
+        img.src = `data:image/svg+xml;base64,${btoa(svgData)}`
+        img.onload = () => {
+          const ctx = canvas.getContext("2d")
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(img, 0, 0)
+          }
+        }
+      }
+    })
+  }, [restaurantId, tableCount, qrSize, layout])
 
   const handlePrint = useReactToPrint({
     print: () => Promise.resolve(printRef.current),
@@ -43,7 +65,7 @@ export default function QRCodeGenerator() {
     document.body.removeChild(link)
   }
 
-  const downloadAllQRCodes = () => {
+  const downloadAllQRCodes = async () => {
     if (!restaurantId) {
       toast("Restaurant ID required", {
         description: "Please enter a restaurant ID before downloading.",
@@ -52,42 +74,33 @@ export default function QRCodeGenerator() {
     }
 
     // Create a zip file with JSZip
-    import("jszip").then(({ default: JSZip }) => {
-      const zip = new JSZip()
+    const zip = new jszip()
 
-      // Add each QR code to the zip
-      const promises = Array.from({ length: tableCount }, (_, i) => {
-        const tableNumber = i + 1
-        const canvas = document.getElementById(`qr-canvas-${tableNumber}`) as HTMLCanvasElement
-        if (!canvas) return Promise.resolve()
+    // Add each QR code to the zip
+    const promises = Array.from({ length: tableCount }, async (_, i) => {
+      const tableNumber = i + 1
+      const canvas = document.getElementById(`qr-canvas-${tableNumber}`) as HTMLCanvasElement
+      if (!canvas) return
 
-        return new Promise<void>((resolve) => {
-          const url = canvas.toDataURL("image/png")
-          // Convert data URL to blob
-          fetch(url)
-            .then((res) => res.blob())
-            .then((blob) => {
-              zip.file(`qr-table-${tableNumber}-${restaurantId}.png`, blob)
-              resolve()
-            })
-        })
-      })
+      const url = canvas.toDataURL("image/png")
+      // Convert data URL to blob
+      const res = await fetch(url)
+      const blob = await res.blob()
+      zip.file(`qr-table-${tableNumber}-${restaurantId}.png`, blob)
+    })
 
-      // Generate the zip file when all QR codes are added
-      Promise.all(promises).then(() => {
-        zip.generateAsync({ type: "blob" }).then((content) => {
-          const link = document.createElement("a")
-          link.href = URL.createObjectURL(content)
-          link.download = `qr-codes-${restaurantId}.zip`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
+    // Generate the zip file when all QR codes are added
+    await Promise.all(promises)
+    const content = await zip.generateAsync({ type: "blob" })
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(content)
+    link.download = `qr-codes-${restaurantId}.zip`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
-          toast("Download complete", {
-            description: `${tableCount} QR codes have been downloaded as a zip file.`,
-          })
-        })
-      })
+    toast("Download complete", {
+      description: `${tableCount} QR codes have been downloaded as a zip file.`,
     })
   }
 
@@ -118,7 +131,7 @@ export default function QRCodeGenerator() {
                 level="H"
                 includeMargin
               />
-              <canvas id={`qr-canvas-${tableNumber}`} className="hidden" />
+              <canvas id={`qr-canvas-${tableNumber}`} className="hidden" width={qrSize} height={qrSize} />
               <div className="text-xs text-center mt-2 text-gray-600 break-all">{generateQRUrl(tableNumber)}</div>
               <Button variant="outline" size="sm" className="mt-2" onClick={() => downloadQRCode(tableNumber)}>
                 <Download className="h-4 w-4 mr-1" />
@@ -289,7 +302,6 @@ export default function QRCodeGenerator() {
                       value={generateQRUrl(tableNumber)}
                       size={layout === "2x2" ? 200 : 150}
                       level="H"
-                      includeMargin
                     />
                     <div className="text-sm mt-2 text-center">Scan to view our menu</div>
                     <div className="text-xs mt-1 text-gray-500">{restaurantId}</div>
@@ -302,4 +314,3 @@ export default function QRCodeGenerator() {
     </div>
   )
 }
-

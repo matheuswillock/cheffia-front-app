@@ -83,15 +83,15 @@ export default function AppSidebar({
       items: [
         {
           title: "Editar",
-          url: `/restaurant/menu/edit/${RestaurantId}`,
+          url: `/restaurant/menu/${RestaurantId}/edit/`,
         },
         {
           title: "Promoções",
-          url: "/restaurant/menu/promotions",
+          url: `/restaurant/menu/${RestaurantId}/promotions`,
         },
         {
           title: "Gerar QR Code",
-          url: "/restaurant/menu/qrcode",
+          url: `/restaurant/menu/${RestaurantId}/qrcode`,
         },
       ],
     },
@@ -113,53 +113,7 @@ export default function AppSidebar({
           url: "#",
         },
       ],
-    },
-    // {
-    //   title: "Documentation",
-    //   url: "#",
-    //   icon: BookOpen,
-    //   items: [
-    //     {
-    //       title: "Introduction",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Get Started",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Tutorials",
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Changelog",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
+    }
   ];
 
   const user = {
@@ -169,16 +123,16 @@ export default function AppSidebar({
   }
 
   return (
-    <Sidebar>
+    <Sidebar className="py-4">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-2xl mx-2 my-3">
+          <SidebarGroupLabel className="text-2xl mb-2">
             Cheffia
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
             <NavMain item={navMainContent} />
-            {/* Verificar se este componente vai ser necessário em algum momento */}
+            {/* TODO: Verificar se este componente vai ser necessário em algum momento */}
             {/* <NavProjects projects={projects} /> */}
           </SidebarGroupContent>
         </SidebarGroup>
