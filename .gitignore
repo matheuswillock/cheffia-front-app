@@ -11,6 +11,8 @@
 !.yarn/versions
 # bun
 /bun.lockb
+bun.lockb
+
 # testing
 /coverage
 
@@ -43,6 +45,3 @@ next-env.d.ts
 
 .vercel
 .idea
-bun.lockb
-.bun.lockb
-bun.lockb
