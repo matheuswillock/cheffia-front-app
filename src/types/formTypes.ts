@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { formSchema, AddMenuItemSchema } from "@/utils/validation";
+import { RegisterRestaurantFormSchema, AddMenuItemSchema, signUpFormSchema } from "@/utils/validation";
 
-export type FormData = z.infer<typeof formSchema>;
+export type SignUpFormData = z.infer<typeof signUpFormSchema>;
+export type RegisterRestaurantFormData = z.infer<typeof RegisterRestaurantFormSchema>;
 export type AddMenuItemData = z.infer<typeof AddMenuItemSchema>;
