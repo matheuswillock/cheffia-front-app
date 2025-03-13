@@ -21,9 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-br">
       <body
-        className={`${inter.className} bg-Background h-full text-foreground subpixel-antialiased`}
+        className={`${inter.className} bg-Background h-full min-w-full text-foreground subpixel-antialiased`}
       >
         <Analytics/>
         {children}

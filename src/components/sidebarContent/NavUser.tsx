@@ -22,6 +22,7 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { handleLogout } from "@/services/restaurant/restaurantBusiness";
 
 interface NavUserProps {
   user: {
@@ -34,6 +35,14 @@ interface NavUserProps {
 export default function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
 
+  const handleAvatarFallback = () => {
+    const nameParts = user.name.split(" ");
+    const initials = nameParts.length > 1
+      ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
+      : `${nameParts[0][0]}`;
+    return initials.toUpperCase();
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem >
@@ -43,12 +52,16 @@ export default function NavUser({ user }: NavUserProps) {
               size="lg"
               className="data-[state=open]:bg-primary-foreground data-[state=open]:text-sidebar-accent-foreground h-16 rounded-xl mb-2 h"
             >
-              <Avatar className="h-10 w-10 rounded-xl">
+              <Avatar className="h-12 w-12 rounded-xl">
                 <AvatarImage
-                  src={"https://github.com/shadcn.png"}
+                  src={user.avatar}
                   alt={user.name}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "";
+                  }}
                 />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{handleAvatarFallback()}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
@@ -65,9 +78,9 @@ export default function NavUser({ user }: NavUserProps) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-xl">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{handleAvatarFallback()}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -95,7 +108,12 @@ export default function NavUser({ user }: NavUserProps) {
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
+            {/* TODO: Add o evento de logout */}
+            <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl"
+              onClick={() => {
+                handleLogout();
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

@@ -1,19 +1,17 @@
-import InputPrice from "@/components/MenuContent/InputPrice";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
 import { AddMenuItemData } from "@/types/formTypes";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AddMenuItemSchema } from "@/utils/validation";
-import { Button } from "../ui/button";
 import { FaEdit, FaPlus } from "react-icons/fa";
-import { Input } from "../ui/input";
 import BadgeItems from "./BadgeItems";
 import { handleAddMenuItem } from "@/services/restaurant/menu/menuBusiness";
 import { Output } from "@/models/Output";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import Image from "next/image";
+import { UseAddMenuItemForm } from "@/hooks/UseForms";
+import { Input } from "@/components/ui/input";
+import InputPrice from "./InputPrice";
+import { Button } from "@/components/ui/button";
 
 interface MenuFormProps {
   restaurantId: string;
@@ -25,6 +23,7 @@ export default function MenuForm({ restaurantId, reloadMenuItemsList} : MenuForm
   const [currentItem, setCurrentItem] = useState<string>("");
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const form = UseAddMenuItemForm({ restaurantId });
 
   const handleAddItem = () => {
     if (currentItem.trim() !== "") {
@@ -32,19 +31,6 @@ export default function MenuForm({ restaurantId, reloadMenuItemsList} : MenuForm
       setCurrentItem("");
     }
   };
-
-  const form = useForm<AddMenuItemData>({
-    resolver: zodResolver(AddMenuItemSchema),
-    mode: "onChange",
-    defaultValues: {
-      name: "",
-      description: "",
-      price: 0,
-      ingredients: [],
-      itemMedia: undefined,
-      restaurantId: restaurantId
-    }
-  });
 
   const resetForm = () => {
     form.reset({

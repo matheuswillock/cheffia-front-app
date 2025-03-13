@@ -14,11 +14,14 @@ export function Navbar() {
           <NavbarButton text={"Recursos"} href={"#"} />
           <NavbarButton text={"Preços"} href={"#"} />
 
-          <Button 
-            className="bg-button text-foreground hover:bg-button-solid hover:text-background h-12 w-2 rounded-xl px-20 text-xl font-bold"
-          >
-            <Link href="/sign-in">Login</Link>
-          </Button>
+          <Link href="/sign-in">
+            <Button 
+              className="bg-button text-foreground hover:bg-button-solid hover:text-background h-12 w-2 rounded-xl px-20 text-xl font-bold"
+            >
+              Login
+            </Button>
+          </Link>
+
         </div>
       </nav>
     </aside>

@@ -12,6 +12,7 @@ O projeto está atualmente deployado na Vercel e pode ser acessado em: [cheffia.
 
 - Node.js 18.x ou superior
 - npm, yarn ou pnpm
+- bun
 
 ### Instalação
 
@@ -32,6 +33,20 @@ bun run dev
 ```
 
 O projeto estará disponível em [http://localhost:3000](http://localhost:3000)
+
+### Instalação Global do shadcn
+
+O `shadcn` é uma ferramenta para adicionar componentes de UI ao seu projeto de forma rápida e fácil.
+
+1. Instale o `shadcn` globalmente usando o `bun`:
+```bash
+bun add -g shadcn@latest
+```
+
+2. Adicione o componente `dialog` ao seu projeto:
+```bash
+shadcn add dialog
+```
 
 ## 🛠️ Tecnologias Principais
 
@@ -56,7 +71,6 @@ src/
   ├── services/          # Regras de negócios
   ├── types/          # Esquemas de modelos para formulários da aplicação
   ├── utils/       # Utilidades para serviços como supabase e validações de formulários
-  
 ```
 
 ## 📝 Licença

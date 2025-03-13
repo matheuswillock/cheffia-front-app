@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-// import {nextui} from "@nextui-org/react";
 
 export default {
     darkMode: ["class"],
@@ -78,17 +77,27 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		animation: {
-  			pulse: 'pulse var(--duration) ease-out infinite'
+  			pulse: 'pulse var(--duration) ease-out infinite',
+				// pulse: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				ping: 'ping var(--duration) cubic-bezier(0, 0, 0.2, 1) infinite',
   		},
   		keyframes: {
   			pulse: {
   				'0%, 100%': {
   					boxShadow: '0 0 0 0 var(--pulse-color)'
+						// opacity: '1',
   				},
   				'50%': {
   					boxShadow: '0 0 0 8px var(--pulse-color)'
+						// opacity: '0.5',
   				}
-  			}
+  			},
+				ping: {
+					'75%, 100%': {
+						transform: 'scale(2)',
+						opacity: '0'
+					}
+				}
   		},
 			dropShadow: {
 				'3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',

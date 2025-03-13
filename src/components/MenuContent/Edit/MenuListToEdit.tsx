@@ -2,10 +2,10 @@ import { StaticImageData } from "next/image";
 import ImageOff from "@/assets/image-off.svg";
 import Image from 'next/image';
 import { JSX } from "react";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import LoadingSpin from "@/assets/loading-spin.svg";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface MenuListToEditProps {
   items: MenuItem[];
