@@ -22,10 +22,18 @@ const useWebSocket = (url: string) => {
 
     webSocketRef.current.onerror = (error) => {
       console.error('WebSocket error:', error);
+      webSocketRef.current?.close();
     };
+
+    const handleBeforeUnload = () => {
+      webSocketRef.current?.close();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       webSocketRef.current?.close();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [url]);
 
@@ -33,7 +41,11 @@ const useWebSocket = (url: string) => {
     webSocketRef.current?.send(message);
   };
 
-  return { messages, sendMessage };
+  const closeConnection = () => {
+    webSocketRef.current?.close();
+  };
+
+  return { messages, sendMessage, closeConnection };
 };
 
 export default useWebSocket;

@@ -3,7 +3,7 @@ import LoadingSpin from "@/assets/loading-spin.svg";
 import { Form } from "@/components/ui/form";
 import { UseRegisterRestaurantForm } from "@/hooks/UseForms";
 import { Button } from "@/components/ui/button";
-import { FormEvent, useState } from "react";
+import { FormEvent, use, useEffect, useState } from "react";
 import Image from "next/image";
 import Alert from "../ui/Alert";
 import RestaurantFormField from "./RestaurantFormField";
@@ -52,6 +52,12 @@ export default function RegisterRestaurantForm({
       document: formData.get("document") as string,
     };
   };
+
+  console.log('dataToSubmit', dataToSubmit);
+
+  useEffect(() => {
+    console.log('form.formState.isValid', form.formState.isValid)
+  }, [form.formState.isValid]);
 
   // TODO: add tratativa de erro para o caso de restaurante já cadastrado;
   // TODO: add tratativa de erro para o caso de erro no cadastro do restaurante;

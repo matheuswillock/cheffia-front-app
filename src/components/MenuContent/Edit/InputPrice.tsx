@@ -1,7 +1,7 @@
-import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { AddMenuItemData } from "@/types/formTypes";
+import { Input } from "@/components/ui/input";
 
 interface InputPriceProps {
   onChange: (value: string) => void;

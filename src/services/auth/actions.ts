@@ -2,53 +2,18 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import { headers } from 'next/headers'
+import { createClient } from '@/utils/supabase/server';
 
-export async function signIn(formData: FormData) {
-  const supabase = await createClient()
-
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
-  const { error } = await supabase.auth.signInWithPassword(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
+async function getSupabaseClient() {
+  return await createClient();
 }
 
-export async function signUp(formData: FormData) {
-  const supabase = await createClient()
-
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string
-  }
-
-  // TODO: Add here call to api with user data to register user in the system
-  // Validar se houve erro no cadastro, se não segue com a chamada para o sign up
-
-  const { error } = await supabase.auth.signUp(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  // TODO: validar se este revalidate está correto pois aqui é cliente e não server
-  // revalidatePath('/', 'layout')
-  redirect('/register/restaurant')
-}
-
-const authenticateWithOAuth = async () => {
-  const supabase = await createClient();
+const authenticateWithOAuth = async (authType: string) => {
+  const supabase = await getSupabaseClient();
   const origin = (await headers()).get("origin");
 
+  // TODO: add roteamento para o callback de acordo com o tipo de autenticação (sign-in ou sign-up)
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -60,6 +25,9 @@ const authenticateWithOAuth = async () => {
     },
   });
 
+  // console.log('actions -> authenticateWithOAuth | data:', data)
+  // console.log('actions -> authenticateWithOAuth | error:', error)
+
   if (error) {
     console.error("Erro no authenticateWithOAuth", error.message);
     return redirect("/sign-in");
@@ -68,8 +36,61 @@ const authenticateWithOAuth = async () => {
   return data;
 };
 
+export async function signIn(formData: FormData) {
+  try {
+    console.log('signIn | formData:', formData)
+
+    const supabase = await getSupabaseClient();
+
+    console.log('supabase:', supabase)
+
+    const credentials = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    }
+
+    console.log('signIn | credentials:', credentials)
+
+    const { data, error } = await supabase.auth.signInWithPassword(credentials)
+
+    console.log('signIn | data:', data)
+    console.log('signIn | error:', error)
+
+    if (error) {
+      redirect('/error')
+    }
+
+    revalidatePath('/', 'layout')
+    redirect('/dashboard')
+
+  } catch (error) {
+    console.error('signIn | error:', error)
+    redirect('/error')
+  }
+}
+
+export async function signUp(formData: FormData) {
+  const supabase = await getSupabaseClient();
+
+  const credentials = {
+    email: formData.get('email') as string,
+    password: formData.get('password') as string
+  }
+
+  const { error } = await supabase.auth.signUp(credentials)
+
+  console.log('Actions -> signUp | error:', error)
+
+  if (error) {
+    redirect('/error')
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/register/restaurant')
+}
+
 export const signInActionWithProvider = async () => {
-  const data = await authenticateWithOAuth();
+  const data = await authenticateWithOAuth('sign-in');
 
   if (data.url) {
     return redirect(data.url);
@@ -79,7 +100,12 @@ export const signInActionWithProvider = async () => {
 };
 
 export const signUpActionWithProvider = async () => {
-  const data = await authenticateWithOAuth();
+  const data = await authenticateWithOAuth('sign-up');
+
+  const origin = (await headers()).get("origin");
+
+  console.log('origin:', origin)
+  console.log('data:', data)
 
   if (data.url) {
     return redirect(data.url);

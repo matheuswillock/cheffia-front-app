@@ -16,7 +16,7 @@ export async function checkUserSession() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  console.log(user);
+  console.log('Client -> checkUserSession | user', user);
 
   if (error || !user) {
     console.log(error);
@@ -25,3 +25,4 @@ export async function checkUserSession() {
 
   return user;
 }
+

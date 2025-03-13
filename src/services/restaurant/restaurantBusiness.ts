@@ -1,11 +1,13 @@
+import { redirect } from "next/navigation";
+import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
+import {checkUserSession, createClient} from "@/utils/supabase/client";
+import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
 import { OutputRegisterRestaurant } from "@/models/dtos/OutputRegisterRestaurant";
 import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
-import { getRestaurantById, registerRestaurant } from "@/externalServices/restaurantService";
-import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
-import useWebSocket from "@/hooks/useWebSocket";
+import { getRestaurantById, registerRestaurant } from "@/api/restaurantService";
 
-const API_URL_WEBSOCKET = "your_websocket_url_here"; // Define the API_URL_WEBSOCKET constant
+const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 
 // TODO: Add infos completas de endereço: cep, cidade, estado, bairro, complemento;
 export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData): Promise<OutputRegisterRestaurant> => {
@@ -28,11 +30,15 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
 
 export const handleGetRestaurantById = async (id: string): Promise<OutputGetRestaurantById> => {
   try {
+
+    await checkUserSession();
     const response = await getRestaurantById(id);
+
 
     // TODO: Criar tipos de erros para quando não encontrar o restaurante, não puder cadastrar um restaurante já cadastrado;
     if (!response.isValid) {
-      throw new Error('Erro ao buscar restaurante');
+      console.log('handleGetRestaurantById | invalid response:', response);
+      redirect('/register/restaurant');
     }
 
     return OutputGetRestaurantById.fromOutputResult(response);
@@ -42,8 +48,19 @@ export const handleGetRestaurantById = async (id: string): Promise<OutputGetRest
   }
 }
 
-export const handleRestaurantWebSocket = (restaurantId: string) => {
+export const useRestaurantWebSocket = (restaurantId: string) => {
   const { messages, sendMessage } = useWebSocket(`${API_URL_WEBSOCKET}/order-hub/connect/${restaurantId}/true`);
 
   return { messages, sendMessage };
+}
+
+export const handleLogout = async () => {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    return redirect('/error')
+  }
+
+  return redirect('/sign-in')
 }

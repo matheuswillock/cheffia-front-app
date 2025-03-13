@@ -102,7 +102,7 @@ export default function AppSidebar({
       items: [
         {
           title: "Central de Pedidos",
-          url: "#",
+          url: `/restaurant/order-hub/${RestaurantId}`,
         },
         {
           title: "Histórico",

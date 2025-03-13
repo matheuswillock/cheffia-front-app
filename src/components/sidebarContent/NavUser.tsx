@@ -22,6 +22,7 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { handleLogout } from "@/services/restaurant/restaurantBusiness";
 
 interface NavUserProps {
   user: {
@@ -77,9 +78,9 @@ export default function NavUser({ user }: NavUserProps) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-xl">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{handleAvatarFallback()}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -108,7 +109,11 @@ export default function NavUser({ user }: NavUserProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             {/* TODO: Add o evento de logout */}
-            <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl">
+            <DropdownMenuItem className="hover:bg-primary-foreground hover:bg-opacity-10 rounded-xl"
+              onClick={() => {
+                handleLogout();
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

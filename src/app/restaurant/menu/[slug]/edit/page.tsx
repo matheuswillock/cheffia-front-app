@@ -3,13 +3,13 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from 'next/image';
 import { useEffect, useState } from "react";
-import MenuForm from "@/components/MenuContent/MenuForm";
-import MenuListToEdit from "@/components/MenuContent/MenuListToEdit";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import CircleX from "@/assets/circle-x.svg";
 import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/services/restaurant/menu/menuBusiness";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import { useParams } from "next/navigation";
+import MenuListToEdit from "@/components/MenuContent/Edit/MenuListToEdit";
+import MenuForm from "@/components/MenuContent/Edit/MenuForm";
 
 export default function EditMenuPage() {
   const [loadError, setLoadError] = useState(false);

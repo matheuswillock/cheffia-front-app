@@ -17,14 +17,14 @@ export const RegisterRestaurantFormSchema = z.object({
   name: z.string().min(3, "O nome do restaurante deve ter no mínimo 3 caracteres"),
   address: z.string().min(4, "O endereço deve ter no mínimo 4 caracteres"),
   phoneNumber: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Insira um número de telefone válido"),
-  providerAvatarUrl: z.string().url("Insira uma URL válida para a imagem do restaurante"),
+  providerAvatarUrl: z.string().optional(),
   email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
   emailVerified: z.boolean().default(false),
   supabaseId: z.string().uuid("O ID do usuário é obrigatório"),
   ownerFullName: z.string().min(3, "O nome do proprietário deve ter no mínimo 2 caracteres")
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome deve conter apenas letras"),
   document: z.string().min(11, "O documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)")
-    .max(18, "O documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)"),
+    .max(18, "O documento deve ter 11 dígitos (CPF) ou 14 dígitos (CNPJ)")
 });
 
 export const AddMenuItemSchema = z.object({
