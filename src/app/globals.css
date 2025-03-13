@@ -156,7 +156,6 @@ textarea {
   } 
 }
 
-
 @layer base {
   * {
     @apply border-border;
