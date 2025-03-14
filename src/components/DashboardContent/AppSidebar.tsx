@@ -11,31 +11,7 @@ import PieChart from "@/assets/chart-pie.svg";
 import MapIcon from "@/assets/map.svg";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarTrigger } from "../ui/sidebar";
 import NavMain from "../sidebarContent/NavMain";
-import NavProjects from "../sidebarContent/NavProjects";
 
-// const user = {
-//   name: "shadcn",
-//   email: "m@example.com",
-//   avatar: "@/avatars/shadcn.jpg",
-// };
-
-const projects = [
-  {
-    name: "Design Engineering",
-    url: "#",
-    icon: Frame,
-  },
-  {
-    name: "Sales & Marketing",
-    url: "#",
-    icon: PieChart,
-  },
-  {
-    name: "Travel",
-    url: "#",
-    icon: MapIcon,
-  },
-];
 
 interface AppSidebarProps {
     Name: string;
@@ -43,26 +19,6 @@ interface AppSidebarProps {
     Avatar: string;
     Id: string;
     RestaurantId: string;
-  // user: {
-  //   name: string;
-  //   email: string;
-  //   avatar: string;
-  // };
-  // navMainContent: {
-  //   title: string;
-  //   url: string;
-  //   icon: string;
-  //   isActive: boolean;
-  //   items: {
-  //     title: string;
-  //     url: string;
-  //   }[];
-  // }[];
-  // projects: {
-  //   name: string;
-  //   url: string;
-  //   icon: string;
-  // }[];
 }
 
 // TODO: Criar um interface para popular as informações do usuário;

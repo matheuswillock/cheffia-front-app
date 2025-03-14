@@ -16,9 +16,8 @@ interface QRCodeGeneratorProps {
   restaurantId: string
 }
 
-// TODO: Capturar o slug para ter o ID do restaurante
+// TODO: verificar a session do usuário
 export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
-  // const [restaurantId, setRestaurantId] = useState("")
   const [tableCount, setTableCount] = useState(10)
   const [qrSize, setQrSize] = useState(150)
   const [layout, setLayout] = useState<"2x2" | "3x3">("2x2")
@@ -70,12 +69,6 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
   }
 
   const downloadAllQRCodes = async () => {
-    if (!restaurantId) {
-      toast("Restaurant ID required", {
-        description: "Please enter a restaurant ID before downloading.",
-      })
-      return
-    }
 
     // Create a zip file with JSZip
     const zip = new jszip()
@@ -113,14 +106,6 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
   }
 
   const renderQRCodes = () => {
-    if (!restaurantId) {
-      return (
-        <div className="text-center py-12 text-gray-500">
-          <p>Enter a restaurant ID to generate QR codes</p>
-        </div>
-      )
-    }
-
     return (
       <div className={`grid ${layout === "2x2" ? "grid-cols-2" : "grid-cols-3"} gap-6`}>
         {Array.from({ length: tableCount }, (_, i) => {
@@ -254,12 +239,12 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
 
       <div className="flex flex-wrap gap-3 justify-between items-center">
         <div className="flex gap-3">
-          <Button onClick={() => handlePrint()} disabled={!restaurantId} className="rounded-xl hover:bg-button hover:text-foreground font-semibold">
+          <Button onClick={() => handlePrint()} className="rounded-xl hover:bg-button hover:text-foreground font-semibold">
             <Printer className="h-4 w-4 mr-2" />
             Imprimir 
           </Button>
 
-          <Button variant="outline" onClick={downloadAllQRCodes} disabled={!restaurantId} className="rounded-xl font-semibold hover:bg-button hover:text-foreground">
+          <Button variant="outline" onClick={downloadAllQRCodes} className="rounded-xl font-semibold hover:bg-button hover:text-foreground">
             <Download className="h-4 w-4 mr-2" />
             Baixar todos
           </Button>
@@ -290,22 +275,21 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
       <div className="hidden">
         <div ref={printRef} className="p-8">
           <div className={`grid ${layout === "2x2" ? "grid-cols-2" : "grid-cols-3"} gap-8`}>
-            {restaurantId &&
-              Array.from({ length: tableCount }, (_, i) => {
-                const tableNumber = i + 1
-                return (
-                  <div key={tableNumber} className="flex flex-col items-center p-4 border rounded-lg">
-                    <div className="text-lg font-bold mb-1">Table {tableNumber}</div>
-                    <QRCodeSVG
-                      value={generateQRUrl(tableNumber)}
-                      size={layout === "2x2" ? 200 : 150}
-                      level="H"
-                    />
-                    <div className="text-sm mt-2 text-center">Scan to view our menu</div>
-                    <div className="text-xs mt-1 text-gray-500">{restaurantId}</div>
-                  </div>
-                )
-              })}
+            { Array.from({ length: tableCount }, (_, i) => {
+              const tableNumber = i + 1
+              return (
+                <div key={tableNumber} className="flex flex-col items-center p-4 border rounded-lg">
+                  <div className="text-lg font-bold mb-1">Table {tableNumber}</div>
+                  <QRCodeSVG
+                    value={generateQRUrl(tableNumber)}
+                    size={layout === "2x2" ? 200 : 150}
+                    level="H"
+                  />
+                  <div className="text-sm mt-2 text-center">Scan to view our menu</div>
+                  <div className="text-xs mt-1 text-gray-500">{restaurantId}</div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>

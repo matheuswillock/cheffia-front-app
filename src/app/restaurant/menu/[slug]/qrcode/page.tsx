@@ -1,7 +1,6 @@
 "use client"
 
 import { Suspense } from "react"
-// import QRCodeGenerator from "@/components/qr-code-generator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import QRCodeGenerator from "@/components/QRCodeContent/QRCodeGenerator"

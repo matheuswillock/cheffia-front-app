@@ -18,9 +18,7 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
 
     const output = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
 
-    if (!output.isValid) {
-      throw new Error('Erro ao cadastrar restaurante');
-    }
+    if (!output.isValid) throw new Error('Erro ao cadastrar restaurante');
     
     return OutputRegisterRestaurant.fromOutputResult(output);
   } catch (error) {
@@ -58,9 +56,7 @@ export const handleLogout = async () => {
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
 
-  if (error) {
-    return redirect('/error')
-  }
+  if (error) return redirect('/error')
 
   return redirect('/sign-in')
 }
