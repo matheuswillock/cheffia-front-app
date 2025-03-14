@@ -12,9 +12,13 @@ import { Download, Printer, Eye, Grid2X2, Grid3X3 } from "lucide-react"
 import { toast } from "sonner"
 import jszip from "jszip"
 
+interface QRCodeGeneratorProps {
+  restaurantId: string
+}
+
 // TODO: Capturar o slug para ter o ID do restaurante
-export default function QRCodeGenerator() {
-  const [restaurantId, setRestaurantId] = useState("")
+export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
+  // const [restaurantId, setRestaurantId] = useState("")
   const [tableCount, setTableCount] = useState(10)
   const [qrSize, setQrSize] = useState(150)
   const [layout, setLayout] = useState<"2x2" | "3x3">("2x2")
@@ -133,7 +137,7 @@ export default function QRCodeGenerator() {
               />
               <canvas id={`qr-canvas-${tableNumber}`} className="hidden" width={qrSize} height={qrSize} />
               <div className="text-xs text-center mt-2 text-gray-600 break-all">{generateQRUrl(tableNumber)}</div>
-              <Button variant="outline" size="sm" className="mt-2" onClick={() => downloadQRCode(tableNumber)}>
+              <Button variant="outline" size="sm" className="mt-2 rounded-xl hover:bg-button hover:text-foreground" onClick={() => downloadQRCode(tableNumber)}>
                 <Download className="h-4 w-4 mr-1" />
                 Download
               </Button>
@@ -148,16 +152,6 @@ export default function QRCodeGenerator() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="restaurant-id">Restaurant ID</Label>
-            <Input
-              id="restaurant-id"
-              placeholder="Enter your restaurant ID"
-              value={restaurantId}
-              onChange={(e) => setRestaurantId(e.target.value)}
-            />
-          </div>
-
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="table-count">Number of Tables</Label>
@@ -182,9 +176,53 @@ export default function QRCodeGenerator() {
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label>Print Layout</Label>
+            <div className="flex gap-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={layout === "2x2" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLayout("2x2")}
+                      className="rounded-xl"
+                    >
+                      <Grid2X2 className="h-4 w-4 mr-1" />
+                      2×2 Grid
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>4 QR codes por página</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={layout === "3x3" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLayout("3x3")}
+                      className="rounded-xl"
+                    >
+                      <Grid3X3 className="h-4 w-4 mr-1" />
+                      3×3 Grid
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>9 QR codes por página</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
+          
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="qr-size">QR Code Size</Label>
@@ -211,66 +249,26 @@ export default function QRCodeGenerator() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Print Layout</Label>
-            <div className="flex gap-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={layout === "2x2" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setLayout("2x2")}
-                    >
-                      <Grid2X2 className="h-4 w-4 mr-1" />
-                      2×2 Grid
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>4 QR codes per page</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={layout === "3x3" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setLayout("3x3")}
-                    >
-                      <Grid3X3 className="h-4 w-4 mr-1" />
-                      3×3 Grid
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>9 QR codes per page</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3 justify-between items-center">
         <div className="flex gap-3">
-          <Button onClick={() => handlePrint()} disabled={!restaurantId}>
+          <Button onClick={() => handlePrint()} disabled={!restaurantId} className="rounded-xl hover:bg-button hover:text-foreground font-semibold">
             <Printer className="h-4 w-4 mr-2" />
-            Print QR Codes
+            Imprimir 
           </Button>
 
-          <Button variant="outline" onClick={downloadAllQRCodes} disabled={!restaurantId}>
+          <Button variant="outline" onClick={downloadAllQRCodes} disabled={!restaurantId} className="rounded-xl font-semibold hover:bg-button hover:text-foreground">
             <Download className="h-4 w-4 mr-2" />
-            Download All
+            Baixar todos
           </Button>
         </div>
 
         <div className="flex items-center">
-          <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)}>
+          <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)} className="rounded-xl font-semibold hover:bg-button">
             <Eye className="h-4 w-4 mr-1" />
-            {showPreview ? "Hide Preview" : "Show Preview"}
+            {showPreview ? "Esconder Pré-visualização" : "Mostrar Pré-visualização"}
           </Button>
         </div>
       </div>
@@ -280,7 +278,7 @@ export default function QRCodeGenerator() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-medium">Preview</h3>
             <div className="text-sm text-gray-500">
-              {tableCount} QR codes • {layout === "2x2" ? "4" : "9"} per page
+              {tableCount} QR codes • {layout === "2x2" ? "4" : "9"} por página
             </div>
           </div>
 

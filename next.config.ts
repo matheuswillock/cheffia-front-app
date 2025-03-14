@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
 
 module.exports = {
   reactStrictMode: true,
+  experimental: {
+    authInterrupts: true,
+  },
   images: {
     remotePatterns: [
       {

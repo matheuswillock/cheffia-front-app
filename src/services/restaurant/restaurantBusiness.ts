@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
-import {checkUserSession, createClient} from "@/utils/supabase/client";
+import {verifySessionClient, createClient} from "@/utils/supabase/client";
 import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
 import { OutputRegisterRestaurant } from "@/models/dtos/OutputRegisterRestaurant";
 import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
 import { getRestaurantById, registerRestaurant } from "@/api/restaurantService";
+import { unauthorized } from "@/lib/utils";
 
 const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 
@@ -31,15 +32,14 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
 export const handleGetRestaurantById = async (id: string): Promise<OutputGetRestaurantById> => {
   try {
 
-    await checkUserSession();
+    const sessionIsValid = await verifySessionClient();
+
+    if (!sessionIsValid) unauthorized();
+
     const response = await getRestaurantById(id);
 
-
     // TODO: Criar tipos de erros para quando não encontrar o restaurante, não puder cadastrar um restaurante já cadastrado;
-    if (!response.isValid) {
-      console.log('handleGetRestaurantById | invalid response:', response);
-      redirect('/register/restaurant');
-    }
+    if (!response.isValid) redirect('/register/restaurant');
 
     return OutputGetRestaurantById.fromOutputResult(response);
   } catch (error) {
