@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import type { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById"
-import { handleGetRestaurantById } from "@/services/restaurant/restaurantBusiness"
+import { Separator } from "@/components/ui/separator"
 import AppSidebar from "@/components/DashboardContent/AppSidebar"
+import { ArrowUpIcon, ArrowDownIcon, DollarSignIcon } from "lucide-react"
 import DashboardLoading from "@/components/DashboardContent/DashboardLoading"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpIcon, ArrowDownIcon, DollarSignIcon } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { handleGetRestaurantById } from "@/business/restaurant/restaurantBusiness"
+import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function DashboardPage() {
   const { slug } = useParams()

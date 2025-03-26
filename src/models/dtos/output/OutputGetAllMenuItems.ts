@@ -1,5 +1,5 @@
-import { MenuItem } from "../menuModels/MenuItem";
-import { Output } from "../Output";
+import { MenuItem } from "@/models/menuModels/MenuItem";
+import { Output } from "@/models/Output";
 
 interface MenuResult {
   id: string;

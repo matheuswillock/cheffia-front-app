@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useState } from "react";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import CircleX from "@/assets/circle-x.svg";
-import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/services/restaurant/menu/menuBusiness";
+import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/business/menu/menuBusiness";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import { useParams } from "next/navigation";
 import MenuListToEdit from "@/components/MenuContent/Edit/MenuListToEdit";

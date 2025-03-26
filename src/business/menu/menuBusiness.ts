@@ -1,10 +1,10 @@
-import { InputToAddMenuItem } from "@/models/dtos/InputToAddMenuItem";
-import { MenuItem } from "@/models/menuModels/MenuItem";
 import { Output } from "@/models/Output";
-import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/api/menuService";
-import { AddMenuItemData } from "@/types/formTypes";
-import { MenuCategory, MenuItem as MenuItemMock } from "@/models/menuModels/mockedModels";
 import Placeholder from "@/assets/placeholder.svg";
+import { AddMenuItemData } from "@/types/formTypes";
+import { MenuItem } from "@/models/menuModels/MenuItem";
+import { InputToAddMenuItem } from "@/models/dtos/input/InputToAddMenuItem";
+import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/api/menu";
+import { MenuCategory, MenuItem as MenuItemMock } from "@/models/menuModels/mockedModels";
 
 // TODO: Remover o mock e implementar a chamada para a API
 // Mock data for menu categories

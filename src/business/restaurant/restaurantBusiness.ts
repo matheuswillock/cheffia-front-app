@@ -1,12 +1,12 @@
+import { unauthorized } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
+import { getRestaurantById, registerRestaurant } from "@/api/restaurant";
 import {verifySessionClient, createClient} from "@/utils/supabase/client";
-import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
-import { OutputRegisterRestaurant } from "@/models/dtos/OutputRegisterRestaurant";
-import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
-import { getRestaurantById, registerRestaurant } from "@/api/restaurantService";
-import { unauthorized } from "@/lib/utils";
+import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
+import { OutputRegisterRestaurant } from "@/models/dtos/output/OutputRegisterRestaurant";
+import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";
 
 const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 

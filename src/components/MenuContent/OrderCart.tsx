@@ -8,7 +8,7 @@ import { ShoppingCart, Trash2, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { useOrderStore } from "@/hooks/useOrderStore"
-import { submitOrder } from "@/services/restaurant/order/orderBusiness"
+import { submitOrder } from "@/business/order/orderBusiness"
 import { OrderItem } from "@/models/menuModels/mockedModels"
 import { toast } from "sonner"
 
