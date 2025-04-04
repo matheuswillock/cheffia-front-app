@@ -2,8 +2,8 @@
 
 import { handleCreatePaymentIntent } from "@/business/payments/paymentsBusiness";
 import CheckoutForm from "@/components/PaymentContent/Checkout";
+import { stripePromise } from "@/utils/stripe";
 import { Elements } from "@stripe/react-stripe-js";
-import { stripePromise } from '@/lib/stripe';
 import { useEffect, useState } from "react";
 
 export default function Checkout() {
