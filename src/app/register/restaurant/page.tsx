@@ -2,7 +2,13 @@ import RegisterRestaurantForm from "@/components/RegisterRestaurantContent/Regis
 import { verifySessionServer } from "@/utils/supabase/server";
 
 export default async function RestaurantPage() {
-  const {user_metadata, id} = await verifySessionServer();
+  const session = await verifySessionServer();
+
+  if (!session) {
+    throw new Error("Session could not be verified.");
+  }
+  
+  const { user_metadata, id } = session;
 
   console.log('Register -> RestaurantPage | user_metadata', user_metadata);
   console.log('Register -> RestaurantPage | id', id);
