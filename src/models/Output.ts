@@ -12,6 +12,6 @@ export class Output {
   }
 
     static fromOutputResult(output: Output): Output {
-        return new Output(output.isValid, output.successMessages, output.errorMessages, output.result);
+      return new Output(output.isValid, output.successMessages, output.errorMessages, output.result);
     }
 }

@@ -1,8 +1,8 @@
 import RegisterRestaurantForm from "@/components/RegisterRestaurantContent/RegisterRestaurantForm";
-import { checkUserSession } from "@/utils/supabase/server";
+import { verifySessionServer } from "@/utils/supabase/server";
 
 export default async function RestaurantPage() {
-  const {user_metadata, id} = await checkUserSession();
+  const {user_metadata, id} = await verifySessionServer();
 
   console.log('Register -> RestaurantPage | user_metadata', user_metadata);
   console.log('Register -> RestaurantPage | id', id);

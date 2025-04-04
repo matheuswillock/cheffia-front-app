@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { checkUserSession, createClient } from '@/utils/supabase/server';
+import { verifySessionServer, createClient } from '@/utils/supabase/server';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
       // TODO: add validate ID to redirect to /register/restaurant or to /dashboard
       const redirectUrl = searchParams.get('next') ??
-        await checkUserSession() ? `/dashboard/${data?.user?.id}` : '/register/restaurant';
+        await verifySessionServer() ? `/dashboard/${data?.user?.id}` : '/register/restaurant';
 
       if (isLocalEnv) {
         return NextResponse.redirect(`${origin}${redirectUrl}`);

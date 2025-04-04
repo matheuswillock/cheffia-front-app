@@ -1,4 +1,4 @@
-import { Output } from "../Output";
+import { Output } from "@/models/Output";
 
 export class OutputGetRestaurantById {
   id: string;

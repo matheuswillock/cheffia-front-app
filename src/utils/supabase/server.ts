@@ -1,6 +1,6 @@
+import { unauthorized } from '@/lib/utils'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -30,20 +30,11 @@ export async function createClient() {
   )
 }
 
-export async function checkUserSession() {
-  const supabase = await createClient()
+export async function verifySessionServer() {
+  const supabase = await createClient();
+  const { error, data: { user } } = await supabase.auth.getUser();
 
-  const {
-    error,
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  // console.log('checkUserSession -> createClient | user', user)
-
-  if (error || !user) {
-    console.log(error);
-    return redirect("/sign-in");
-  }
+  if (error || !user) unauthorized();
 
   return user
 }

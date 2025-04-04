@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { QRCodeSVG } from "qrcode.react"
 import { useReactToPrint } from "react-to-print"
 import { Button } from "@/components/ui/button"
@@ -10,15 +10,40 @@ import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Download, Printer, Eye, Grid2X2, Grid3X3 } from "lucide-react"
 import { toast } from "sonner"
+import jszip from "jszip"
 
-// TODO: Capturar o slug para ter o ID do restaurante
-export default function QRCodeGenerator() {
-  const [restaurantId, setRestaurantId] = useState("")
+interface QRCodeGeneratorProps {
+  restaurantId: string
+}
+
+// TODO: verificar a session do usuário
+export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
   const [tableCount, setTableCount] = useState(10)
   const [qrSize, setQrSize] = useState(150)
   const [layout, setLayout] = useState<"2x2" | "3x3">("2x2")
   const [showPreview, setShowPreview] = useState(true)
   const printRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Draw QR codes on canvas after component mounts
+    Array.from({ length: tableCount }, (_, i) => {
+      const tableNumber = i + 1
+      const svg = document.getElementById(`qr-svg-${tableNumber}`) as unknown as SVGElement
+      const canvas = document.getElementById(`qr-canvas-${tableNumber}`) as HTMLCanvasElement
+      if (svg && canvas) {
+        const svgData = new XMLSerializer().serializeToString(svg)
+        const img = new Image()
+        img.src = `data:image/svg+xml;base64,${btoa(svgData)}`
+        img.onload = () => {
+          const ctx = canvas.getContext("2d")
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(img, 0, 0)
+          }
+        }
+      }
+    })
+  }, [restaurantId, tableCount, qrSize, layout])
 
   const handlePrint = useReactToPrint({
     print: () => Promise.resolve(printRef.current),
@@ -43,51 +68,36 @@ export default function QRCodeGenerator() {
     document.body.removeChild(link)
   }
 
-  const downloadAllQRCodes = () => {
-    if (!restaurantId) {
-      toast("Restaurant ID required", {
-        description: "Please enter a restaurant ID before downloading.",
-      })
-      return
-    }
+  const downloadAllQRCodes = async () => {
 
     // Create a zip file with JSZip
-    import("jszip").then(({ default: JSZip }) => {
-      const zip = new JSZip()
+    const zip = new jszip()
 
-      // Add each QR code to the zip
-      const promises = Array.from({ length: tableCount }, (_, i) => {
-        const tableNumber = i + 1
-        const canvas = document.getElementById(`qr-canvas-${tableNumber}`) as HTMLCanvasElement
-        if (!canvas) return Promise.resolve()
+    // Add each QR code to the zip
+    const promises = Array.from({ length: tableCount }, async (_, i) => {
+      const tableNumber = i + 1
+      const canvas = document.getElementById(`qr-canvas-${tableNumber}`) as HTMLCanvasElement
+      if (!canvas) return
 
-        return new Promise<void>((resolve) => {
-          const url = canvas.toDataURL("image/png")
-          // Convert data URL to blob
-          fetch(url)
-            .then((res) => res.blob())
-            .then((blob) => {
-              zip.file(`qr-table-${tableNumber}-${restaurantId}.png`, blob)
-              resolve()
-            })
-        })
-      })
+      const url = canvas.toDataURL("image/png")
+      // Convert data URL to blob
+      const res = await fetch(url)
+      const blob = await res.blob()
+      zip.file(`qr-table-${tableNumber}-${restaurantId}.png`, blob)
+    })
 
-      // Generate the zip file when all QR codes are added
-      Promise.all(promises).then(() => {
-        zip.generateAsync({ type: "blob" }).then((content) => {
-          const link = document.createElement("a")
-          link.href = URL.createObjectURL(content)
-          link.download = `qr-codes-${restaurantId}.zip`
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
+    // Generate the zip file when all QR codes are added
+    await Promise.all(promises)
+    const content = await zip.generateAsync({ type: "blob" })
+    const link = document.createElement("a")
+    link.href = URL.createObjectURL(content)
+    link.download = `qr-codes-${restaurantId}.zip`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
-          toast("Download complete", {
-            description: `${tableCount} QR codes have been downloaded as a zip file.`,
-          })
-        })
-      })
+    toast("Download complete", {
+      description: `${tableCount} QR codes have been downloaded as a zip file.`,
     })
   }
 
@@ -96,14 +106,6 @@ export default function QRCodeGenerator() {
   }
 
   const renderQRCodes = () => {
-    if (!restaurantId) {
-      return (
-        <div className="text-center py-12 text-gray-500">
-          <p>Enter a restaurant ID to generate QR codes</p>
-        </div>
-      )
-    }
-
     return (
       <div className={`grid ${layout === "2x2" ? "grid-cols-2" : "grid-cols-3"} gap-6`}>
         {Array.from({ length: tableCount }, (_, i) => {
@@ -118,9 +120,9 @@ export default function QRCodeGenerator() {
                 level="H"
                 includeMargin
               />
-              <canvas id={`qr-canvas-${tableNumber}`} className="hidden" />
+              <canvas id={`qr-canvas-${tableNumber}`} className="hidden" width={qrSize} height={qrSize} />
               <div className="text-xs text-center mt-2 text-gray-600 break-all">{generateQRUrl(tableNumber)}</div>
-              <Button variant="outline" size="sm" className="mt-2" onClick={() => downloadQRCode(tableNumber)}>
+              <Button variant="outline" size="sm" className="mt-2 rounded-xl hover:bg-button hover:text-foreground" onClick={() => downloadQRCode(tableNumber)}>
                 <Download className="h-4 w-4 mr-1" />
                 Download
               </Button>
@@ -135,16 +137,6 @@ export default function QRCodeGenerator() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="restaurant-id">Restaurant ID</Label>
-            <Input
-              id="restaurant-id"
-              placeholder="Enter your restaurant ID"
-              value={restaurantId}
-              onChange={(e) => setRestaurantId(e.target.value)}
-            />
-          </div>
-
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="table-count">Number of Tables</Label>
@@ -169,9 +161,53 @@ export default function QRCodeGenerator() {
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label>Print Layout</Label>
+            <div className="flex gap-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={layout === "2x2" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLayout("2x2")}
+                      className="rounded-xl"
+                    >
+                      <Grid2X2 className="h-4 w-4 mr-1" />
+                      2×2 Grid
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>4 QR codes por página</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={layout === "3x3" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLayout("3x3")}
+                      className="rounded-xl"
+                    >
+                      <Grid3X3 className="h-4 w-4 mr-1" />
+                      3×3 Grid
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>9 QR codes por página</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
+          
           <div className="space-y-2">
             <div className="flex justify-between">
               <Label htmlFor="qr-size">QR Code Size</Label>
@@ -198,66 +234,26 @@ export default function QRCodeGenerator() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Print Layout</Label>
-            <div className="flex gap-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={layout === "2x2" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setLayout("2x2")}
-                    >
-                      <Grid2X2 className="h-4 w-4 mr-1" />
-                      2×2 Grid
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>4 QR codes per page</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={layout === "3x3" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setLayout("3x3")}
-                    >
-                      <Grid3X3 className="h-4 w-4 mr-1" />
-                      3×3 Grid
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>9 QR codes per page</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3 justify-between items-center">
         <div className="flex gap-3">
-          <Button onClick={() => handlePrint()} disabled={!restaurantId}>
+          <Button onClick={() => handlePrint()} className="rounded-xl hover:bg-button hover:text-foreground font-semibold">
             <Printer className="h-4 w-4 mr-2" />
-            Print QR Codes
+            Imprimir 
           </Button>
 
-          <Button variant="outline" onClick={downloadAllQRCodes} disabled={!restaurantId}>
+          <Button variant="outline" onClick={downloadAllQRCodes} className="rounded-xl font-semibold hover:bg-button hover:text-foreground">
             <Download className="h-4 w-4 mr-2" />
-            Download All
+            Baixar todos
           </Button>
         </div>
 
         <div className="flex items-center">
-          <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)}>
+          <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)} className="rounded-xl font-semibold hover:bg-button">
             <Eye className="h-4 w-4 mr-1" />
-            {showPreview ? "Hide Preview" : "Show Preview"}
+            {showPreview ? "Esconder Pré-visualização" : "Mostrar Pré-visualização"}
           </Button>
         </div>
       </div>
@@ -267,7 +263,7 @@ export default function QRCodeGenerator() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-medium">Preview</h3>
             <div className="text-sm text-gray-500">
-              {tableCount} QR codes • {layout === "2x2" ? "4" : "9"} per page
+              {tableCount} QR codes • {layout === "2x2" ? "4" : "9"} por página
             </div>
           </div>
 
@@ -279,27 +275,24 @@ export default function QRCodeGenerator() {
       <div className="hidden">
         <div ref={printRef} className="p-8">
           <div className={`grid ${layout === "2x2" ? "grid-cols-2" : "grid-cols-3"} gap-8`}>
-            {restaurantId &&
-              Array.from({ length: tableCount }, (_, i) => {
-                const tableNumber = i + 1
-                return (
-                  <div key={tableNumber} className="flex flex-col items-center p-4 border rounded-lg">
-                    <div className="text-lg font-bold mb-1">Table {tableNumber}</div>
-                    <QRCodeSVG
-                      value={generateQRUrl(tableNumber)}
-                      size={layout === "2x2" ? 200 : 150}
-                      level="H"
-                      includeMargin
-                    />
-                    <div className="text-sm mt-2 text-center">Scan to view our menu</div>
-                    <div className="text-xs mt-1 text-gray-500">{restaurantId}</div>
-                  </div>
-                )
-              })}
+            { Array.from({ length: tableCount }, (_, i) => {
+              const tableNumber = i + 1
+              return (
+                <div key={tableNumber} className="flex flex-col items-center p-4 border rounded-lg">
+                  <div className="text-lg font-bold mb-1">Table {tableNumber}</div>
+                  <QRCodeSVG
+                    value={generateQRUrl(tableNumber)}
+                    size={layout === "2x2" ? 200 : 150}
+                    level="H"
+                  />
+                  <div className="text-sm mt-2 text-center">Scan to view our menu</div>
+                  <div className="text-xs mt-1 text-gray-500">{restaurantId}</div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
     </div>
   )
 }
-

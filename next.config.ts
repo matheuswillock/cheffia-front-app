@@ -1,12 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  
+  experimental: {
+    authInterrupts: true,
+  },
 };
 
 module.exports = {
   reactStrictMode: true,
+  experimental: {
+    authInterrupts: true,
+  },
   images: {
     remotePatterns: [
       {

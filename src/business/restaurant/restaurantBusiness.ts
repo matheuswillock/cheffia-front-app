@@ -1,11 +1,12 @@
+import { unauthorized } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
-import {checkUserSession, createClient} from "@/utils/supabase/client";
-import { OutputGetRestaurantById } from "@/models/dtos/OutputGetRestaurantById";
-import { OutputRegisterRestaurant } from "@/models/dtos/OutputRegisterRestaurant";
-import { InputToRegisterRestaurant } from "@/models/dtos/InputToRegisterRestaurant";
-import { getRestaurantById, registerRestaurant } from "@/api/restaurantService";
+import { getRestaurantById, registerRestaurant } from "@/api/restaurant";
+import {verifySessionClient, createClient} from "@/utils/supabase/client";
+import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
+import { OutputRegisterRestaurant } from "@/models/dtos/output/OutputRegisterRestaurant";
+import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";
 
 const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 
@@ -17,9 +18,7 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
 
     const output = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
 
-    if (!output.isValid) {
-      throw new Error('Erro ao cadastrar restaurante');
-    }
+    if (!output.isValid) throw new Error('Erro ao cadastrar restaurante');
     
     return OutputRegisterRestaurant.fromOutputResult(output);
   } catch (error) {
@@ -31,20 +30,21 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
 export const handleGetRestaurantById = async (id: string): Promise<OutputGetRestaurantById> => {
   try {
 
-    await checkUserSession();
+    const sessionIsValid = await verifySessionClient();
+
+    if (!sessionIsValid) unauthorized();
+
     const response = await getRestaurantById(id);
 
-
     // TODO: Criar tipos de erros para quando não encontrar o restaurante, não puder cadastrar um restaurante já cadastrado;
-    if (!response.isValid) {
-      console.log('handleGetRestaurantById | invalid response:', response);
-      redirect('/register/restaurant');
-    }
+    if (!response.isValid) redirect('/register/restaurant');
 
     return OutputGetRestaurantById.fromOutputResult(response);
   } catch (error) {
     console.error('Error getting restaurant:', error);
     throw error;
+    // TODO: Redirect to error page;
+    // redirect('/error');
   }
 }
 
@@ -58,9 +58,7 @@ export const handleLogout = async () => {
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
 
-  if (error) {
-    return redirect('/error')
-  }
+  if (error) return redirect('/error')
 
   return redirect('/sign-in')
 }

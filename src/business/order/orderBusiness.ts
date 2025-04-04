@@ -1,8 +1,11 @@
 "use server"
 
-import { OrderItem, OrderStatus, OrderStatusResponse, OrderSubmitResponse } from "@/models/menuModels/mockedModels"
-
-// import type { OrderItem, OrderStatus, OrderStatusResponse, OrderSubmitResponse } from "./types"
+import { 
+  OrderItem, 
+  OrderStatus, 
+  OrderStatusResponse, 
+  OrderSubmitResponse 
+} from "@/models/menuModels/mockedModels"
 
 // Simulate API calls with delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

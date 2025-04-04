@@ -15,7 +15,7 @@ export default function MenuPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Menu Section - Takes 2/3 of the screen on large devices */}
           <div className="lg:col-span-2 space-y-6">
-            <h1 className="text-3xl font-bold">Restaurant's Menu</h1>
+            <h1 className="text-3xl font-bold">Restaurant Menu</h1>
             <Suspense fallback={<MenuSkeleton />}>
               <MenuCategories />
             </Suspense>
