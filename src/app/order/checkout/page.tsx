@@ -3,11 +3,8 @@
 import { handleCreatePaymentIntent } from "@/business/payments/paymentsBusiness";
 import CheckoutForm from "@/components/PaymentContent/Checkout";
 import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { stripePromise } from '@/lib/stripe';
 import { useEffect, useState } from "react";
-
-
-const stripePromise = loadStripe('pk_test_51QAhGVFZH3QKEcmXJhidpBQff6oNVa4GkXUazjbjXUJqj0mRWp38SUfMSSVByRqN07KZWJNQNkvAPJnsQbXLObsX00yEDEWJC7');
 
 export default function Checkout() {
   const [loading, setLoading] = useState(true);
