@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation';
-import { stripe } from '@/lib/stripe-server';
+// import { stripe } from '@/lib/stripe-server';
 import Image from 'next/image';
 import InfoIcon from '@/assets/InfoIcon.svg';
 import ErrorIcon from '@/assets/ErrorIcon.svg';
 import SuccessIcon from '@/assets/SuccessIcon.svg';
 import Link from 'next/link';
+import { stripe, stripePromise } from '@/lib/stripe';
 
 type PaymentStatus = 'succeeded' | 'processing' | 'requires_payment_method' | 'default';
 
@@ -32,18 +33,19 @@ const STATUS_CONTENT_MAP: Record<PaymentStatus, { text: string; iconColor: strin
 };
 
 interface SuccessPageProps {
-  searchParams: { payment_intent?: string };
+  searchParams: { 
+    payment_intent?: string | undefined;
+  };
 }
 
-export default async function SuccessPage({ searchParams }: SuccessPageProps) { 
-  const paymentIntentId = searchParams?.payment_intent;
-
-  if (!paymentIntentId) {
-    redirect('/');
-    return null;
-  }
-
+export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   try {
+    const paymentIntentId = searchParams.payment_intent as string | undefined;
+     
+    if (!paymentIntentId) {
+      redirect('/');
+    }
+
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     const { status } = paymentIntent as { status: PaymentStatus };
 
@@ -118,6 +120,5 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   } catch (error) {
     console.error('Erro ao recuperar o pagamento:', error);
     redirect('/');
-    return null;
   }
 }
