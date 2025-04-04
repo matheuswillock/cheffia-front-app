@@ -1,4 +1,4 @@
-import { getMenuCategories } from "@/services/restaurant/menu/menuBusiness"
+import { getMenuCategories } from "@/business/menu/menuBusiness"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/Tabs"
 import MenuItems from "./MenuItems"
 

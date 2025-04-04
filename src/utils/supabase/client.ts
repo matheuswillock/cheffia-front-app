@@ -1,5 +1,5 @@
+import { unauthorized } from '@/lib/utils';
 import { createBrowserClient } from '@supabase/ssr'
-import { redirect } from 'next/navigation';
 
 export async function createClient() {
   return createBrowserClient(
@@ -8,20 +8,11 @@ export async function createClient() {
   )
 }
 
-export async function checkUserSession() {
-  const supabase = await createClient();
+export async function verifySessionClient() {
+  const { auth } = await createClient();
+  const { error, data: { user } } = await auth.getUser();
 
-  const {
-    error,
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  console.log('Client -> checkUserSession | user', user);
-
-  if (error || !user) {
-    console.log(error);
-    return redirect("/sign-in");
-  }
+  if (error || !user) unauthorized();
 
   return user;
 }

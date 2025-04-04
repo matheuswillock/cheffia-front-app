@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, CheckCircle2, ChefHat, Package, Truck } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useOrderStore } from "@/hooks/useOrderStore"
-import { getOrderStatus } from "@/services/restaurant/order/orderBusiness"
+import { getOrderStatus } from "@/business/order/orderBusiness"
 import { OrderStatus as OrderStatusType } from "@/models/menuModels/mockedModels"
 
 export default function OrderStatus() {

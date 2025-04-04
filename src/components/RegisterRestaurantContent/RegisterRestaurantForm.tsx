@@ -7,7 +7,7 @@ import { FormEvent, use, useEffect, useState } from "react";
 import Image from "next/image";
 import Alert from "../ui/Alert";
 import RestaurantFormField from "./RestaurantFormField";
-import { handleRegisterRestaurant } from "@/services/restaurant/restaurantBusiness";
+import { handleRegisterRestaurant } from "@/business/restaurant/restaurantBusiness";
 import { useRouter } from "next/navigation";
 
 interface RegisterRestaurantFormProps {

@@ -8,7 +8,7 @@ import { ShoppingCart, Trash2, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { useOrderStore } from "@/hooks/useOrderStore"
-import { submitOrder } from "@/services/restaurant/order/orderBusiness"
+import { submitOrder } from "@/business/order/orderBusiness"
 import { OrderItem } from "@/models/menuModels/mockedModels"
 import { toast } from "sonner"
 
@@ -149,7 +149,7 @@ function OrderItemCard({ item, onRemove }: { item: OrderItem; onRemove: () => vo
         ))}
 
         {item.specialInstructions && (
-          <div className="text-xs text-gray-500 mt-0.5 italic">"{item.specialInstructions}"</div>
+          <div className="text-xs text-gray-500 mt-0.5 italic">{item.specialInstructions}</div>
         )}
       </div>
 

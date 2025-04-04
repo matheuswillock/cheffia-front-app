@@ -22,7 +22,7 @@ import {
   useSidebar,
 } from "../ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { handleLogout } from "@/services/restaurant/restaurantBusiness";
+import { handleLogout } from "@/business/restaurant/restaurantBusiness";
 
 interface NavUserProps {
   user: {

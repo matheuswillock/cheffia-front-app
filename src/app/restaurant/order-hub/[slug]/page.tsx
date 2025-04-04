@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useRestaurantWebSocket } from "@/services/restaurant/restaurantBusiness";
+import { useRestaurantWebSocket } from "@/business/restaurant/restaurantBusiness";
 import {NewOrder} from "@/components/OrderHubContent/NewOrder";
 import MoreDetails from "@/components/OrderHubContent/MoreDetails";
 import OrderList from "@/components/OrderHubContent/OrderList";
