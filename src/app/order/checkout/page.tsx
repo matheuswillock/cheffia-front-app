@@ -32,7 +32,7 @@ export default function Checkout() {
         setLoading(false);
       }
     };
-    987379
+    
     fetchPaymentIntent();
   }, []);
 

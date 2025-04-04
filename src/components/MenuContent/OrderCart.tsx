@@ -149,7 +149,7 @@ function OrderItemCard({ item, onRemove }: { item: OrderItem; onRemove: () => vo
         ))}
 
         {item.specialInstructions && (
-          <div className="text-xs text-gray-500 mt-0.5 italic">"{item.specialInstructions}"</div>
+          <div className="text-xs text-gray-500 mt-0.5 italic">{item.specialInstructions}</div>
         )}
       </div>
 

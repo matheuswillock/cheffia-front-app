@@ -1,12 +1,12 @@
 import { api } from "./config";
 import { Output } from "@/models/Output";
-import { menuRoutes } from "./routes/menu";
+import { MenuRoutes } from "./routes/menu";
 import { InputItem } from "@/models/dtos/input/InputToAddMenuItem";
 
 export const AddMenuItemToMenu = async (input: InputItem, media: File , restaurantId: string) => {
   try {
     const response = await api.post(
-      menuRoutes.add,
+      MenuRoutes.add,
       setupFormData(input, media, restaurantId), {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -24,7 +24,7 @@ export const AddMenuItemToMenu = async (input: InputItem, media: File , restaura
 export const GetAllMenuItems = async (restaurantId: string): Promise<Output> => {
   try {
     const response = await api.post(
-      menuRoutes.allMenuItems, {
+      MenuRoutes.allMenuItems, {
         params: {
           restaurantId
         }
@@ -41,7 +41,7 @@ export const GetAllMenuItems = async (restaurantId: string): Promise<Output> => 
 export const DeleteMenuItem = async (itemId: string): Promise<Output> => {
   try {
     const response = await api.delete(
-      menuRoutes.deleteItem, {
+      MenuRoutes.deleteItem, {
         params: { itemId }
       }
     );

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import InfoIcon from '@/assets/InfoIcon.svg';
 import ErrorIcon from '@/assets/ErrorIcon.svg';
 import SuccessIcon from '@/assets/SuccessIcon.svg';
+import Link from 'next/link';
 
 type PaymentStatus = 'succeeded' | 'processing' | 'requires_payment_method' | 'default';
 
@@ -34,7 +35,7 @@ interface SuccessPageProps {
   searchParams: { payment_intent?: string };
 }
 
-export default async function SuccessPage({ searchParams }: SuccessPageProps) {
+export default async function SuccessPage({ searchParams }: SuccessPageProps) { 
   const paymentIntentId = searchParams?.payment_intent;
 
   if (!paymentIntentId) {
@@ -82,7 +83,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               </table>
             </div>
 
-            <a
+            <Link
               href={`https://dashboard.stripe.com/test/payments/${paymentIntentId}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -102,14 +103,14 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                   d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                 />
               </svg>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/"
               className="mt-6 w-full bg-button-solid text-button py-3 px-4 rounded-md font-semibold transition-colors text-center rounded-xl"
             >
               Tentar novamente
-            </a>
+            </Link>
           </div>
         </div>
       </div>
