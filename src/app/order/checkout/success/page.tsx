@@ -1,11 +1,10 @@
-import { redirect } from 'next/navigation';
-// import { stripe } from '@/lib/stripe-server';
+import Link from 'next/link';
 import Image from 'next/image';
+import { stripe } from '@/utils/stripe';
+import { redirect } from 'next/navigation';
 import InfoIcon from '@/assets/InfoIcon.svg';
 import ErrorIcon from '@/assets/ErrorIcon.svg';
 import SuccessIcon from '@/assets/SuccessIcon.svg';
-import Link from 'next/link';
-import { stripe, stripePromise } from '@/lib/stripe';
 
 type PaymentStatus = 'succeeded' | 'processing' | 'requires_payment_method' | 'default';
 
@@ -33,14 +32,15 @@ const STATUS_CONTENT_MAP: Record<PaymentStatus, { text: string; iconColor: strin
 };
 
 interface SuccessPageProps {
-  searchParams: { 
+  searchParams: Promise<{ 
     payment_intent?: string | undefined;
-  };
+  }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   try {
-    const paymentIntentId = searchParams.payment_intent as string | undefined;
+    const resolvedSearchParams = await searchParams;
+    const paymentIntentId = resolvedSearchParams.payment_intent;
      
     if (!paymentIntentId) {
       redirect('/');
