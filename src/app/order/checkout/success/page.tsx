@@ -32,7 +32,7 @@ const STATUS_CONTENT_MAP: Record<PaymentStatus, { text: string; iconColor: strin
 };
 
 interface SuccessPageProps {
-  searchParams: Promise<{ 
+  searchParams: Promise<{
     payment_intent?: string | undefined;
   }>;
 }
@@ -41,7 +41,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   try {
     const resolvedSearchParams = await searchParams;
     const paymentIntentId = resolvedSearchParams.payment_intent;
-     
+
     if (!paymentIntentId) {
       redirect('/');
     }
