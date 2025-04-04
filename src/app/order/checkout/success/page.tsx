@@ -1,14 +1,23 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { stripe } from '@/utils/stripe';
-import { redirect } from 'next/navigation';
-import InfoIcon from '@/assets/InfoIcon.svg';
-import ErrorIcon from '@/assets/ErrorIcon.svg';
-import SuccessIcon from '@/assets/SuccessIcon.svg';
+export const dynamic = "force-dynamic";
 
-type PaymentStatus = 'succeeded' | 'processing' | 'requires_payment_method' | 'default';
+import Link from "next/link";
+import Image from "next/image";
+import { stripe } from "@/utils/stripe";
+import { redirect } from "next/navigation";
+import InfoIcon from "@/assets/InfoIcon.svg";
+import ErrorIcon from "@/assets/ErrorIcon.svg";
+import SuccessIcon from "@/assets/SuccessIcon.svg";
 
-const STATUS_CONTENT_MAP: Record<PaymentStatus, { text: string; iconColor: string; icon: any }> = {
+type PaymentStatus =
+  | "succeeded"
+  | "processing"
+  | "requires_payment_method"
+  | "default";
+
+const STATUS_CONTENT_MAP: Record<
+  PaymentStatus,
+  { text: string; iconColor: string; icon: any }
+> = {
   succeeded: {
     text: "Pagamento realizado com sucesso",
     iconColor: "#30B130",
@@ -43,7 +52,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
     const paymentIntentId = resolvedSearchParams.payment_intent;
 
     if (!paymentIntentId) {
-      redirect('/');
+      redirect("/");
     }
 
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
@@ -55,10 +64,17 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           <div className="flex flex-col items-center">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-              style={{ backgroundColor: STATUS_CONTENT_MAP[status]?.iconColor || STATUS_CONTENT_MAP.default.iconColor }}
+              style={{
+                backgroundColor:
+                  STATUS_CONTENT_MAP[status]?.iconColor ||
+                  STATUS_CONTENT_MAP.default.iconColor,
+              }}
             >
               <Image
-                src={STATUS_CONTENT_MAP[status]?.icon || STATUS_CONTENT_MAP.default.icon}
+                src={
+                  STATUS_CONTENT_MAP[status]?.icon ||
+                  STATUS_CONTENT_MAP.default.icon
+                }
                 alt="Status Icon"
                 width={32}
                 height={32}
@@ -67,19 +83,28 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
             </div>
 
             <h2 className="text-2xl font-bold text-foreground text-center mb-6">
-              {STATUS_CONTENT_MAP[status]?.text || STATUS_CONTENT_MAP.default.text}
+              {STATUS_CONTENT_MAP[status]?.text ||
+                STATUS_CONTENT_MAP.default.text}
             </h2>
 
             <div className="w-full border-t border-secondary pt-6">
               <table className="w-full">
                 <tbody>
                   <tr>
-                    <td className="py-2 text-sm font-medium text-secondary">ID</td>
-                    <td className="py-2 text-sm text-foreground text-right">{paymentIntentId}</td>
+                    <td className="py-2 text-sm font-medium text-secondary">
+                      ID
+                    </td>
+                    <td className="py-2 text-sm text-foreground text-right">
+                      {paymentIntentId}
+                    </td>
                   </tr>
                   <tr>
-                    <td className="py-2 text-sm font-medium text-secondary">Status</td>
-                    <td className="py-2 text-sm text-foreground text-right">{status}</td>
+                    <td className="py-2 text-sm font-medium text-secondary">
+                      Status
+                    </td>
+                    <td className="py-2 text-sm text-foreground text-right">
+                      {status}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -118,7 +143,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       </div>
     );
   } catch (error) {
-    console.error('Erro ao recuperar o pagamento:', error);
-    redirect('/');
+    console.error("Erro ao recuperar o pagamento:", error);
+    redirect("/");
   }
 }
