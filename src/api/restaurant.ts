@@ -1,9 +1,7 @@
-import { InputToRegisterRestaurant } from '@/models/dtos/InputToRegisterRestaurant';
-import { Output } from '@/models/Output';
 import { api } from './config';
+import { Output } from '@/models/Output';
 import { restaurantRoutes } from './routes/restaurant';
-import { headers } from 'next/headers';
-
+import { InputToRegisterRestaurant } from '@/models/dtos/input/InputToRegisterRestaurant';
 
 export const registerRestaurant = async (data: InputToRegisterRestaurant): Promise<Output> => {
   try {
@@ -29,12 +27,12 @@ export const getRestaurantById = async (id: string): Promise<Output> => {
   } catch (error: any) {
     // TODO: Criar tipos de erros para mapear quando não encontrar o restaurante e quaisquer outros erros no BACKEND e/ou FRONTEND;
     if (error.isAxiosError && error.response?.status === 400) {
-      return Output.fromOutputResult(new Output(
+      return new Output(
         false, 
         [], 
         [error.message], 
         error
-      ));
+      );
     }
     throw error;
   }

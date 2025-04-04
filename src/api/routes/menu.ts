@@ -1,5 +1,5 @@
-export const menuRoutes = {
-  add: '/api/v1/menus/items/add',
-  allMenuItems: '/api/v1/menus/get',
-  deleteItem: '/api/v1/menus/items/delete'
+export const MenuRoutes = {
+  add: '/Menu/items/add',
+  allMenuItems: '/Menu/get',
+  deleteItem: '/Menu/items/delete'
 };

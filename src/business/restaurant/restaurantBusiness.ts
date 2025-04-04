@@ -43,6 +43,8 @@ export const handleGetRestaurantById = async (id: string): Promise<OutputGetRest
   } catch (error) {
     console.error('Error getting restaurant:', error);
     throw error;
+    // TODO: Redirect to error page;
+    // redirect('/error');
   }
 }
 

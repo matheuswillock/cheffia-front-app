@@ -4,6 +4,9 @@ import axios from 'axios';
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000,
+  // httpsAgent: new (require('https').Agent)({
+  //   rejectUnauthorized: false // ATENÇÃO: Use apenas em desenvolvimento!
+  // })
 });
 
 api.interceptors.request.use((config) => {
