@@ -96,7 +96,7 @@ export default function ApresentationMissionAndValues() {
               bg-background-missionAndValues
             "
           >
-            <p className="font-normal font-inter text-foreground-green relative z-10">
+            <p className="font-normal text-sm font-inter text-foreground-green relative z-10">
               Nossa missão
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ApresentationMissionAndValues() {
               relative z-10
             "
           >
-            <p className="font-normal font-inter text-foreground-green relative z-10">
+            <p className="font-normal text-sm font-inter text-foreground-green relative z-10">
               Nossa visão
             </p>
           </div>
@@ -229,7 +229,7 @@ export default function ApresentationMissionAndValues() {
               text-center
               font-inter
               font-normal
-              text-xs
+              text-sm
               leading-3
             "
           >

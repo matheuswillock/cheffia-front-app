@@ -30,7 +30,7 @@ export function ApresentationPrincipalFeaturesSection() {
             behavior: "smooth",
           });
         }
-      }, 5000);
+      }, 4000);
     };
 
     startAutoScroll();
