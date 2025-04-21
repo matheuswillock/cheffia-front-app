@@ -52,7 +52,7 @@ export default function InputItems({ onChange, controlProps, handleBlur }: Inter
 
         <div className="col-span-1 w-full flex items-end">
           <Button 
-            className="rounded-xl bg-button text-foreground hover:text-background font-semibold text-base w-full h-12"
+            className="rounded-xl bg-button text-foreground-default hover:text-background font-semibold text-base w-full h-12"
             onClick={handleAddItem}
           >
             <FaPlus /> Add Item

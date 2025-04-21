@@ -15,14 +15,14 @@ export default function BadgeItems({item, index, handleDelete} : BadgeItemsProps
         <Badge 
           key={index} 
           variant="secondary" 
-          className="rounded-xl mb-2 text-base font-medium text-foreground"
+          className="rounded-xl mb-2 text-base font-medium text-foreground-default"
           onClick={() => handleDelete(index)}  
         >
         {item}
         </Badge>
       </TooltipTrigger>
       <TooltipContent 
-        className="bg-red-500 bg-opacity-80 text-foreground font-base text-xs rounded-xl p-2"        
+        className="bg-red-500 bg-opacity-80 text-foreground-default font-base text-xs rounded-xl p-2"        
       >
         Clique para deletar
       </TooltipContent>

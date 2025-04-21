@@ -204,7 +204,7 @@ export default function MenuForm({ restaurantId, reloadMenuItemsList} : MenuForm
                 
                         <div className="col-span-1 w-full flex items-end">
                           <Button 
-                            className="rounded-xl bg-button text-foreground hover:text-background font-semibold text-base w-full h-12"
+                            className="rounded-xl bg-button text-foreground-default hover:text-background font-semibold text-base w-full h-12"
                             onClick={handleAddItem}
                           >
                             <FaPlus /> Add Item
@@ -272,7 +272,7 @@ export default function MenuForm({ restaurantId, reloadMenuItemsList} : MenuForm
 
           <div className="flex justify-end w-full">
             <Button 
-              className="rounded-xl bg-button text-foregroundadd hover:text-background font-semibold text-base w-full h-14"
+              className="rounded-xl bg-button text-foreground-defaultadd hover:text-background font-semibold text-base w-full h-14"
               type="submit"
               disabled={
                 !form.formState.isDirty || 

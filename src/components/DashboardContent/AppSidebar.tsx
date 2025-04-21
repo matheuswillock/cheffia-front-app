@@ -3,15 +3,9 @@
 import * as React from "react";
 import NavUser from "@/components/sidebarContent/NavUser";
 import SquareMenu from "@/assets/square-menu.svg";
-import Settings2 from "@/assets/settings-2.svg";
 import ClipBoardPenLine from "@/assets/clipboard-pen-line.svg";
-import BookOpen from "@/assets/book-open.svg";
-import Frame from "@/assets/frame.svg";
-import PieChart from "@/assets/chart-pie.svg";
-import MapIcon from "@/assets/map.svg";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarTrigger } from "../ui/sidebar";
 import NavMain from "../sidebarContent/NavMain";
-
 
 interface AppSidebarProps {
     Name: string;

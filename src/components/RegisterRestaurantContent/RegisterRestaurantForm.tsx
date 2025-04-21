@@ -1,9 +1,10 @@
 "use client";
+
 import LoadingSpin from "@/assets/loading-spin.svg";
 import { Form } from "@/components/ui/form";
 import { UseRegisterRestaurantForm } from "@/hooks/UseForms";
 import { Button } from "@/components/ui/button";
-import { FormEvent, use, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Alert from "../ui/Alert";
 import RestaurantFormField from "./RestaurantFormField";
@@ -85,7 +86,7 @@ export default function RegisterRestaurantForm({
   };
 
   return (
-    <div className="mx-auto my-6 border border-zinc-600 rounded-xl p-10 overflow-hidden bg-background">
+    <div className="mx-auto my-6 border border-zinc-600 rounded-xl p-10 overflow-hidden bg-background-default">
       <h2 className="scroll-m-20 border-b border-primary pb-2 text-3xl font-semibold tracking-tight first:mt-0">
         Cadastre seu restaurante
       </h2>
@@ -176,7 +177,7 @@ export default function RegisterRestaurantForm({
           <div className="flex justify-center">
             <Button
               type="submit"
-              className=" bg-button hover:bg-button-solid hover:text-background rounded-xl text-foreground h-16 w-[90%] text-2xl font-bold transition-all duration-900"
+              className=" bg-button hover:bg-button-solid hover:text-background rounded-xl text-foreground-default h-16 w-[90%] text-2xl font-bold transition-all duration-900"
               disabled={!form.formState.isValid || loading}
             >
               {loading ? (
