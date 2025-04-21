@@ -31,7 +31,7 @@ export default function ApresentationCheffiaAbout() {
                 text-center
                 font-inter
                 font-medium
-                text-xs
+                text-sm
                 leading-3
               "
             >
@@ -253,7 +253,7 @@ export default function ApresentationCheffiaAbout() {
         </span>
       </p>
 
-      <BurttonCta/>
+      <BurttonCta />
     </section>
   );
 }

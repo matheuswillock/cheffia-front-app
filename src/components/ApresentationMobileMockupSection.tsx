@@ -5,7 +5,7 @@ export default function ApresentationMobileMockup() {
   return (
     <section className="flex flex-col gap-9 w-full h-full mt-14 mb-16">
       <div className="flex flex-col gap-6 ml-10">
-        <div className="w-32 h-7 font-inter font-medium text-xs leading-3 flex items-center justify-start border-[1px] border-border-white rounded-full p-4 bg-transparent shadow-md">
+        <div className="w-32 h-7 font-inter font-medium text-sm leading-3 flex items-center justify-start border-[1px] border-border-white rounded-full p-4 bg-transparent shadow-md">
           <p>Experiência única</p>
         </div>
         <p className="font-medium text-lg leading-4 text-foreground-card">
