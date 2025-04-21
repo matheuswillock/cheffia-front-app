@@ -1,0 +1,169 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import QrCodeIcon from "../../public/assets/Icons/qr-code-icon.svg";
+import CheckIcon from "../../public/assets/Icons/check-icon.svg";
+import HourIcon from "../../public/assets/Icons/hour-icon.svg";
+import FinanceIcon from "../../public/assets/Icons/financeIcon.svg";
+import FavoriteIcon from "../../public/assets/Icons/favorite-icon.svg"
+import AlertIcon from "../../public/assets/Icons/alertIcon.svg";
+import BurttonCta from "./ButtonCta";
+
+export default function ApresentationFeaturesSection() {
+  const [selectedCard, setSelectedCard] = useState<number | null>(null);
+
+  const handleClick = (index: number) => {
+    setSelectedCard(index === selectedCard ? null : index);
+  };
+
+  const cards = [
+    {
+      title: "QR Code e Menu Digital",
+      description:
+        "Ofereça aos seus clientes uma experiência moderna com QR Codes exclusivos para cada mesa, conectando-os diretamente ao menu digital com fotos e descrições detalhadas.",
+      icon: QrCodeIcon,
+    },
+    {
+      title: "Automatização de Pedidos",
+      description:
+        "Simplifique o fluxo de trabalho com pedidos automatizados que vão direto para a cozinha, reduzindo erros e otimizando a operação do seu estabelecimento.",
+      icon: CheckIcon,
+    },
+    {
+      title: "Gestão e Reservas",
+      description:
+        "Gerencie mesas e reservas de forma eficiente, garantindo organização e uma experiência fluida para seus clientes.",
+      icon: HourIcon,
+    },
+    {
+      title: "Pagamentos Web",
+      description:
+        "Facilite os pagamentos com suporte a PIX e carteiras digitais, proporcionando agilidade e praticidade para seus clientes.",
+      icon: FinanceIcon,
+    },
+    {
+      title: "Gerenciamento da Equipe",
+      description:
+        "Controle o acesso e as permissões da sua equipe com perfis personalizados, garantindo segurança e eficiência na gestão do seu negócio.",
+      icon: FavoriteIcon,
+    },
+    {
+      title: "Promoções e Mensageria",
+      description:
+        "Engaje seus clientes com promoções personalizadas e mensagens diretas, aumentando a fidelidade e o alcance do seu negócio.",
+      icon: AlertIcon,
+    },
+  ];
+
+  return (
+    <section className="flex flex-col items-center justify-center gap-10 py-14 bg-background-black rounded-3xl relative overflow-hidden">
+      <div className="flex flex-col items-center justify-center gap-1">
+        <p className="font-light text-sm font-inter text-foreground-pureWhite">
+          Conheça as nossas
+        </p>
+        <h2 className="font-medium text-[32px] leading-8 text-foreground-green">
+          Funcionalidades
+        </h2>
+      </div>
+
+      <div className="relative flex flex-col items-center justify-center gap-4">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div
+            className="
+              absolute
+              top-[-8%]
+              left-[50%]
+              h-[390px]
+              w-[390px]
+              opacity-55
+              blur-3xl
+              bg-neon-radial
+              rounded-full
+              z-0
+            "
+          />
+
+          <div
+            className="
+              absolute
+              h-52
+              w-[50%]
+              top-[40%]
+              left-[-20%]
+              transform
+              -translate-x-1/2
+              -translate-y-1/2
+              opacity-20
+              blur-3xl
+              bg-neon-radial-2
+              rounded-full
+              z-0
+            "
+          />
+
+          <div
+            className="
+              absolute
+              top-[70%]
+              left-[-65%]
+              h-80
+              w-96
+              opacity-40
+              blur-3xl
+              bg-neon-radial
+              rounded-full
+              z-0
+            "
+          />
+        </div>
+
+        {cards.map((card, index) => (
+          <div
+            key={index}
+            className={`relative z-10 ${
+              selectedCard === index
+                ? "bg-primary min-h-40"
+                : "bg-background-cardFeature h-40"
+            } rounded-3xl w-72 p-6 flex flex-col justify-between`}
+            onClick={() => handleClick(index)}
+          >
+            {selectedCard === index ? (
+              <div className="h-full flex flex-row items-start justify-start gap-4">
+                <div className="flex justify-between items-center w-full">
+                  <p className="text-foreground-black font-inter text-lg leading-[18px] font-medium text-start">
+                    {card.description}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-start justify-start gap-6">
+                <div className="flex justify-between items-center w-full">
+                  <h2 className="text-foreground-pureWhite font-inter font-light leading-5 text-lg w-32 h-9">
+                    {card.title}
+                  </h2>
+
+                  <Image
+                    src={card.icon}
+                    alt={`Icon ${card.title}`}
+                    width={32}
+                    height={32}
+                    className="w-8 h-8"
+                  />
+                </div>
+
+                <p className="text-foreground-card font-inter text-sm leading-4 font-light text-start">
+                  {card.description.length > 100
+                    ? `${card.description.slice(0, 98)}...`
+                    : card.description}
+                </p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <BurttonCta />
+    </section>
+  );
+}

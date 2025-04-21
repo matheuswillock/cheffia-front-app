@@ -1,10 +1,9 @@
 import { Search } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export default function MenuHeader() {
   return (
-    <header className="shadow-sm sticky top-0 z-10 bg-background">
+    <header className="shadow-sm sticky top-0 z-10 bg-background-default">
       <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center">
           <h1 className="text-xl font-bold text-primary">FoodOrderPro</h1>

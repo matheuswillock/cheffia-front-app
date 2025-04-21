@@ -82,7 +82,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
               />
             </div>
 
-            <h2 className="text-2xl font-bold text-foreground text-center mb-6">
+            <h2 className="text-2xl font-bold text-foreground-default text-center mb-6">
               {STATUS_CONTENT_MAP[status]?.text ||
                 STATUS_CONTENT_MAP.default.text}
             </h2>
@@ -94,7 +94,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                     <td className="py-2 text-sm font-medium text-secondary">
                       ID
                     </td>
-                    <td className="py-2 text-sm text-foreground text-right">
+                    <td className="py-2 text-sm text-foreground-default text-right">
                       {paymentIntentId}
                     </td>
                   </tr>
@@ -102,7 +102,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                     <td className="py-2 text-sm font-medium text-secondary">
                       Status
                     </td>
-                    <td className="py-2 text-sm text-foreground text-right">
+                    <td className="py-2 text-sm text-foreground-default text-right">
                       {status}
                     </td>
                   </tr>

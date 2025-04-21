@@ -158,9 +158,9 @@ textarea {
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border-default;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-default text-foreground-default;
   }
 }
