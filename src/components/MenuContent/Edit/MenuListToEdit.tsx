@@ -17,7 +17,7 @@ interface MenuListToEditProps {
 export default function MenuListToEdit({items = [], handleDeleteButton, loadingButtonDeleteItem, loadingButtonEditItem} : MenuListToEditProps) {
 
   return(
-    <div className="p-4  border-border border-4 rounded-xl">
+    <div className="p-4  border-border-default border-4 rounded-xl">
 
       {items.length <= 0 ?
         (
@@ -93,7 +93,7 @@ export default function MenuListToEdit({items = [], handleDeleteButton, loadingB
 
                   <div className="flex flex-col gap-2 self-end items-end">
                     <Button 
-                      className="rounded-xl w-24 bg-red-600/50 hover:bg-red-600 text-foreground font-semibold text-base"
+                      className="rounded-xl w-24 bg-red-600/50 hover:bg-red-600 text-foreground-default font-semibold text-base"
                       onClick={() => handleDeleteButton(item.id)}
                     >
                       {loadingButtonDeleteItem ? (
@@ -109,7 +109,7 @@ export default function MenuListToEdit({items = [], handleDeleteButton, loadingB
                       )}                      
                     </Button>
 
-                    <Button className="rounded-xl w-24 font-semibold text-base bg-button text-foreground hover:bg-button-solid hover:text-background">
+                    <Button className="rounded-xl w-24 font-semibold text-base bg-button text-foreground-default hover:bg-button-solid hover:text-background">
                       {loadingButtonEditItem ? (
                         <Image
                           src={LoadingSpin}

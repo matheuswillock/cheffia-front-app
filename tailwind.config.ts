@@ -1,3 +1,4 @@
+import { green } from "@mui/material/colors";
 import type { Config } from "tailwindcss";
 
 export default {
@@ -9,13 +10,71 @@ export default {
   ],
   theme: {
   	extend: {
+			fontWeight: {
+				light: '300',
+				normal: '400',
+				medium: '500',
+				semibold: '600',
+				bold: '700',
+				extrabold: '800',
+				black: '900',
+			},
 			backgroundImage: {
 				'hero-pattern': "url('/img/hero-pattern.svg')",
         'footer-texture': "url('/img/footer-texture.png')",
+				'neon-radial': 'radial-gradient(circle, #01FBA1 10%, #06CF82 14%, #164622 59%, #000000 100%)',
+				'neon-radial-2': 'radial-gradient(circle, #01FBA1 0%, #000000 100%)',
+				'neon-radial-alt': 'radial-gradient(circle, #FFFFFF 0%, #FFFFFFDD 14%, #5F5F5F 59%, #000000 100%)',
+				'neon-radial-about': 'radial-gradient(circle, #01FBA1 0%, #01FBA1 100%)',
+				'neon-radial-Competitive-advantages': 'radial-gradient(circle, #181818 0%, #181818 100%)',
+				'linear-green': 'linear-gradient(90deg, #A3A3A3 0%, #01FBA1 100%)',
+				'linear-green-mission': 'linear-gradient(90deg, #FFFFFF 0%, #01FBA1 100%)',
+				'linear-green-mission-2': 'linear-gradient(90deg, #01FBA1 0%, #ffffff 100%)',
+      },
+			fontFamily: {
+        clash: ["var(--font-clash-display)", "sans-serif"],
+				inter: ["var(--font-inter)", "sans-serif"],
+      },
+			fontSize: {
+        'h1': ['52px', '52px'],   // Título h1
+        'h2': ['32px', '32px'],   // Título h2
+        'h3': ['28px', '20px'],   // Título h3
       },
   		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
+        primary: "#01FBA1",     // Tom principal de verde-água (inovação)
+        secondary: "#22CF90",   // Verde mais vivo para destacar CTAs ou hover
+        support1: "#3D7A64",    // Estabilidade
+        support2: "#355046",    // Resiliência
+				background : {
+					default: "#181818",
+					black: "#010201",
+					green: "#22CF90",
+					gray: "#434343",
+					white: "#EAEAEA",
+					card: "#242424",
+					cardFeature: "#181818",
+					cardAdvantages: "#2D2D2D",
+					missionAndValues: "#1e1e1e",
+					QA: "#2D2D2D",
+					QA2: "#222222"
+				},
+				foreground: {
+					default: "#EAEAEA",
+					gray: "#434343",
+					card: "#A3A3A3",
+					white: "#CDD0CF",
+					pureWhite: "#ffffff",
+					green: "#01FBA1",
+					black: "#181818",
+					about: "#3C7A63",
+					aboutBlack: "#2D2D2D",
+					footer: "#737373"
+				},
+				systemColor: {
+					default: "#01FBA1",
+					blue: "#2A30E0",
+					red: "#E70000"
+				},
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				selected: 'hsl(var(--primary))',
@@ -23,21 +82,28 @@ export default {
   				foreground: 'hsl(var(--card-foreground))'
   			},
   			button: {
-  				DEFAULT: 'hsl(var(--primary-foreground))',
-  				solid: 'hsl(var(--primary))'
+  				DEFAULT: "#01FBA1",
+					foreground: "#2D2D2D",
+  				dark: "#22CF90"
   			},
   			popover: {
   				DEFAULT: 'hsl(var(--popover))',
   				foreground: 'hsl(var(--popover-foreground))'
   			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
+				border: {
+					default: 'hsl(var(--border))',
+					white: '#ffffff',
+					about: '#3C7A63',
+					black: '#000000',
+					green: '#01FBA1',
+				},
+  			// 	DEFAULT: 'hsl(var(--primary))',
+  			// 	foreground: 'hsl(var(--primary-foreground))'
+  			// },
+  			// secondary: {
+  			// 	DEFAULT: 'hsl(var(--secondary))',
+  			// 	foreground: 'hsl(var(--secondary-foreground))'
+  			// },
   			muted: {
   				DEFAULT: 'hsl(var(--muted))',
   				foreground: 'hsl(var(--muted-foreground))'
@@ -50,7 +116,7 @@ export default {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
   			},
-  			border: 'hsl(var(--border))',
+  			// border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
   			chart: {
@@ -71,25 +137,17 @@ export default {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
   		animation: {
   			pulse: 'pulse var(--duration) ease-out infinite',
-				// pulse: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				ping: 'ping var(--duration) cubic-bezier(0, 0, 0.2, 1) infinite',
   		},
   		keyframes: {
   			pulse: {
   				'0%, 100%': {
   					boxShadow: '0 0 0 0 var(--pulse-color)'
-						// opacity: '1',
   				},
   				'50%': {
   					boxShadow: '0 0 0 8px var(--pulse-color)'
-						// opacity: '0.5',
   				}
   			},
 				ping: {

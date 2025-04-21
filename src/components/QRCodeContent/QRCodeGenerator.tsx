@@ -122,7 +122,7 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
               />
               <canvas id={`qr-canvas-${tableNumber}`} className="hidden" width={qrSize} height={qrSize} />
               <div className="text-xs text-center mt-2 text-gray-600 break-all">{generateQRUrl(tableNumber)}</div>
-              <Button variant="outline" size="sm" className="mt-2 rounded-xl hover:bg-button hover:text-foreground" onClick={() => downloadQRCode(tableNumber)}>
+              <Button variant="outline" size="sm" className="mt-2 rounded-xl hover:bg-button hover:text-foreground-default" onClick={() => downloadQRCode(tableNumber)}>
                 <Download className="h-4 w-4 mr-1" />
                 Download
               </Button>
@@ -239,12 +239,12 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
 
       <div className="flex flex-wrap gap-3 justify-between items-center">
         <div className="flex gap-3">
-          <Button onClick={() => handlePrint()} className="rounded-xl hover:bg-button hover:text-foreground font-semibold">
+          <Button onClick={() => handlePrint()} className="rounded-xl hover:bg-button hover:text-foreground-default font-semibold">
             <Printer className="h-4 w-4 mr-2" />
             Imprimir 
           </Button>
 
-          <Button variant="outline" onClick={downloadAllQRCodes} className="rounded-xl font-semibold hover:bg-button hover:text-foreground">
+          <Button variant="outline" onClick={downloadAllQRCodes} className="rounded-xl font-semibold hover:bg-button hover:text-foreground-default">
             <Download className="h-4 w-4 mr-2" />
             Baixar todos
           </Button>

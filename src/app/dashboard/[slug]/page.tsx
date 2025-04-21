@@ -43,7 +43,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 ">
             <SidebarTrigger className="-ml-1 my-0" />
             <Separator orientation="vertical" className="mr-2 h-6" />
-            <h3 className="block text-xl font-bold tracking-tight text-foreground md:text-2xl">
+            <h3 className="block text-xl font-bold tracking-tight text-foreground-default md:text-2xl">
               Olá, {userMetadata.name}
             </h3>
           </div>

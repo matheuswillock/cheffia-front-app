@@ -31,7 +31,7 @@ export function SignUpForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden bg-background">
+      <Card className="overflow-hidden bg-background-default">
         <CardContent className="grid p-0 md:grid-cols-2">
           <div className="px-6 md:px-8 mb-12 mt-8 gap-4 flex flex-col justify-center">
             
@@ -43,7 +43,7 @@ export function SignUpForm({
                     <h1 className="text-2xl font-bold">
                       Olá Cheffia
                     </h1>
-                    <p className="text-balance text-xl  text-foreground/70">
+                    <p className="text-balance text-xl  text-foreground-default/70">
                       Crie uma conta
                     </p>
                   </div>
@@ -86,7 +86,7 @@ export function SignUpForm({
 
                   <Button
                     type="submit"
-                    className="w-full rounded-xl text-lg font-semibold bg-button text-foreground hover:bg-button-solid hover:text-background my-2"
+                    className="w-full rounded-xl text-lg font-semibold bg-button text-foreground-default hover:bg-button-solid hover:text-background my-2"
                     disabled={!form.formState.isValid}
                   >
                     Criar conta
@@ -98,8 +98,8 @@ export function SignUpForm({
 
             <div className="flex flex-col gap-4">
 
-              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
+              <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border-default">
+                <span className="relative z-10 bg-background-default px-2 text-muted-foreground">
                   Ou continue com
                 </span>
               </div>
