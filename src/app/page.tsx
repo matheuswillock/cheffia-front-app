@@ -9,12 +9,13 @@ import ApresentationQuestionsAndAsnwers from "@/components/ApresentationQuestion
 import FooterSection from "@/components/FooterSection";
 import { ApresentationPrincipalFeaturesSection } from "@/components/ApresentationPrincipalFeaturesSection";
 import ApresentationInitialSection from "@/components/ApresentationInitialSection";
+import ButtonClickToTop from "@/components/ButtonClickToTop";
 
 export default function Home() {
   return (
     <div className="container w-full mx-auto overflow-hidden">
       <Navbar />
-
+      <ButtonClickToTop />
       <div className="h-60 w-72 absolute left-0 right-0 mx-auto -z-10">
         <div
           className="
@@ -27,14 +28,12 @@ export default function Home() {
           "
         />
       </div>
-
       <div className="absolute h-[170px] w-full z-10">
         <div className="flex items-center justify-between w-full h-full px-4">
           <div className="h-[170px] w-[30%] opacity-50 blur-xl bg-background-default rounded-full z-10" />
           <div className="h-[170px] w-[30%] opacity-50 blur-xl bg-background-default rounded-full z-10" />
         </div>
       </div>
-
       <main>
         <aside className="bg-transparent container">
           <ApresentationInitialSection />
@@ -47,7 +46,6 @@ export default function Home() {
           <ApresentationQuestionsAndAsnwers />
         </aside>
       </main>
-
       <footer className="container text-center w-full flex flex-col py-10 gap-4 bg-background-default">
         <FooterSection />
 
