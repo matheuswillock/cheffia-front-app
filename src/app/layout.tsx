@@ -52,7 +52,9 @@ const inter = Inter_Tight({
 const data = {
   title: "Cheffia",
   description:
-    "Seu Cardápio projetado para otimizar o fluxo do atendimento inicial até o pagamento.",
+    "A revolução do cardápio digital. Transforme a experiência gastronômica com Cheffia.",
+  keywords:
+    "Cheffia, Cardápio Digital, Cardápio Online, Cardápio Interativo, Cardápio Virtual, Cardápio Inteligente, Cardápio Personalizado, Cardápio para Restaurantes, Cardápio para Bares, Cardápio para Cafés",
   url: "https://www.cheffia.com",
   image: "/images/og-image.png",
   siteName: "Cheffia",
@@ -62,6 +64,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   minimumScale: 1,
   maximumScale: 1,
+  userScalable: true,
   width: "device-width",
   height: "device-height",
 };
@@ -86,7 +89,25 @@ export const metadata: Metadata = {
   authors: [{ name: "Cheffia" }],
   creator: "Cheffia",
   publisher: "Cheffia",
-  appleWebApp: true,
+  appleWebApp: {
+    capable: true, // Habilita o modo Web App no iOS
+    title: "Cheffia", // Título exibido no modo Web App
+    statusBarStyle: "black-translucent", // Estilo da barra de status
+    startupImage: [
+      // {
+      //   url: "/images/startup-image-640x1136.png",
+      //   media: "(device-width: 320px) and (device-height: 568px)",
+      // },
+      // {
+      //   url: "/images/startup-image-750x1334.png",
+      //   media: "(device-width: 375px) and (device-height: 667px)",
+      // },
+      // {
+      //   url: "/images/startup-image-1125x2436.png",
+      //   media: "(device-width: 375px) and (device-height: 812px)",
+      // },
+    ],
+  },
   openGraph: {
     title: data.title,
     description: data.description,

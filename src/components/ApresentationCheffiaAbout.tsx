@@ -1,8 +1,6 @@
 import Image from "next/image";
-import IphoneMockup from "../../public/assets/Icons/iPhone-16-Pro.svg";
 import Frame454 from "../../public/assets/Icons/Frame-454.svg";
 import CheckIcon from "../../public/assets/Icons/icon-check.svg"
-import Link from "next/link";
 import BurttonCta from "./ButtonCta";
 
 export default function ApresentationCheffiaAbout() {
