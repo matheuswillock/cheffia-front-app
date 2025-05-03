@@ -1,4 +1,5 @@
 import { z } from "zod";
+import AskAQuestion from '../components/AskAQuestion';
 
 export const signUpFormSchema = z.object({
   email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
@@ -38,4 +39,14 @@ export const AddMenuItemSchema = z.object({
     message: "Insira um arquivo de mídia válido para o item"
   }),
   restaurantId: z.string().uuid("O ID do restaurante é obrigatório")
+});
+
+export const AskAQuestionSchema = z.object({
+  name: z.string().min(3, "O nome deve ter no mínimo 3 caracteres")
+    .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome deve conter apenas letras"),
+  email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
+  countryCode: z.string().regex(/^\+\d{1,3}$/, "Insira um código de país válido"),
+  contact: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/, "Insira um número de telefone válido"),
+  message: z.string().min(10, "A mensagem deve ter no mínimo 10 caracteres")
+    .max(500, "A mensagem deve ter no máximo 500 caracteres"),
 });

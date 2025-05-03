@@ -25,7 +25,7 @@ export default function SignUpFormField<T extends FieldValues>({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => ( 
+      render={({ field }) => (
         <FormItem>
           <FormLabel
             className={`text-sm font-medium ${

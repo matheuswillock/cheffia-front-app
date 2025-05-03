@@ -1,6 +1,6 @@
-import { api } from './config';
+import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
 import { Output } from '@/models/Output';
-import { paymentRoutes } from './routes/payment';
+import { paymentRoutes } from '@/api/routes/routesConfig';
 
 export const createIntent = async (): Promise<Output> => {
   try {
@@ -13,7 +13,7 @@ export const createIntent = async (): Promise<Output> => {
     console.log('Creating payment intent...');
     console.log('Request to create payment intent:', data);
     console.log('Request URL:', paymentRoutes.createItent);
-    const response = await api.post(
+    const response = await cheffiaApiConfig.post(
       paymentRoutes.createItent,
       data,
     )
@@ -44,7 +44,7 @@ export const createProduct = async (): Promise<Output> => {
       currency: "brl"
     }
 
-    const response = await api.post(
+    const response = await cheffiaApiConfig.post(
       paymentRoutes.createProduct,
       data,
     )

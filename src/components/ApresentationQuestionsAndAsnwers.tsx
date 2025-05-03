@@ -5,14 +5,20 @@ import Image from "next/image";
 import OpenCardIcon from "../../public/assets/Icons/icon-open-card.svg"
 import { useState } from "react";
 
-export default function ApresentationQuestionsAndAsnwers() {
+interface ApresentationQuestionsAndAsnwersProps {
+  setIsModalOpen: () => void;
+}
+
+export default function ApresentationQuestionsAndAsnwers({
+  setIsModalOpen,
+}: ApresentationQuestionsAndAsnwersProps) {
   const [openCardIndex, setOpenCardIndex] = useState<number | null>(null);
 
   const itemsQA = [
     {
       question: "Como funciona a Cheffia?",
       answer:
-        "Simples: o cliente escaneia o QR Code, acessa o cardápio no celular, faz o pedido e paga ali mesmo. Você acompanha tudo em tempo real no seu painel: pedidos, estoque e atendimento — sem complicação.",
+        "Simples: o cliente escaneia o QR Code, acessa o cardápio no celular, faz o pedido e paga ali mesmo. Você acompanha tudo em tempo real no seu painel: pedidos, estoque e atendimento, sem complicação.",
     },
     {
       question: "Vai substituir os garçons?",
@@ -27,7 +33,7 @@ export default function ApresentationQuestionsAndAsnwers() {
     {
       question: "Quanto custa?",
       answer:
-        "Temos planos acessíveis, ajustados ao porte do seu negócio. E o melhor: o investimento se paga rápido — com menos erros, menos desperdício e operação mais ágil.",
+        "Temos planos acessíveis, ajustados ao porte do seu negócio. E o melhor: o investimento se paga rápido! Com menos erros, menos desperdício e operação mais ágil.",
     },
     {
       question: "Já uso outro sistema. A Cheffia funciona junto?",
@@ -52,7 +58,7 @@ export default function ApresentationQuestionsAndAsnwers() {
     {
       question: "E se eu precisar de ajuda?",
       answer:
-        "Pode contar com a gente. Suporte rápido e eficiente, sempre que você precisar. A gente resolve — sem enrolação.",
+        "Pode contar com a gente. Suporte rápido e eficiente, sempre que você precisar. A gente resolve para você.",
     },
   ];
 
@@ -61,47 +67,83 @@ export default function ApresentationQuestionsAndAsnwers() {
   };
 
   return (
-    <section className="bg-background-cardAdvantages rounded-3xl -mt-16 px-8 py-16 flex flex-col items-center gap-8 justify-center relative overflow-hidden z-10">
-      <div className="flex flex-col items-center justify-center text-5xl leading-[44px]">
-        <h2 className="font-medium">Dúvidas</h2>
-        <h3 className="font-extralight">frequentes</h3>
+    <section
+      className="
+        bg-background-cardAdvantages
+        rounded-3xl
+        -mt-16
+        px-8
+        py-16
+        flex
+        flex-col
+        items-center
+        gap-10 xl:gap-12
+        justify-center
+        relative
+        overflow-hidden
+        z-10
+      "
+    >
+      <div className="flex flex-col items-center justify-center text-5xl leading-[44px] gap-2 lg:gap-4">
+        <div className="flex flex-col md:flex-row md:gap-2 items-center justify-center text-5xl xl:text-6xl leading-[44px]">
+          <h2 className="font-medium">Dúvidas</h2>
+          <h3 className="font-extralight">frequentes</h3>
+        </div>
 
-        <p className="font-normal font-inter text-sm leading-4 mt-4">
+        <p className="font-normal font-inter text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
           Não encontrou a resposta para a sua dúvida aqui?
         </p>
       </div>
 
-      <Link href="">
-        <button
-          className="
-              bg-button 
-              text-foreground-black 
-              mt-
-              px-4
-              h-8
-              text-sm
-              leading-4
-              font-medium
-              font-inter 
-              rounded-full 
-              shadow-md 
-              hover:bg-button-dark 
-              transition"
-        >
-          Faça uma pergunta
-        </button>
-      </Link>
+      <button
+        aria-label="Entrar na lista de espera"
+        onClick={setIsModalOpen}
+        type="button"
+        className="
+          bg-button
+          text-foreground-aboutBlack
+            px-6
+            xl:px-8
+            2xl:px-10
+            h-9
+            md:h-10
+            xl:h-11
+            2xl:h-12
+            text-center
+            text-base
+            sm:text-lg
+            lg:text-xl
+            xl:text-[22px]
+            2xl:text-2xl
+            font-medium
+            font-inter
+            rounded-full
+            shadow-md
+            hover:bg-button-dark
+            hover:text-foreground-pureWhite
+            hover:shadow-lg
+            active:bg-button-dark
+            transition
+            duration-300
+            ease-in-out
+          "
+      >
+        Faça uma pergunta
+      </button>
 
-      {/* TODO: QUANDO clicar no card alterar o bg para bg-background-green/10 */}
       <div className="flex items-center justify-center flex-col gap-4 w-full mb-6">
         {itemsQA.map((item, index) => (
           <div
             key={index}
             onClick={() => toggleCard(index)}
-            className="w-72 bg-background-QA2 px-3 py-4 rounded-lg flex items-center justify-between flex-col gap-4 cursor-pointer"
+            className={`w-72 md:w-96 lg:w-[542px] xl:w-[620px] px-3 py-4 rounded-lg flex items-center justify-between flex-col gap-4 cursor-pointer transition-all duration-300 ${
+              openCardIndex === index
+                ? "bg-background-green/10"
+                : "bg-background-QA2"
+            }`}
           >
             <div className="flex items-center justify-between w-full flex-row gap-2">
-              <p className="font-inter text-foreground-pureWhite font-medium text-base leading-4">
+              <p className="font-inter text-foreground-pureWhite font-medium md:font-normal text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
                 {item.question}
               </p>
 
@@ -113,11 +155,31 @@ export default function ApresentationQuestionsAndAsnwers() {
               />
             </div>
 
-            {openCardIndex === index && (
-              <p className="font-inter text-foreground-card font-medium text-sm leading-4">
+            <div
+              className={`overflow-hidden transition-all duration-300 ${
+                openCardIndex === index ? "max-h-[500px]" : "max-h-0"
+              }`}
+            >
+              <p
+                className="
+                  font-inter
+                  text-foreground-card
+                  font-medium
+                  sm:font-normal
+                  text-sm
+                  md:text-base
+                  lg:text-lg
+                  xl:text-xl
+                  leading-4
+                  md:leading-4
+                  lg:leading-5
+                  xl:leading-6
+                  text-start
+                "
+              >
                 {item.answer}
               </p>
-            )}
+            </div>
           </div>
         ))}
       </div>

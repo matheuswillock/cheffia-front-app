@@ -8,7 +8,7 @@ import HourIcon from "../../public/assets/Icons/hour-icon.svg";
 import FinanceIcon from "../../public/assets/Icons/financeIcon.svg";
 import FavoriteIcon from "../../public/assets/Icons/favorite-icon.svg"
 import AlertIcon from "../../public/assets/Icons/alertIcon.svg";
-import BurttonCta from "./ButtonCta";
+import ButtonCta from "./ButtonCta";
 
 export default function ApresentationFeaturesSection() {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
@@ -57,12 +57,12 @@ export default function ApresentationFeaturesSection() {
   ];
 
   return (
-    <section className="flex flex-col items-center justify-center gap-10 py-14 bg-background-black rounded-3xl relative overflow-hidden">
-      <div className="flex flex-col items-center justify-center gap-1">
-        <p className="font-light text-sm font-inter text-foreground-pureWhite">
+    <section className="w-full max-w-full flex flex-col items-center justify-center gap-10 py-16 bg-background-black rounded-3xl relative overflow-hidden">
+      <div className="flex flex-col items-center justify-center gap-1 md:gap-2 xl:gap-4">
+        <p className="font-light text-sm md:text-lg xl:text-2xl 2xl:text-3xl font-inter text-foreground-pureWhite">
           Conheça as nossas
         </p>
-        <h2 className="font-medium text-[32px] leading-8 text-foreground-green">
+        <h2 className="font-medium text-[32px] md:text-4xl xl:text-6xl 2xl:text-7xl leading-8 text-foreground-green">
           Funcionalidades
         </h2>
       </div>
@@ -73,9 +73,13 @@ export default function ApresentationFeaturesSection() {
             className="
               absolute
               top-[-8%]
+              xl:top-[-30%]
+              xl:left-[70%]
               left-[50%]
               h-[390px]
+              xl:h-[520px]
               w-[390px]
+              xl:w-[520px]
               opacity-55
               blur-3xl
               bg-neon-radial
@@ -88,9 +92,13 @@ export default function ApresentationFeaturesSection() {
             className="
               absolute
               h-52
+              xl:h-96
               w-[50%]
+              xl:w-[80%]
               top-[40%]
               left-[-20%]
+              md:left-[0%]
+              xl:left-[30]
               transform
               -translate-x-1/2
               -translate-y-1/2
@@ -106,9 +114,15 @@ export default function ApresentationFeaturesSection() {
             className="
               absolute
               top-[70%]
+              md:top-[80%]
+              xl:top-[90%]
               left-[-65%]
+              md:left-[5%]
+              xl:left-[20%]
               h-80
-              w-96
+              xl:h-96
+              w-80
+              xl:w-96
               opacity-40
               blur-3xl
               bg-neon-radial
@@ -118,52 +132,75 @@ export default function ApresentationFeaturesSection() {
           />
         </div>
 
-        {cards.map((card, index) => (
-          <div
-            key={index}
-            className={`relative z-10 ${
-              selectedCard === index
-                ? "bg-primary min-h-40"
-                : "bg-background-cardFeature h-40"
-            } rounded-3xl w-72 p-6 flex flex-col justify-between`}
-            onClick={() => handleClick(index)}
-          >
-            {selectedCard === index ? (
-              <div className="h-full flex flex-row items-start justify-start gap-4">
-                <div className="flex justify-between items-center w-full">
-                  <p className="text-foreground-black font-inter text-lg leading-[18px] font-medium text-start">
-                    {card.description}
+        <div
+          className="
+            relative
+            mx-auto
+            xl:max-w-[90%]
+            my-8
+            flex
+            flex-col
+            items-center
+            justify-center
+            gap-6
+            md:gap-10
+            lg:gap-14
+            xl:gap-16
+            2xl:gap-20
+            md:grid
+            grid-cols-2
+            lg:grid-cols-3
+            xl:grid-cols-3
+            2xl:grid-cols-3
+          "
+        >
+          {cards.map((card, index) => (
+            <div
+              key={index}
+              className={`relative z-10 ${
+                selectedCard === index
+                  ? "bg-primary min-h-40"
+                  : "bg-background-cardFeature h-40"
+              } rounded-3xl w-72 sm:w-80 md:h-52 xl:h-56 p-6 flex flex-col items-center justify-between`}
+              onClick={() => handleClick(index)}
+            >
+              {selectedCard === index ? (
+                <div className="h-full flex flex-row items-center justify-start gap-4">
+                  <div className="flex justify-between items-center w-full">
+                    <p className="text-foreground-black font-inter text-lg md:text-xl leading-[18px] md:leading-[24px] font-medium text-start">
+                      {card.description}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-start justify-start gap-6 md:gap-10">
+                  <div className="flex justify-between items-center w-full">
+                    <h2 className="text-foreground-pureWhite font-inter font-light leading-5 text-lg md:text-xl xl:text-2xl w-32 xl:w-36 h-9">
+                      {card.title}
+                    </h2>
+
+                    <Image
+                      src={card.icon}
+                      alt={`Icon ${card.title}`}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8"
+                    />
+                  </div>
+
+                  <p className="text-foreground-card font-inter text-sm md:text-base leading-4 font-light text-start">
+                    {card.description.length > 100
+                      ? `${card.description.slice(0, 98)}...`
+                      : card.description}
                   </p>
                 </div>
-              </div>
-            ) : (
-              <div className="h-full flex flex-col items-start justify-start gap-6">
-                <div className="flex justify-between items-center w-full">
-                  <h2 className="text-foreground-pureWhite font-inter font-light leading-5 text-lg w-32 h-9">
-                    {card.title}
-                  </h2>
-
-                  <Image
-                    src={card.icon}
-                    alt={`Icon ${card.title}`}
-                    width={32}
-                    height={32}
-                    className="w-8 h-8"
-                  />
-                </div>
-
-                <p className="text-foreground-card font-inter text-sm leading-4 font-light text-start">
-                  {card.description.length > 100
-                    ? `${card.description.slice(0, 98)}...`
-                    : card.description}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <BurttonCta />
+      <ButtonCta />
     </section>
   );
 }

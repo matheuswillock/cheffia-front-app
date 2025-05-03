@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import Link from "next/link";
 import ApresentationMobileMockupSection from "@/components/ApresentationMobileMockupSection";
@@ -11,15 +14,23 @@ import { ApresentationPrincipalFeaturesSection } from "@/components/Apresentatio
 import ApresentationInitialSection from "@/components/ApresentationInitialSection";
 import ButtonClickToTop from "@/components/ButtonClickToTop";
 import NeonEffects from "@/components/NeonEffects";
+import AskAQuestion from "@/components/AskAQuestion";
 
 export default function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <div className="container w-full mx-auto overflow-hidden">
+    <div className="w-screen mx-auto overflow-hidden">
       <Navbar />
       <ButtonClickToTop />
       <NeonEffects />
-      <main>
-        <aside className="bg-transparent container">
+      <AskAQuestion
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+
+      <main className="w-screen">
+        <aside className="bg-transparent w-screen">
           <ApresentationInitialSection />
           <ApresentationPrincipalFeaturesSection />
           <ApresentationMobileMockupSection />
@@ -27,28 +38,35 @@ export default function Home() {
           <ApresentationCheffiaAbout />
           <ApresentationCheffiaCompetitiveAdvantages />
           <ApresentationMissionAndValues />
-          <ApresentationQuestionsAndAsnwers />
+          <ApresentationQuestionsAndAsnwers
+            setIsModalOpen={() => setIsModalOpen(true)}
+          />
         </aside>
       </main>
-      <footer className="container text-center w-full flex flex-col py-10 gap-4 bg-background-default">
+      <footer className="w-screen text-center flex flex-col py-10 gap-4 md:gap-0 bg-background-default">
         <FooterSection />
-
-        <div className="w-full border-t-2 border-t-background-cardAdvantages pt-6 flex flex-col items-center justify-center gap-4">
-          <div className="flex flex-row-reverse items-center justify-center gap-6">
-            <Link
-              href={""}
-              className="text-xs font-inter text-foreground-footer leading-3"
-            >
-              Termos de uso
-            </Link>
-            <Link
-              href={""}
-              className="text-xs font-inter text-foreground-footer leading-3"
-            >
-              Política de cookies
-            </Link>
+        <div
+          className="
+            w-full
+            border-t-2
+            border-t-background-cardAdvantages
+            pt-6
+            px-8
+            md:px-16
+            flex
+            flex-col
+            md:flex-row
+            items-center
+            justify-center
+            md:justify-between
+            gap-4
+          "
+        >
+          <div className="flex flex-row-reverse items-center justify-center gap-6 text-xs lg:text-base font-inter text-foreground-footer leading-3">
+            <Link href={""}>Termos de uso</Link>
+            <Link href={""}>Política de cookies</Link>
           </div>
-          <p className="text-xs font-inter text-foreground-footer leading-3 ">
+          <p className="text-xs lg:text-base font-inter text-foreground-footer leading-3">
             2025&copy; Cheffia - Todos os direitos reservados.
           </p>
         </div>

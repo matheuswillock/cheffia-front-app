@@ -1,11 +1,11 @@
-import { api } from './config';
+import { cheffiaApiConfig } from '@/api/config/cheffiaApiConfig';
 import { Output } from '@/models/Output';
-import { restaurantRoutes } from './routes/restaurant';
+import { restaurantRoutes } from '@/api/routes/routesConfig';
 import { InputToRegisterRestaurant } from '@/models/dtos/input/InputToRegisterRestaurant';
 
 export const registerRestaurant = async (data: InputToRegisterRestaurant): Promise<Output> => {
   try {
-    const response = await api.post(
+    const response = await cheffiaApiConfig.post(
       restaurantRoutes.registerRestaurant,
       data,
     )
@@ -19,7 +19,7 @@ export const registerRestaurant = async (data: InputToRegisterRestaurant): Promi
 
 export const getRestaurantById = async (id: string): Promise<Output> => {
   try {
-    const response = await api.get(
+    const response = await cheffiaApiConfig.get(
       restaurantRoutes.getRestaurant(id)
     )
 
