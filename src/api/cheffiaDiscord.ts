@@ -2,7 +2,8 @@ import { Output } from "@/models/Output";
 import { cheffiaDiscordConfig } from "./config/cheffiaDiscord";
 import { InputAskCheffia } from "@/models/dtos/input/InputAskCheffia";
 
-const url = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_URL as string;
+// const url = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_URL as string;
+const url = "https://discord.com/api/webhooks/1368280027128528947/bJZcruH765sDxs4qo7pm4BNgsd1p9_DaF8gBRGm44Tsz0bTyYPaKSPoynrHJawDUGhPB";
 
 export const SendAskToCheffia = async (input: InputAskCheffia): Promise<Output> => {
   try {
