@@ -19,7 +19,7 @@ import JoinWaitlist from "@/components/JoinWaitlist";
 
 export default function Home() {
   const [isSendAskModalOpen, setIsSendAskModalOpen] = useState(false);
-  const [isWailtistModalOpen, setIsWailtistModalOpen] = useState(true);
+  const [isWailtistModalOpen, setIsWailtistModalOpen] = useState(false);
 
   return (
     <div className="w-screen mx-auto overflow-hidden">
