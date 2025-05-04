@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const cheffiaDiscordConfig = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_DISCORD_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_URL,
   timeout: 10000,
 });
 

@@ -89,7 +89,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          <Link href="/sign-in">
+          {/* <Link href="/sign-in">
             <button
               className="
                 h-8
@@ -113,7 +113,7 @@ export function Navbar() {
             >
               Área do cliente
             </button>
-          </Link>
+          </Link> */}
         </div>
 
         {/* Botão de menu para mobile */}
@@ -128,7 +128,7 @@ export function Navbar() {
       {/* Menu mobile */}
       {menuOpen && (
         <div>
-          <ul className="fixed top-0 left-0 w-full h-full bg-background-default px-6 flex flex-col gap-5 z-50">
+          <ul className="fixed top-0 left-0 w-full h-full bg-background-default px-6 py-6 flex flex-col gap-5 z-50">
             <li className="flex justify-between items-center">
               <Image
                 src={Logo}

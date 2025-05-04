@@ -1,11 +1,16 @@
 import Link from "next/link";
 
-export default function ButtonCta() {
+interface ButtonCtaProps {
+  setIsModalOpen: () => void;
+}
+
+export default function ButtonCta({ setIsModalOpen }: ButtonCtaProps) {
   return (
-    <Link href="https://docs.google.com/forms/d/e/1FAIpQLSdxcP4uLuLXslDcWt6IGcpWrBg-u_gUjVlU1t_e5lhg8g4m3w/viewform">
-      <button
-        aria-label="Entrar na lista de espera"
-        className="
+    <button
+      aria-label="Entrar na lista de espera"
+      onClick={setIsModalOpen}
+      type="button"
+      className="
         bg-button
         text-foreground-aboutBlack
           px-6
@@ -31,9 +36,8 @@ export default function ButtonCta() {
           duration-300
           ease-in-out
         "
-      >
-        Entrar na lista de espera
-      </button>
-    </Link>
+    >
+      Entrar na lista de espera
+    </button>
   );
 }

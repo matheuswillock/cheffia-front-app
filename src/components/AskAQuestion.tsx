@@ -46,7 +46,7 @@ export default function AskAQuestion({ isOpen, onClose }: AskAQuestionProps) {
     e.preventDefault();
     form.handleSubmit((data) => {
       handleSendAsk(data);
-      console.log(data);
+      form.reset();
       onClose();
     })();
   };

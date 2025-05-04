@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { 
   AddMenuItemSchema, 
   AskAQuestionSchema, 
+  JoinWaitlistSchema, 
   RegisterRestaurantFormSchema, 
   signUpFormSchema 
 } from "@/utils/validation";
@@ -10,7 +11,8 @@ import {
   AddMenuItemData, 
   RegisterRestaurantFormData, 
   SignUpFormData, 
-  AskAQuestionData 
+  AskAQuestionData, 
+  JoinWaitlistData
 } from "@/types/formTypes";
 
 interface UseRegisterRestaurantFormProps {
@@ -83,6 +85,25 @@ export function UseAskAQuestionForm() {
       countryCode: "",
       contact: "",
       message: ""
+    }
+  });
+}
+
+export function UseJoinWaitlistForm() {
+  return useForm<JoinWaitlistData>({
+    resolver: zodResolver(JoinWaitlistSchema),
+    mode: "onChange",
+    defaultValues: {
+      restaurantName: "",
+      name: "",
+      email: "",
+      countryCode: "",
+      restaurantContact: "",
+      city: "",
+      state: "",
+      restaurantSize: "",
+      ticketAverage: "",
+      platformName: "",
     }
   });
 }

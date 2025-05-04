@@ -10,7 +10,13 @@ import FavoriteIcon from "../../public/assets/Icons/favorite-icon.svg"
 import AlertIcon from "../../public/assets/Icons/alertIcon.svg";
 import ButtonCta from "./ButtonCta";
 
-export default function ApresentationFeaturesSection() {
+interface ApresentationFeaturesSectionProps {
+  setIsModalOpen: () => void;
+}
+
+export default function ApresentationFeaturesSection({
+  setIsModalOpen,
+}: ApresentationFeaturesSectionProps) {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
 
   const handleClick = (index: number) => {
@@ -200,7 +206,9 @@ export default function ApresentationFeaturesSection() {
         </div>
       </div>
 
-      <ButtonCta />
+      <ButtonCta 
+        setIsModalOpen={setIsModalOpen}
+      />
     </section>
   );
 }

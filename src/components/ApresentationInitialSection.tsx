@@ -1,6 +1,12 @@
 import ButtonCta from "./ButtonCta";
 
-export default function ApresentationInitialSection() {
+interface ApresentationInitialSectionProps {
+  setIsModalOpen: () => void;
+}
+
+export default function ApresentationInitialSection({
+  setIsModalOpen,
+}: ApresentationInitialSectionProps) {
   return (
     <section className="hero w-screen flex flex-col items-center text-center py-12 md:py-14 lg:py-20 gap-8 sm:">
       <div className="flex flex-col items-center gap-4 sm:gap-5 xl:gap-6">
@@ -43,7 +49,7 @@ export default function ApresentationInitialSection() {
           aos <span className="text-primary">erros</span> nos pedidos
         </h1>
 
-        <p 
+        <p
           className="
             w-[304px]
             sm:w-[480px]
@@ -79,8 +85,9 @@ export default function ApresentationInitialSection() {
         </p>
       </div>
 
-      <ButtonCta />
+      <ButtonCta 
+        setIsModalOpen={setIsModalOpen}
+      />
     </section>
   );
-
 }

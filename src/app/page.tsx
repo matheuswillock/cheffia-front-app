@@ -15,9 +15,11 @@ import ApresentationInitialSection from "@/components/ApresentationInitialSectio
 import ButtonClickToTop from "@/components/ButtonClickToTop";
 import NeonEffects from "@/components/NeonEffects";
 import AskAQuestion from "@/components/AskAQuestion";
+import JoinWaitlist from "@/components/JoinWaitlist";
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSendAskModalOpen, setIsSendAskModalOpen] = useState(false);
+  const [isWailtistModalOpen, setIsWailtistModalOpen] = useState(true);
 
   return (
     <div className="w-screen mx-auto overflow-hidden">
@@ -25,24 +27,39 @@ export default function Home() {
       <ButtonClickToTop />
       <NeonEffects />
       <AskAQuestion
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isSendAskModalOpen}
+        onClose={() => setIsSendAskModalOpen(false)}
+      />
+      <JoinWaitlist
+        isOpen={isWailtistModalOpen}
+        onClose={() => setIsWailtistModalOpen(false)}
       />
 
       <main className="w-screen">
         <aside className="bg-transparent w-screen">
-          <ApresentationInitialSection />
+          <ApresentationInitialSection
+            setIsModalOpen={() => setIsWailtistModalOpen(true)}
+          />
           <ApresentationPrincipalFeaturesSection />
           <ApresentationMobileMockupSection />
-          <ApresentationFeaturesSection />
-          <ApresentationCheffiaAbout />
-          <ApresentationCheffiaCompetitiveAdvantages />
-          <ApresentationMissionAndValues />
+          <ApresentationFeaturesSection
+            setIsModalOpen={() => setIsWailtistModalOpen(true)}
+          />
+          <ApresentationCheffiaAbout
+            setIsModalOpen={() => setIsWailtistModalOpen(true)}
+          />
+          <ApresentationCheffiaCompetitiveAdvantages
+            setIsModalOpen={() => setIsWailtistModalOpen(true)}
+          />
+          <ApresentationMissionAndValues
+            setIsModalOpen={() => setIsWailtistModalOpen(true)}
+          />
           <ApresentationQuestionsAndAsnwers
-            setIsModalOpen={() => setIsModalOpen(true)}
+            setIsModalOpen={() => setIsSendAskModalOpen(true)}
           />
         </aside>
       </main>
+
       <footer className="w-screen text-center flex flex-col py-10 gap-4 md:gap-0 bg-background-default">
         <FooterSection />
         <div

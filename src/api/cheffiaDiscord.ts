@@ -1,56 +1,56 @@
 import { Output } from "@/models/Output";
 import { cheffiaDiscordConfig } from "./config/cheffiaDiscord";
 import { InputAskCheffia } from "@/models/dtos/input/InputAskCheffia";
+import axios from "axios";
+import { InputJoinWaitlist } from "@/models/dtos/input/InputJoinWaitlist";
 
-// const url = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_URL as string;
-const url = "https://discord.com/api/webhooks/1368280027128528947/bJZcruH765sDxs4qo7pm4BNgsd1p9_DaF8gBRGm44Tsz0bTyYPaKSPoynrHJawDUGhPB";
+const sendAskUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_ASK as string;
+const waitlistUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_WAITLIST as string;
 
 export const SendAskToCheffia = async (input: InputAskCheffia): Promise<Output> => {
   try {
-    const data = {
-      username: input.username,
-      embeds: [
-        {
-          title: input.title,
-          color: input.color,
-          fields: [
-            {
-              name: "Name",
-              value: input.name,
-              inline: true,
-            },
-            {
-              name: "Email",
-              value: input.email,
-              inline: true,
-            },
-            {
-              name: "Country Code",
-              value: input.countryCode,
-              inline: true,
-            },
-            {
-              name: "Contact",
-              value: input.contact,
-              inline: true,
-            },
-            {
-              name: "Message",
-              value: input.message,
-            },
-          ],
-        },
-      ],
-    };
-
-    console.log("Sending data to Cheffia:", data);
-    console.log("Webhook URL:", url);
-
-    const response = await cheffiaDiscordConfig.post(url, data);
+    const response = await cheffiaDiscordConfig.post(
+      sendAskUrl,
+      input.toDiscordAskChannelPayload()
+    );
 
     return response.data;
-  } catch (error) {
-    console.error('Error sending ask to Cheffia:', error);
+  } catch (error: any) {
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    } else {
+      console.error("Error message:", error.message);
+    }
+    throw error;
+  }
+}
+
+export const insertClientOnWaitlist = async (input: InputJoinWaitlist): Promise<Output> => {
+  try {
+
+        console.log('Data to insert on waitlist:', input);
+    console.log('Data to insert on waitlist:', JSON.stringify(input.toDiscordWaitlistChannelPayload(), null, 2));
+
+    const response = await cheffiaDiscordConfig.post(
+      waitlistUrl, 
+      input.toDiscordWaitlistChannelPayload()
+    );
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+    } else {
+      console.error("Error message:", error.message);
+    }
     throw error;
   }
 }

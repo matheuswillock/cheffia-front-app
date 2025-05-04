@@ -3,10 +3,14 @@ import Frame485 from "../../public/assets/Icons/Frame-485.svg";
 import Frame486 from "../../public/assets/Icons/Frame-486.svg";
 import Frame487 from "../../public/assets/Icons/Frame-487.svg";
 import ButtonCta from "./ButtonCta";
-import { clsx } from 'clsx';
 
-export default function ApresentationCheffiaCompetitiveAdvantages() {
+interface ApresentationCheffiaCompetitiveAdvantagesProps {
+  setIsModalOpen: () => void;
+}
 
+export default function ApresentationCheffiaCompetitiveAdvantages({
+  setIsModalOpen,
+}: ApresentationCheffiaCompetitiveAdvantagesProps) {
   const items = [
     {
       image: Frame485,
@@ -29,7 +33,7 @@ export default function ApresentationCheffiaCompetitiveAdvantages() {
   ];
 
   return (
-    <section 
+    <section
       className="
           bg-background-default
           rounded-3xl
@@ -46,7 +50,7 @@ export default function ApresentationCheffiaCompetitiveAdvantages() {
           overflow-hidden
           z-10
         "
-      >
+    >
       <div className="relative flex flex-col items-center justify-center mt-10">
         <div className="absolute -top-[45%] sm:-top-[42%] md:-top-[35%] lg:-top-[30%] xl:-top-[15%] 2xl:-top-[12%] flex items-center justify-center w-full pointer-events-none">
           <div className="h-11 w-[90%] opacity-100 blur-lg bg-neon-radial-Competitive-advantages rounded-full z-10" />
@@ -120,7 +124,9 @@ export default function ApresentationCheffiaCompetitiveAdvantages() {
         ))}
       </div>
 
-      <ButtonCta />
+      <ButtonCta 
+        setIsModalOpen={setIsModalOpen}
+      />
     </section>
   );
 }

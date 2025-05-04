@@ -6,7 +6,13 @@ import Frame490 from "../../public/assets/Icons/Frame-490.svg";
 import Separator from "../../public/assets/Icons/separator.svg"
 import ButtonCta from "./ButtonCta";
 
-export default function ApresentationMissionAndValues() {
+interface ApresentationMissionAndValuesProps {
+  setIsModalOpen: () => void;
+}
+
+export default function ApresentationMissionAndValues({
+  setIsModalOpen,
+}: ApresentationMissionAndValuesProps) {
   const itemsValue = [
     {
       title: "Inovação",
@@ -488,7 +494,9 @@ export default function ApresentationMissionAndValues() {
           ))}
 
           <div className="flex flex-col items-start md:items-center justify-center h-full gap-6 w-full mt-8 md:mt-0">
-            <ButtonCta />
+            <ButtonCta 
+              setIsModalOpen={setIsModalOpen}
+            />
           </div>
         </div>
       </div>

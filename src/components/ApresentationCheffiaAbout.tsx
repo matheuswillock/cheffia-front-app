@@ -3,7 +3,13 @@ import Frame454 from "../../public/assets/Icons/Frame-454.svg";
 import CheckIcon from "../../public/assets/Icons/icon-check.svg"
 import ButtonCta from "./ButtonCta";
 
-export default function ApresentationCheffiaAbout() {
+interface ApresentationCheffiaAboutProps {
+  setIsModalOpen: () => void;
+}
+
+export default function ApresentationCheffiaAbout({
+  setIsModalOpen,
+}: ApresentationCheffiaAboutProps) {
   return (
     <section className="bg-background-white w-screen -mt-12 py-28 xl:py-40 px-10 flex flex-col items-center justify-center gap-10 lg:gap-16 xl:gap-20">
       <div
@@ -455,7 +461,9 @@ export default function ApresentationCheffiaAbout() {
         </p>
       </div>
 
-      <ButtonCta />
+      <ButtonCta 
+        setIsModalOpen={setIsModalOpen}
+      />
     </section>
   );
 }
