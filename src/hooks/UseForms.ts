@@ -1,7 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AddMenuItemSchema, RegisterRestaurantFormSchema, signUpFormSchema } from "@/utils/validation";
-import { AddMenuItemData, RegisterRestaurantFormData, SignUpFormData } from "@/types/formTypes";
+import { 
+  AddMenuItemSchema, 
+  AskAQuestionSchema, 
+  JoinWaitlistSchema, 
+  RegisterRestaurantFormSchema, 
+  signUpFormSchema 
+} from "@/utils/validation";
+import { 
+  AddMenuItemData, 
+  RegisterRestaurantFormData, 
+  SignUpFormData, 
+  AskAQuestionData, 
+  JoinWaitlistData
+} from "@/types/formTypes";
 
 interface UseRegisterRestaurantFormProps {
   ownerFullName?: string;
@@ -59,6 +71,39 @@ export function UseAddMenuItemForm({ restaurantId }: UseAddMenuItemFormProps) {
       ingredients: [],
       itemMedia: undefined,
       restaurantId: restaurantId
+    }
+  });
+}
+
+export function UseAskAQuestionForm() {
+  return useForm<AskAQuestionData>({
+    resolver: zodResolver(AskAQuestionSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      email: "",
+      countryCode: "",
+      contact: "",
+      message: ""
+    }
+  });
+}
+
+export function UseJoinWaitlistForm() {
+  return useForm<JoinWaitlistData>({
+    resolver: zodResolver(JoinWaitlistSchema),
+    mode: "onChange",
+    defaultValues: {
+      restaurantName: "",
+      name: "",
+      email: "",
+      countryCode: "",
+      restaurantContact: "",
+      city: "",
+      state: "",
+      restaurantSize: "",
+      ticketAverage: "",
+      platformName: "",
     }
   });
 }

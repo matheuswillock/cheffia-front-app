@@ -1,4 +1,5 @@
 "use client"
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,7 +28,6 @@ export function SignUpForm({
     e.preventDefault();
     onSignUp(new FormData(e.currentTarget));
   }
-
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -91,7 +91,7 @@ export function SignUpForm({
                   >
                     Criar conta
                   </Button>
-                  
+
                 </div>
               </form>
             </Form>
