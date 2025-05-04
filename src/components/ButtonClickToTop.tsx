@@ -7,12 +7,10 @@ import UpIcon from "../../public/assets/Icons/up-to-top-icon.svg";
 export default function ButtonClickToTop() {
   const [isVisible, setIsVisible] = useState(false);
 
-  // Função para rolar a tela para o topo
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Mostrar o botão apenas quando o usuário rolar para baixo
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.scrollY > 300) {
@@ -29,7 +27,7 @@ export default function ButtonClickToTop() {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-6 right-6 z-50 rounded-full transition-opacity ${
+      className={`fixed bottom-6 right-6 lg:bottom-8 lg:right-8 z-50 rounded-full transition-opacity ${
         isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
       aria-label="Voltar ao topo"
@@ -37,8 +35,10 @@ export default function ButtonClickToTop() {
       <Image
         src={UpIcon}
         alt="Ícone de seta para cima"
-        width={24}
-        height={24}
+        width={32}
+        height={52}
+        className="w-7 h-12 md:w-10 md:h-16 lg:w-12 lg:h-18 shadow-lg transition-transform transform hover:scale-110 active:scale-95 duration-200 ease-in-out"
+        draggable="false"
       />
     </button>
   );

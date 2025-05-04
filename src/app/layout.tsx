@@ -90,9 +90,9 @@ export const metadata: Metadata = {
   creator: "Cheffia",
   publisher: "Cheffia",
   appleWebApp: {
-    capable: true, // Habilita o modo Web App no iOS
-    title: "Cheffia", // Título exibido no modo Web App
-    statusBarStyle: "black-translucent", // Estilo da barra de status
+    capable: true,
+    title: "Cheffia",
+    statusBarStyle: "black-translucent",
     startupImage: [
       // {
       //   url: "/images/startup-image-640x1136.png",
@@ -148,6 +148,7 @@ export default function RootLayout({
           container
           font-clash
           min-h-screen
+          min-w-screen
           w-full
           subpixel-antialiased`}
       >

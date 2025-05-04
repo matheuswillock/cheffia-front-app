@@ -84,7 +84,7 @@ export default {
   			button: {
   				DEFAULT: "#01FBA1",
 					foreground: "#2D2D2D",
-  				dark: "#22CF90"
+					dark: "#3C7A63"
   			},
   			popover: {
   				DEFAULT: 'hsl(var(--popover))',

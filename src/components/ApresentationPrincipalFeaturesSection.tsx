@@ -6,7 +6,6 @@ import QrCodeIcon from "../../public/assets/Icons/code-scan-svgrepo-com-2.svg";
 import FinanceIcon from "../../public/assets/Icons/financeIcon.svg";
 import DocIcon from "../../public/assets/Icons/docIcon.svg";
 
-
 export function ApresentationPrincipalFeaturesSection() {
   const carouselRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -42,7 +41,7 @@ export function ApresentationPrincipalFeaturesSection() {
     {
       title: "QR Code Personalizado",
       description: (
-        <div className="text-base font-normal font-inter text-foreground-card mt-4 flex flex-col gap-5 text-start leading-[18px]">
+        <div className="text-base font-normal font-inter text-foreground-card flex flex-col items-center justify-center gap-5 text-start leading-[18px]">
           <p>
             Cada mesa possui um{" "}
             <span className="font-semibold underline decoration-foreground-card decoration-1 underline-offset-2 rounded-2xl">
@@ -72,7 +71,7 @@ export function ApresentationPrincipalFeaturesSection() {
     {
       title: "Pedidos Digitais via QR Code",
       description: (
-        <div className="text-base font-normal font-inter text-foreground-card mt-4 flex flex-col gap-5 leading-[18px]">
+        <div className="text-base font-normal font-inter text-foreground-card flex flex-col items-center justify-center gap-5 leading-[18px]">
           <p>
             Transforme a experiência do cliente com pedidos digitais. O{" "}
             <span className="font-semibold underline decoration-foreground-card decoration-1 underline-offset-2 rounded-2xl">
@@ -95,7 +94,7 @@ export function ApresentationPrincipalFeaturesSection() {
     {
       title: "Pagamento Integrado",
       description: (
-        <div className="text-base font-normal font-inter text-foreground-card mt-4 flex flex-col gap-5 leading-[18px]">
+        <div className="text-base font-normal font-inter text-foreground-card flex flex-col items-center justify-center gap-5 leading-[18px]">
           <p>
             Ofereça praticidade com pagamentos integrados via{" "}
             <span className="font-semibold underline decoration-foreground-card decoration-1 underline-offset-2 rounded-2xl">
@@ -125,20 +124,41 @@ export function ApresentationPrincipalFeaturesSection() {
   return (
     <section
       ref={carouselRef}
-      className="flex overflow-x-auto snap-x snap-mandatory gap-4 px-4 py-8"
+      className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:max-w-[1040px] xl:max-w-[1220px] md:mx-auto px-4 py-8"
     >
       {items.map((item, index) => (
         <div
           key={index}
-          className="flex-shrink-0 w-[296px] h-[320px] flex flex-col items-center bg-background-card rounded-3xl px-8 pt-4 snap-center scroll-smooth"
+          className="
+            flex-shrink-0
+            w-80
+            xl:w-96
+            h-72
+            xl:h-64
+            md:mx-auto
+            gap-5
+            flex
+            flex-col
+            items-center
+            bg-background-card
+            rounded-3xl
+            px-8
+            pt-4
+            snap-center
+            scroll-smooth
+            transition-transform
+            duration-300
+            ease-in-out
+          "
         >
-          <div className="flex h-[57px] flex-row items-center gap-4 justify-start">
+          <div className="flex h-[57px] flex-row items-center gap-4 justify-start mr-16 md:mr-14">
             <Image
               src={item.icon}
               alt={item.title}
               width={43}
               height={43}
               priority={true}
+              loading="eager"
             />
             <h3 className="text-xl font-bold font-inter text-transparent bg-clip-text bg-linear-green leading-[1.2]">
               {item.title}
