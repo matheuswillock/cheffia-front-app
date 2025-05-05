@@ -627,7 +627,7 @@ export default function JoinWaitlistModal({ isOpen, onClose }: JoinWaitlistProps
                   ease-in-out
                 "
               >
-                Enviar Pergunta
+                Entrar na lista de espera
               </Button>
             </div>
           </form>
