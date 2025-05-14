@@ -5,6 +5,9 @@ import { InputItem } from "@/models/dtos/input/InputToAddMenuItem";
 
 export const AddMenuItemToMenu = async (input: InputItem, media: File , restaurantId: string) => {
   try {
+    console.log('input', input);
+    console.log('media', JSON.stringify(setupFormData(input, media, restaurantId), null, 2));
+
     const response = await cheffiaApiConfig.post(
       MenuRoutes.add,
       setupFormData(input, media, restaurantId), {
@@ -14,16 +17,28 @@ export const AddMenuItemToMenu = async (input: InputItem, media: File , restaura
       }
     )
 
+    console.log('response', response.data);
+
     return response.data;
-  } catch (error) {
-    console.error('Error adding item to menu:', error);
-    throw error;
+  } catch (error: any) {
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+      return new Output(false, [], ['Error getting all menu items'], undefined);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+      return new Output(false, [], ['Error getting all menu items'], undefined);
+    }
+    console.error("Error message:", error.message);
+    console.error('Error getting all menu items:', error);
+    return new Output(false, [], ['Error getting all menu items'], undefined);
   }
 };
 
 export const GetAllMenuItems = async (restaurantId: string): Promise<Output> => {
   try {
-    const response = await cheffiaApiConfig.post(
+    const response = await cheffiaApiConfig.get(
       MenuRoutes.allMenuItems, {
         params: {
           restaurantId
@@ -31,8 +46,20 @@ export const GetAllMenuItems = async (restaurantId: string): Promise<Output> => 
       }
     );
 
+    console.log('response', response.data);
+
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+      return new Output(false, [], ['Error getting all menu items'], undefined);
+    } else if (error.request) {
+      console.error("Error request:", error.request);
+      return new Output(false, [], ['Error getting all menu items'], undefined);
+    }
+    console.error("Error message:", error.message);
     console.error('Error getting all menu items:', error);
     return new Output(false, [], ['Error getting all menu items'], undefined);
   }
@@ -40,10 +67,9 @@ export const GetAllMenuItems = async (restaurantId: string): Promise<Output> => 
 
 export const DeleteMenuItem = async (itemId: string): Promise<Output> => {
   try {
+
     const response = await cheffiaApiConfig.delete(
-      MenuRoutes.deleteItem, {
-        params: { itemId }
-      }
+      `${MenuRoutes.deleteItem}/${itemId}`
     );
 
     return response.data;

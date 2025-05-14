@@ -102,8 +102,13 @@ export default function QRCodeGenerator({restaurantId} : QRCodeGeneratorProps) {
   }
 
   const generateQRUrl = (tableNumber: number) => {
-    return `/restaurant/menu/${restaurantId}?table=${tableNumber}`
-  }
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://cheffia.com";
+    return `${baseUrl}/menu-live?r=${restaurantId}&t=${tableNumber}`;
+  };
+
 
   const renderQRCodes = () => {
     return (

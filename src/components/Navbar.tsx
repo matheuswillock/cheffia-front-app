@@ -89,7 +89,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* <Link href="/sign-in">
+          <Link href="/sign-in">
             <button
               className="
                 h-8
@@ -113,7 +113,7 @@ export function Navbar() {
             >
               Área do cliente
             </button>
-          </Link> */}
+          </Link>
         </div>
 
         {/* Botão de menu para mobile */}

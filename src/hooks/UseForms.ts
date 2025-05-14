@@ -69,6 +69,7 @@ export function UseAddMenuItemForm({ restaurantId }: UseAddMenuItemFormProps) {
       description: "",
       price: 0,
       ingredients: [],
+      category: "",
       itemMedia: undefined,
       restaurantId: restaurantId
     }

@@ -614,8 +614,6 @@ export default function JoinWaitlistModal({ isOpen, onClose }: JoinWaitlistProps
                   font-semibold
                   bg-button
                   text-foreground-aboutBlack
-                  hover:bg-button-solid
-                  hover:text-background
                   mouse-pointer
                   hover:shadow-2xl
                   shadow-md

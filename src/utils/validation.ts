@@ -36,10 +36,11 @@ export const AddMenuItemSchema = z.object({
   ingredients: z.array(
     z.string().min(3, "Cada ingrediente deve ter no mínimo 3 caracteres")
   ).min(1, "A lista de ingredientes não pode ser vazia"),
+  category: z.string().nonempty("A categoria do item é obrigatória"),
   itemMedia: z.instanceof(File).refine(file => file instanceof File, {
     message: "Insira um arquivo de mídia válido para o item"
-  }),
-  restaurantId: z.string().uuid("O ID do restaurante é obrigatório")
+  }).optional(),
+  restaurantId: z.string().uuid("O Id do restaurante é obrigatório")
 });
 
 export const AskAQuestionSchema = z.object({

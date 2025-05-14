@@ -4,9 +4,10 @@ import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
 import { getRestaurantById, registerRestaurant } from "@/api/restaurant";
 import {verifySessionClient, createClient} from "@/utils/supabase/client";
-import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
-import { OutputRegisterRestaurant } from "@/models/dtos/output/OutputRegisterRestaurant";
 import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";
+import { json } from "stream/consumers";
+import { OutputGetRestaurantById } from "@/models/dtos/output/Restaurant/OutputGetRestaurantById";
+import { OutputRegisterRestaurant } from "@/models/dtos/output/Restaurant/OutputRegisterRestaurant";
 
 const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 
@@ -16,11 +17,16 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
     data.document = data.document.replace(/[^0-9]/g, "");
     data.phoneNumber = data.phoneNumber.replace(/[^0-9]/g, "");
 
-    const output = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
+    const response = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
 
-    if (!output.isValid) throw new Error('Erro ao cadastrar restaurante');
+    if (!response.isValid) throw new Error('Erro ao cadastrar restaurante');
+
+    var output = OutputRegisterRestaurant.fromOutputResult(response);
+
+    console.log('output', output);
+    console.log('output', JSON.stringify(output, null, 2));
     
-    return OutputRegisterRestaurant.fromOutputResult(output);
+    return output;
   } catch (error) {
     console.error('Error registering restaurant:', error);
     throw error;

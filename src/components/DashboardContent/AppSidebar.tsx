@@ -11,7 +11,6 @@ interface AppSidebarProps {
     Name: string;
     Email: string;
     Avatar: string;
-    Id: string;
     RestaurantId: string;
 }
 
@@ -20,8 +19,7 @@ export default function AppSidebar({
   Name,
   Email,
   Avatar,
-  Id,
-  RestaurantId, 
+  RestaurantId,
 } : AppSidebarProps) {
 
   const navMainContent = [
@@ -73,10 +71,10 @@ export default function AppSidebar({
   }
 
   return (
-    <Sidebar className="py-4">
+    <Sidebar className="">
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-2xl mb-2">
+        <SidebarGroup className="pt-8">
+          <SidebarGroupLabel className="text-2xl mb-2 ">
             Cheffia
           </SidebarGroupLabel>
 

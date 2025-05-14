@@ -21,3 +21,8 @@ export const CheffiaDiscordRoutes = {
   sendAsk: sendAskUrl,
   insertClientOnWaitlist: waitlistUrl
 }
+
+export const MenuLiveRoutes = {
+  getMenuLive: (restaurantId: string) => `/menu-live?r=${restaurantId}`,
+  getMenuLiveByTable: (restaurantId: string, tableNumber: string) => `/MenuLive?restaurantId=${restaurantId}&table=${tableNumber}`
+}

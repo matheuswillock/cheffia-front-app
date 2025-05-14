@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from 'next/image';
 import { useEffect, useState } from "react";
 import LoadingSpin from "@/assets/loading-spin.svg";
@@ -10,6 +9,9 @@ import { MenuItem } from "@/models/menuModels/MenuItem";
 import { useParams } from "next/navigation";
 import MenuListToEdit from "@/components/MenuContent/Edit/MenuListToEdit";
 import MenuForm from "@/components/MenuContent/Edit/MenuForm";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Category } from "@/models/menuModels/Category";
 
 export default function EditMenuPage() {
   const [loadError, setLoadError] = useState(false);
@@ -18,12 +20,14 @@ export default function EditMenuPage() {
   const [loadingEditItem, setLoadingEditItem] = useState(false);
   const [loadingMenuItems, setLoadingMenuItems] = useState(false);
   const [menuItemsList, setMenuItemsList] = useState<MenuItem[]>(new Array<MenuItem>());
+  const [menuCategories, setMenuCategories] = useState<Category[]>(
+    new Array<Category>()
+  );
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState('');
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showErrorMessage, setShowErrorMessage] = useState('');
   const {slug} = useParams();
-  
 
   const reLoadMenuItems = (success: boolean) => {
     if (success) {
@@ -40,11 +44,8 @@ export default function EditMenuPage() {
     setLoadingMenuItems(true);
     try {
       const response = await handleGetAllMenuItems(slug as string);
-
-      if (response && response.length > 0) {
-        setMenuItemsList(response);      
-      } 
-
+      setMenuItemsList(response.items);
+      setMenuCategories(response.categories);
       setLoadingMenuItems(false);
     } catch (error) {
       setLoadError(true);
@@ -63,6 +64,7 @@ export default function EditMenuPage() {
       setLoadingDeleteItem(true);
       await handleDeleteMenuItem(menuItemId);
       setLoadingDeleteItem(false);
+      setShowSuccessMessage("Item deletado com sucesso.");
       fetchMenuItems();
     }catch (error) {
       console.error("Error deleting menu item:", error);
@@ -76,56 +78,76 @@ export default function EditMenuPage() {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <Card className="mt-16 shadow-md drop-shadow-4xl shadow-sidebar-primary-foreground rounded-xl">
+    <div className="w-screen px-4 py-8">
+      <div className="w-full border-none gap-4 flex flex-col items-center justify-center sm:max-w-[560px] md:max-w-[640px] lg:max-w-[720px] xl:max-w-[820px] mx-auto">
+        <header className="flex flex-col gap-2 w-full lg:flex-row lg:justify-between lg:items-center">
+          <h2 className="font-semibold text-3xl xl:text-4xl">Cardápio</h2>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                className="
+                  text-base
+                  md:text-lg
+                  xl:text-xl
+                  h-9
+                  sm:h-10
+                  md:h-11
+                  xl:h-12
+                  font-medium
+                  font-inter
+                  text-center
+                  bg-background-green
+                  hover:bg-background-green/60
+                  text-foreground-black
+                  rounded-lg
+                  p-2
+                  transition-colors
+                  duration-200
+                "
+              >
+                + Adicionar novo item ao cardápio
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <MenuForm
+                restaurantId={slug as string}
+                menuCategories={menuCategories}
+                reloadMenuItemsList={(success: boolean) => reLoadMenuItems(success)}
+              />
+            </SheetContent>
+          </Sheet>
+        </header>
 
-        <CardHeader>
-          <h2 className="">Edit Menu</h2>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
-
+        <div className="flex flex-col gap-4 w-full bg-background-card rounded-lg min-h-96 md:min-h-[480px] lg:min-h-[560px]">
+          <div className="w-full h-full flex flex-col items-center justify-center mx-auto ">
             {loadingMenuItems ? (
-              <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center h-full mt-32">
                 <Image
                   src={LoadingSpin}
                   alt="Loading"
-                  className="h-32 w-32 animate-spin"
+                  className="h-32 w-32 animate-spin flex items-end justify-center"
                 />
               </div>
-
             ) : loadError ? (
               <div className="flex flex-col items-center justify-center gap-4">
-                <Image 
-                  src={CircleX} 
-                  alt={"Erro ao carregar os itens do menu"} 
+                <Image
+                  src={CircleX}
+                  alt={"Erro ao carregar os itens do menu"}
                   className="h-32 w-32"
-                />      
-                <h3 className="text-xl font-semibold">
-                  {loadErorMessage}
-                </h3>
+                />
+                <h3 className="text-xl font-semibold">{loadErorMessage}</h3>
               </div>
             ) : (
-              <MenuListToEdit 
-                items={menuItemsList}      
+              <MenuListToEdit
+                items={menuItemsList}
                 handleDeleteButton={deleteMenuItem}
                 loadingButtonDeleteItem={loadingDeleteItem}
                 loadingButtonEditItem={loadingEditItem}
               />
             )}
-
-            <div className="p-4 border-muted-fore border-4 rounded-xl flex flex-col gap-4">
-              <h3 className="text-xl font-semibold">Add Menu Item</h3>
-              <MenuForm 
-                restaurantId={slug as string} 
-                reloadMenuItemsList={(success: boolean) => reLoadMenuItems(success)}
-              />
-            </div>
-
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

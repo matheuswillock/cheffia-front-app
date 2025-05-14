@@ -12,17 +12,17 @@ export default function BadgeItems({item, index, handleDelete} : BadgeItemsProps
     <TooltipProvider>
       <Tooltip>
       <TooltipTrigger asChild>
-        <Badge 
-          key={index} 
-          variant="secondary" 
-          className="rounded-xl mb-2 text-base font-medium text-foreground-default"
-          onClick={() => handleDelete(index)}  
+        <Badge
+          key={index}
+          variant="secondary"
+          className="rounded-xl mb-2 text-base xl:text-lg font-medium font-inter text-foreground-default"
+          onClick={() => handleDelete(index)}
         >
         {item}
         </Badge>
       </TooltipTrigger>
-      <TooltipContent 
-        className="bg-red-500 bg-opacity-80 text-foreground-default font-base text-xs rounded-xl p-2"        
+      <TooltipContent
+        className="bg-red-500 font-inter text-sm md:text-base text-foreground-default font-normal md:font-medium rounded-xl p-2 "
       >
         Clique para deletar
       </TooltipContent>
