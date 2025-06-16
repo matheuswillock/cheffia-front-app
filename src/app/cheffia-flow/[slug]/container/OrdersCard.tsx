@@ -19,7 +19,9 @@ export function OrdersCard({ order, onAction }: OrdersCardProps) {
         ))}
       </div> */}
       <div className="flex justify-between items-center mt-2">
-        <span className="text-xs">{order.dispatchDate.toLocaleString()}</span>
+        <span className="text-xs">
+          {new Date(order.dispatchDate).toLocaleString()}
+        </span>
         <Button
           size="sm"
           className="

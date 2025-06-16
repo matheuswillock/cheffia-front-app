@@ -13,13 +13,28 @@ export default function Page() {
   const { slug } = useParams();
   const { orders, status, setOrders } = useWebSocket(slug as string);
 
-  function handleStatusChange(id: string, newStatus: string) {
+  function handleStatusChange(
+    orderId: string,
+    orderItemNumber: number,
+    newStatus: string
+  ) {
     setOrders((prev) =>
-      prev.map((p) =>
-        p.customerOrderId === id ? { ...p, orderStatus: newStatus } : p
+      prev.map((order) =>
+        order.customerOrderId === orderId
+          ? {
+              ...order,
+              orderItems: order.orderItems.map((item) =>
+                item.orderNumber === orderItemNumber
+                  ? { ...item, orderItemStatus: newStatus }
+                  : item
+              ),
+            }
+          : order
       )
     );
-    console.debug(`Status do pedido ${id} alterado para ${newStatus}`);
+    console.debug(
+      `Status do item ${orderItemNumber} do pedido ${orderId} alterado para ${newStatus}`
+    );
   }
 
   if (!slug) {

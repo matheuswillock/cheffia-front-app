@@ -1,6 +1,7 @@
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { OrdersCard } from "./OrdersCard";
 import { NewRequestOrder } from "@/models/cheffiaFlowModels/NewRequestOrder";
+import { OrderItem } from "@/models/cheffiaFlowModels/OrderItem";
 
 const statusLabels = {
   recebido: "Recebidos",
@@ -11,31 +12,49 @@ const statusLabels = {
 interface OrdersBoardProps {
   orders: NewRequestOrder[];
   onStatusChange: (
-    id: string,
-    newStatus: NewRequestOrder["orderStatus"]
+    orderId: string,
+    orderItemNumber: number,
+    newStatus: string
   ) => void;
 }
 
 export function OrdersBoard({ orders, onStatusChange }: OrdersBoardProps) {
   type StatusKey = "recebido" | "preparo" | "pronto";
 
-  // Derive as colunas diretamente dos pedidos recebidos via props
-  const columns: Record<StatusKey, NewRequestOrder[]> = {
-    recebido: orders.filter((p) => p.orderStatus === "recebido"),
-    preparo: orders.filter((p) => p.orderStatus === "preparo"),
-    pronto: orders.filter((p) => p.orderStatus === "pronto"),
+  type ItemWithOrder = { item: OrderItem; orderId: string };
+
+  const columns: Record<StatusKey, ItemWithOrder[]> = {
+    recebido: [],
+    preparo: [],
+    pronto: [],
   };
+
+  orders.forEach((order) => {
+    order.orderItems.forEach((item) => {
+      const status = item.orderItemStatus?.toLowerCase();
+      if (status === "received") {
+        columns.recebido.push({ item, orderId: order.customerOrderId });
+      } else if (status === "cooking") {
+        columns.preparo.push({ item, orderId: order.customerOrderId });
+      } else if (status === "ready") {
+        columns.pronto.push({ item, orderId: order.customerOrderId });
+      }
+    });
+  });
 
   function onDragEnd(result: any) {
     if (!result.destination) return;
     const sourceCol = result.source.droppableId as StatusKey;
     const destCol = result.destination.droppableId as StatusKey;
     if (sourceCol === destCol) return;
-
-    const sourcePedidos = Array.from(columns[sourceCol]);
-    const [removed] = sourcePedidos.splice(result.source.index, 1);
-    // Atualiza o status do pedido via callback do pai
-    onStatusChange(removed.customerOrderId, destCol as NewRequestOrder["orderStatus"]);
+    const [orderId, orderNumberStr] = result.draggableId.split("-");
+    const orderNumber = Number(orderNumberStr);
+    const statusMap: Record<StatusKey, string> = {
+      recebido: "Received",
+      preparo: "Cooking",
+      pronto: "Ready",
+    };
+    onStatusChange(orderId, orderNumber, statusMap[destCol]);
   }
 
   return (
@@ -54,10 +73,10 @@ export function OrdersBoard({ orders, onStatusChange }: OrdersBoardProps) {
                     {statusLabels[status as StatusKey]}
                   </h2>
                 </div>
-                {orders.map((order, idx) => (
+                {orders.map(({ item, orderId }, idx) => (
                   <Draggable
-                    key={order.customerOrderId}
-                    draggableId={order.customerOrderId}
+                    key={`${orderId}-${item.orderNumber}`}
+                    draggableId={`${orderId}-${item.orderNumber}`}
                     index={idx}
                   >
                     {(provided) => (
@@ -66,24 +85,19 @@ export function OrdersBoard({ orders, onStatusChange }: OrdersBoardProps) {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        {order.orderItems.map((item, idx) => (
-                          <OrdersCard
-                            key={idx}
-                            order={item}
-                            onAction={() => {
-                              const next =
-                                order.orderStatus === "recebido"
-                                  ? "preparo"
-                                  : order.orderStatus === "preparo"
-                                  ? "pronto"
-                                  : "pronto";
-                              onStatusChange(
-                                order.customerOrderId,
-                                next as NewRequestOrder["orderStatus"]
-                              );
-                            }}
-                          />
-                        ))}
+                        <OrdersCard
+                          key={`${orderId}-${item.orderNumber}`}
+                          order={item}
+                          onAction={() => {
+                            const next =
+                              item.orderItemStatus === "Received"
+                                ? "Cooking"
+                                : item.orderItemStatus === "Cooking"
+                                ? "Ready"
+                                : "Ready";
+                            onStatusChange(orderId, item.orderNumber, next);
+                          }}
+                        />
                       </div>
                     )}
                   </Draggable>
