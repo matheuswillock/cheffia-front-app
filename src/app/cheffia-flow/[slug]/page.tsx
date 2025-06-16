@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Pedido } from "./Pedido";
-// import { PedidosBoard } from "./PedidosBoard";
+import { useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import LogoGreen from "../../../../public/assets/Icons/simbolo-verde.png"
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { OrdersBoard } from "./container/OrdersBoard";
-import { NewRequestOrder } from "@/models/cheffiaFlowModels/NewRequestOrder";
 import { useWebSocket } from "@/hooks/CheffiaFlowHooks/useWebSocket";
 
 export default function Page() {
