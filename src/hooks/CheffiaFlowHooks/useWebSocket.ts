@@ -1,6 +1,34 @@
 import { NewRequestOrder } from "@/models/cheffiaFlowModels/NewRequestOrder";
+import { OrderItem } from "@/models/cheffiaFlowModels/OrderItem";
 import { useCallback, useEffect, useRef, useState } from "react";
 const websocketServerUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL as string;
+
+function mapOrderItem(data: any): OrderItem {
+  return {
+    orderNumber: data.orderNumber ?? data.OrderNumber,
+    itemName: data.itemName ?? data.ItemName,
+    quantity: data.quantity ?? data.Quantity,
+    comments: data.comments ?? data.Comments,
+    tableNumber: data.tableNumber ?? data.TableNumber,
+    dispatchDate: new Date(data.dispatchDate ?? data.DispatchDate),
+    price: data.price ?? data.Price,
+    orderItemStatus: data.orderItemStatus ?? data.Status ?? "Received",
+  } as OrderItem;
+}
+
+function mapOrder(data: any): NewRequestOrder {
+  return {
+    customerOrderId: data.customerOrderId ?? data.CustomerOrderId,
+    restaurantId: data.restaurantId ?? data.RestaurantId,
+    orderDate: new Date(data.orderDate ?? data.OrderDate),
+    paymentStatus: data.paymentStatus ?? data.PaymentStatus,
+    totalToPay: data.totalToPay ?? data.TotalToPay,
+    orderItems: (data.orderItems ?? data.OrderItems ?? []).map(mapOrderItem),
+    tableNumber: data.tableNumber ?? data.TableNumber,
+    orderStatus: data.orderStatus ?? data.OrderStatus ?? "recebido",
+    orderNumber: data.orderNumber ?? data.OrderNumber,
+  } as NewRequestOrder;
+}
 
 type WebSocketStatus = "connecting" | "open" | "closed" | "error";
 
@@ -28,13 +56,15 @@ export function useWebSocket(slug: string) {
 
     ws.current.onmessage = (event) => {
       try {
-        const newOrder: NewRequestOrder = JSON.parse(event.data);
+        const raw = JSON.parse(event.data);
+        const parsedOrder = mapOrder(raw);
+
         setOrders((prevOrders) => {
-          if (prevOrders.some((o) => o.customerOrderId === newOrder.customerOrderId))
+          if (prevOrders.some((o) => o.customerOrderId === parsedOrder.customerOrderId))
             return prevOrders;
-          return [...prevOrders, newOrder];
+          return [...prevOrders, parsedOrder];
         });
-        console.log("📦 Nova ordem recebida:", newOrder);
+        console.log("📦 Nova ordem recebida:", parsedOrder);
       } catch (error) {
         console.error("Erro ao parsear mensagem recebida:", error);
       }
