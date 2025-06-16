@@ -29,6 +29,12 @@ export function useWebSocket(slug: string) {
     ws.current.onmessage = (event) => {
       try {
         const newOrder: NewRequestOrder = JSON.parse(event.data);
+
+        newOrder.orderItems = newOrder.orderItems.map((item) => ({
+          ...item,
+          dispatchDate: new Date(item.dispatchDate),
+        }));
+
         setOrders((prevOrders) => {
           if (prevOrders.some((o) => o.customerOrderId === newOrder.customerOrderId))
             return prevOrders;

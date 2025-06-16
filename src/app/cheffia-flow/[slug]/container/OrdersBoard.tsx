@@ -66,10 +66,10 @@ export function OrdersBoard({ orders, onStatusChange }: OrdersBoardProps) {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        {order.orderItems.map((item, idx) => (
-                          <OrdersCard
-                            key={idx}
-                            order={item}
+                          {order.orderItems.map((item, idx) => (
+                            <OrdersCard
+                              key={`${order.customerOrderId}-${idx}`}
+                              order={item}
                             onAction={() => {
                               const next =
                                 order.orderStatus === "recebido"
