@@ -68,7 +68,7 @@ export function OrdersBoard({ orders, onStatusChange }: OrdersBoardProps) {
                       >
                         {order.orderItems.map((item, idx) => (
                           <OrdersCard
-                            key={idx}
+                            key={`${order.customerOrderId}-${item.orderNumber}-${idx}`}
                             order={item}
                             onAction={() => {
                               const next =

@@ -28,13 +28,22 @@ export function useWebSocket(slug: string) {
 
     ws.current.onmessage = (event) => {
       try {
-        const newOrder: NewRequestOrder = JSON.parse(event.data);
+        const raw = JSON.parse(event.data);
+        const parsedOrder: NewRequestOrder = {
+          ...raw,
+          orderDate: new Date(raw.orderDate),
+          orderItems: raw.orderItems.map((item: any) => ({
+            ...item,
+            dispatchDate: new Date(item.dispatchDate),
+          })),
+        };
+
         setOrders((prevOrders) => {
-          if (prevOrders.some((o) => o.customerOrderId === newOrder.customerOrderId))
+          if (prevOrders.some((o) => o.customerOrderId === parsedOrder.customerOrderId))
             return prevOrders;
-          return [...prevOrders, newOrder];
+          return [...prevOrders, parsedOrder];
         });
-        console.log("📦 Nova ordem recebida:", newOrder);
+        console.log("📦 Nova ordem recebida:", parsedOrder);
       } catch (error) {
         console.error("Erro ao parsear mensagem recebida:", error);
       }
