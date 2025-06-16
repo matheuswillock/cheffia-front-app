@@ -1,21 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/LandingPageContent/Navbar";
 import Link from "next/link";
-import ApresentationMobileMockupSection from "@/components/ApresentationMobileMockupSection";
-import ApresentationFeaturesSection from "@/components/ApresentationFeaturesSection";
-import ApresentationCheffiaAbout from "@/components/ApresentationCheffiaAbout";
-import ApresentationCheffiaCompetitiveAdvantages from "@/components/ApresentationCheffiaCompetitiveAdvantages";
-import ApresentationMissionAndValues from "@/components/ApresentationMissionAndValues";
-import ApresentationQuestionsAndAsnwers from "@/components/ApresentationQuestionsAndAsnwers";
-import FooterSection from "@/components/FooterSection";
-import { ApresentationPrincipalFeaturesSection } from "@/components/ApresentationPrincipalFeaturesSection";
-import ApresentationInitialSection from "@/components/ApresentationInitialSection";
-import ButtonClickToTop from "@/components/ButtonClickToTop";
-import NeonEffects from "@/components/NeonEffects";
-import AskAQuestion from "@/components/AskAQuestion";
-import JoinWaitlist from "@/components/JoinWaitlist";
+import ApresentationMobileMockupSection from "@/components/LandingPageContent/ApresentationMobileMockupSection";
+import ApresentationFeaturesSection from "@/components/LandingPageContent/ApresentationFeaturesSection";
+import ApresentationCheffiaAbout from "@/components/LandingPageContent/ApresentationCheffiaAbout";
+import ApresentationCheffiaCompetitiveAdvantages from "@/components/LandingPageContent/ApresentationCheffiaCompetitiveAdvantages";
+import ApresentationMissionAndValues from "@/components/LandingPageContent/ApresentationMissionAndValues";
+import ApresentationQuestionsAndAsnwers from "@/components/LandingPageContent/ApresentationQuestionsAndAsnwers";
+import FooterSection from "@/components/LandingPageContent/FooterSection";
+import { ApresentationPrincipalFeaturesSection } from "@/components/LandingPageContent/ApresentationPrincipalFeaturesSection";
+import ApresentationInitialSection from "@/components/LandingPageContent/ApresentationInitialSection";
+import ButtonClickToTop from "@/components/LandingPageContent/ButtonClickToTop";
+import NeonEffects from "@/components/LandingPageContent/NeonEffects";
+import AskAQuestion from "@/components/LandingPageContent/AskAQuestion";
+import JoinWaitlist from "@/components/LandingPageContent/JoinWaitlist";
 
 export default function Home() {
   const [isSendAskModalOpen, setIsSendAskModalOpen] = useState(false);

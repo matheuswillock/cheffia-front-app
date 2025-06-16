@@ -1,5 +1,5 @@
-import RegisterRestaurantForm from "@/components/RegisterRestaurantContent/RegisterRestaurantForm";
 import { verifySessionServer } from "@/utils/supabase/server";
+import RegisterRestaurantForm from "./container/RegisterRestaurantForm";
 
 export default async function RestaurantPage() {
   const session = await verifySessionServer();

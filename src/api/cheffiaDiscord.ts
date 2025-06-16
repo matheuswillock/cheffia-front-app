@@ -5,9 +5,6 @@ import axios from "axios";
 import { InputJoinWaitlist } from "@/models/dtos/input/InputJoinWaitlist";
 import { CheffiaDiscordRoutes } from "./routes/routesConfig";
 
-const sendAskUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_ASK as string;
-const waitlistUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_WAITLIST as string;
-
 export const SendAskToCheffia = async (input: InputAskCheffia): Promise<Output> => {
   try {
     const response = await cheffiaDiscordConfig.post(

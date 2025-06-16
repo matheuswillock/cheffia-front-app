@@ -24,5 +24,9 @@ export const CheffiaDiscordRoutes = {
 
 export const MenuLiveRoutes = {
   getMenuLive: (restaurantId: string) => `/menu-live?r=${restaurantId}`,
-  getMenuLiveByTable: (restaurantId: string, tableNumber: string) => `/MenuLive?restaurantId=${restaurantId}&table=${tableNumber}`
+  getMenuLiveByTable: (restaurantId: string, tableNumber: string) => `/MenuLive?restaurantId=${restaurantId}&table=${tableNumber}`,
 }
+
+export const orderRoutes = {
+  sendOrderToKitchen: '/OrderHub/send'
+};

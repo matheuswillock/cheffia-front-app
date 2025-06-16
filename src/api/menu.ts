@@ -1,16 +1,20 @@
 import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
 import { Output } from "@/models/Output";
 import { MenuRoutes } from '@/api/routes/routesConfig';
-import { InputItem } from "@/models/dtos/input/InputToAddMenuItem";
+import { InputItem } from "@/models/dtos/input/menu/InputItem";
 
-export const AddMenuItemToMenu = async (input: InputItem, media: File , restaurantId: string) => {
+export const AddMenuItemToMenu = async (input: InputItem, media: File | undefined, restaurantId: string) => {
   try {
     console.log('input', input);
     console.log('media', JSON.stringify(setupFormData(input, media, restaurantId), null, 2));
 
+    var formData = setupFormData(input, media, restaurantId);
+
+    console.log('setupFormData - formData', formData);
+
     const response = await cheffiaApiConfig.post(
       MenuRoutes.add,
-      setupFormData(input, media, restaurantId), {
+      formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -79,14 +83,22 @@ export const DeleteMenuItem = async (itemId: string): Promise<Output> => {
   }
 }
 
-const setupFormData = (input: InputItem, media: File , restaurantId: string) => {
+const setupFormData = (input: InputItem, media: File | undefined, restaurantId: string) => {
   const formData = new FormData();
   formData.append('Item.Name', input.name);
   formData.append('Item.Description', input.description);
   formData.append('Item.Price', input.price.toString());
-  formData.append('Item.Ingredients', JSON.stringify(input.ingredients));
-  formData.append('Item.ItemMedia', media);
+  if (media) {
+    formData.append('Item.ItemMedia', media);
+  }
   formData.append('RestaurantId', restaurantId);
+  formData.append('Item.CategoryId', input.categoryId);
+
+  input.ingredients.forEach((ingredient) => {
+    formData.append('Item.Ingredients', ingredient);
+  });
+
+  console.log('setupFormData - formData', formData);
 
   return formData;
 }

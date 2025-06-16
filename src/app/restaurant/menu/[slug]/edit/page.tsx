@@ -7,11 +7,11 @@ import CircleX from "@/assets/circle-x.svg";
 import { handleDeleteMenuItem, handleGetAllMenuItems } from "@/business/menu/menuBusiness";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import { useParams } from "next/navigation";
-import MenuListToEdit from "@/components/MenuContent/Edit/MenuListToEdit";
-import MenuForm from "@/components/MenuContent/Edit/MenuForm";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Category } from "@/models/menuModels/Category";
+import MenuForm from './container/MenuForm';
+import MenuListToEdit from './container/MenuListToEdit';
 
 export default function EditMenuPage() {
   const [loadError, setLoadError] = useState(false);
@@ -38,6 +38,7 @@ export default function EditMenuPage() {
     }
     setShowErrorMessage("Ocorreu um erro ao adicionar o item.");
     setShowErrorAlert(true);
+    setLoadingMenuItems(false);
   }
 
   const fetchMenuItems = async () => {
@@ -45,7 +46,9 @@ export default function EditMenuPage() {
     try {
       const response = await handleGetAllMenuItems(slug as string);
       setMenuItemsList(response.items);
+      console.log("Menu items fetched successfully:", response.items);
       setMenuCategories(response.categories);
+      console.log("Menu categories fetched successfully:", response.categories);
       setLoadingMenuItems(false);
     } catch (error) {
       setLoadError(true);
@@ -110,6 +113,7 @@ export default function EditMenuPage() {
             </SheetTrigger>
             <SheetContent>
               <MenuForm
+                setLoadingMenuItems={setLoadingMenuItems}
                 restaurantId={slug as string}
                 menuCategories={menuCategories}
                 reloadMenuItemsList={(success: boolean) => reLoadMenuItems(success)}

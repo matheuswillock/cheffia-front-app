@@ -1,40 +1,30 @@
 "use server"
 
-import { 
-  OrderItem, 
-  OrderStatus, 
-  OrderStatusResponse, 
-  OrderSubmitResponse 
-} from "@/models/menuModels/mockedModels"
+import { SendOrderToKitchenAPI } from "@/api/orderHub";
+import { CartItem } from "@/hooks/cartHooks/CartItem";
+import { InputRequestOrder } from "@/models/dtos/input/menuLive/InputRequestOrder";
 
-// Simulate API calls with delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function submitOrder(items: OrderItem[]): Promise<OrderSubmitResponse> {
-  await delay(1500) // Simulate network delay
+export const HandleSendOrderToKitchen = async (inputCart: CartItem[], restaurantId: string, tableNumber: string): Promise<void> => {
+  try {
+    console.log('HandleSendOrderToKitchen');
+    console.log('InputCart', JSON.stringify(inputCart, null, 2));
 
-  // In a real app, this would send the order to the backend
-  const orderId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`
+    // Call the API to send the order to the kitchen
+    const response = await SendOrderToKitchenAPI(
+      InputRequestOrder.ToInput(inputCart, tableNumber, restaurantId, inputCart[0].orderId)
+    );
 
-  // Return a success response
-  return {
-    success: true,
-    orderId,
+    console.log('response', JSON.stringify(response, null, 2));
+
+    if (!response.isValid) {
+      console.error('Error sending order to kitchen:', response.errorMessages);
+      throw new Error('Error sending order to kitchen');
+    }
+
+    console.log('Order sent to kitchen successfully');
+  } catch (error) {
+    console.error('error', error);
+    throw error;
   }
 }
-
-export async function getOrderStatus(orderId: string): Promise<OrderStatusResponse> {
-  await delay(500) // Simulate network delay
-
-  // In a real app, this would fetch the order status from the backend
-  // For demo purposes, we'll return a random status
-  const statuses: OrderStatus[] = ["received", "preparing", "ready", "delivered"]
-  const randomIndex = Math.floor(Math.random() * 3) // Exclude 'delivered' for demo
-
-  return {
-    orderId,
-    status: statuses[randomIndex],
-    estimatedTime: 15 + Math.floor(Math.random() * 20), // 15-35 minutes
-  }
-}
-

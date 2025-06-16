@@ -4,9 +4,9 @@ export class MenuLiveItemOutput {
   description: string;
   ingredients: string[];
   price: number;
-  MediaId: string;
-  MediaUrl: string
-  MediaImgixUrl: string;
+  mediaId: string;
+  mediaUrl: string | null;
+  mediaImgixUrl: string | null;
 
   constructor(
     id: string | null,
@@ -14,17 +14,17 @@ export class MenuLiveItemOutput {
     description: string | null,
     ingredients: string[] | null,
     price: number | null,
-    MediaId: string | null,
-    MediaUrl: string | null,
-    MediaImgixUrl: string | null
+    mediaId: string | null,
+    mediaUrl: string | null,
+    mediaImgixUrl: string | null
   ) {
     this.id = id || '';
     this.name = name || '';
     this.description = description || '';
     this.ingredients = ingredients || [];
     this.price = price || 0;
-    this.MediaId = MediaId || '';
-    this.MediaUrl = MediaUrl || '';
-    this.MediaImgixUrl = MediaImgixUrl || '';
+    this.mediaId = mediaId || '';
+    this.mediaUrl = mediaUrl || '';
+    this.mediaImgixUrl = mediaImgixUrl || '';
   }
 };

@@ -137,24 +137,24 @@ export default {
   			}
   		},
   		animation: {
-  			pulse: 'pulse var(--duration) ease-out infinite',
-				ping: 'ping var(--duration) cubic-bezier(0, 0, 0.2, 1) infinite',
+  			// pulse: 'pulse var(--duration) ease-out infinite',
+				// ping: 'ping var(--duration) cubic-bezier(0, 0, 0.2, 1) infinite',
   		},
   		keyframes: {
-  			pulse: {
-  				'0%, 100%': {
-  					boxShadow: '0 0 0 0 var(--pulse-color)'
-  				},
-  				'50%': {
-  					boxShadow: '0 0 0 8px var(--pulse-color)'
-  				}
-  			},
-				ping: {
-					'75%, 100%': {
-						transform: 'scale(2)',
-						opacity: '0'
-					}
-				}
+  			// pulse: {
+  			// 	'0%, 100%': {
+  			// 		boxShadow: '0 0 0 0 var(--pulse-color)'
+  			// 	},
+  			// 	'50%': {
+  			// 		boxShadow: '0 0 0 8px var(--pulse-color)'
+  			// 	}
+  			// },
+				// ping: {
+				// 	'75%, 100%': {
+				// 		transform: 'scale(2)',
+				// 		opacity: '0'
+				// 	}
+				// }
   		},
 			dropShadow: {
 				'3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',

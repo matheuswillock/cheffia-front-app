@@ -2,10 +2,10 @@ import { Output } from "@/models/Output";
 import Placeholder from "@/assets/placeholder.svg";
 import { AddMenuItemData } from "@/types/formTypes";
 import { MenuItem } from "@/models/menuModels/MenuItem";
-import { InputToAddMenuItem } from "@/models/dtos/input/InputToAddMenuItem";
 import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/api/menu";
 import { OutputGetMenu } from "@/models/dtos/output/Menu/OutputGetMenu";
 import { OutputDeleteMenu } from "@/models/dtos/output/Menu/outputDeleteMenu";
+import { InputToAddMenuItem } from "@/models/dtos/input/menu/InputToAddMenuItem";
 
 export const handleAddMenuItem = async (data: AddMenuItemData): Promise<Output> => {
   try {

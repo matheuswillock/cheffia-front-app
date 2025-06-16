@@ -7,5 +7,5 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function unauthorized() {
-  return redirect("/unauthorized");
+  return redirect("/login");
 }

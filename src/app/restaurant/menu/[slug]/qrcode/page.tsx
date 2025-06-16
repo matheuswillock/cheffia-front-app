@@ -3,8 +3,8 @@
 import { Suspense } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import QRCodeGenerator from "@/components/QRCodeContent/QRCodeGenerator"
 import { useParams } from "next/navigation";
+import QRCodeGenerator from "./container/QRCodeGenerator";
 
 // TODO: ADD o o validateSession() para validar a sessão do usuário
 export default function QRCodeGeneratorPage() {

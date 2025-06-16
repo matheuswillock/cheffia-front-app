@@ -1,13 +1,14 @@
 import { unauthorized } from "@/lib/utils";
 import { redirect } from "next/navigation";
-import useWebSocket from "@/hooks/useWebSocket";
+// import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
 import { getRestaurantById, registerRestaurant } from "@/api/restaurant";
 import {verifySessionClient, createClient} from "@/utils/supabase/client";
-import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";
 import { json } from "stream/consumers";
 import { OutputGetRestaurantById } from "@/models/dtos/output/Restaurant/OutputGetRestaurantById";
 import { OutputRegisterRestaurant } from "@/models/dtos/output/Restaurant/OutputRegisterRestaurant";
+import { InputToRegisterRestaurant } from "@/models/dtos/input/restaurant/InputToRegisterRestaurant";
+import { useWebSocket } from "@/hooks/CheffiaFlowHooks/useWebSocket";
 
 const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 
@@ -55,9 +56,9 @@ export const handleGetRestaurantById = async (id: string): Promise<OutputGetRest
 }
 
 export const useRestaurantWebSocket = (restaurantId: string) => {
-  const { messages, sendMessage } = useWebSocket(`${API_URL_WEBSOCKET}/order-hub/connect/${restaurantId}/true`);
+  const { orders, sendMessage } = useWebSocket(`${API_URL_WEBSOCKET}/order-hub/connect/${restaurantId}/true`);
 
-  return { messages, sendMessage };
+  return { orders, sendMessage };
 }
 
 export const handleLogout = async () => {

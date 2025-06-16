@@ -8,7 +8,7 @@ export const GetMenuByRestaurantIdAndTableNumber = async (): Promise<Output> => 
 
     const response = await cheffiaApiConfig.get(
       MenuLiveRoutes.getMenuLiveByTable(
-        'd01e7d6d-ddd6-4c3f-9b89-072fa68abda9',
+        '16ddd75a-58e3-4f3b-9fb7-23dee72d557b',
         '12'
       )
     );

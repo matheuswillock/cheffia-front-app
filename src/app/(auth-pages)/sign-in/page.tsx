@@ -1,6 +1,7 @@
 "use client"
-import { SignInForm } from "@/components/SignInContent/SignInForm";
+
 import { signIn, signInActionWithProvider } from "@/business/auth/actions";
+import { SignInForm } from "./container/SignInForm";
 
 export default function SignInPage() {
 

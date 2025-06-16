@@ -1,26 +1,34 @@
 "use client";
 
-import MenuLive from "./MenuLive";
+import MenuLive from "./container/MenuLive";
 import Image from "next/image";
 import Logo from "../../../public/assets/Icons/logo-horizontal.svg";
 import { useEffect, useState } from "react";
-import MenuLiveItem from "./MenuLiveItem";
+import MenuLiveItem from "./container/MenuLiveItem";
 import { HandleGetMenuLive } from "@/business/menuLive/menuLiveBusiness";
 import { Button } from "@/components/ui/button";
 import { MenuLiveOutput } from "@/models/dtos/output/MenuLive/MenuLiveOutput";
 import { MenuLiveItemOutput } from "@/models/dtos/output/MenuLive/MenuLiveItemOutput";
 import { GroupedMenuItemsByCategoryOutput } from "@/models/dtos/output/MenuLive/GroupedMenuItemsByCategoryOutput";
+import { useCart } from "@/hooks/cartHooks/useCart";
+import { HandleSendOrderToKitchen } from "@/business/order/orderBusiness";
+import { useSearchParams } from "next/navigation";
 
 export default function MenuLivePage() {
+  const searchParams = useSearchParams();
+  const tableNumber = searchParams.get("t");
+  console.log("tableNumber", tableNumber);
+  const restaurantId = searchParams.get("r");
+  console.log("restaurantId", restaurantId);
+
   const [selectedItem, setSelectedItem] = useState<MenuLiveItemOutput | null>(
     null
   );
-  const [cart, setCart] = useState<MenuLiveItemOutput[]>([]);
-  const [totalPrice, setTotalPrice] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [menu, setMenu] = useState<MenuLiveOutput>();
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<string[]>([]);
+  const { cart, totalPrice, addToCart, clearCart } = useCart();
 
   if (error) {
     return <p className="text-red-500">{error}</p>;
@@ -34,22 +42,28 @@ export default function MenuLivePage() {
     setSelectedItem(null);
   };
 
-  const handleAddToCart = (item: MenuLiveItemOutput, quantity: number) => {
-    const itemTotal = item.price * quantity;
-    setTotalPrice((prevTotal) => prevTotal + itemTotal);
-    setCart((prevCart) => [...prevCart, { ...item, quantity }]);
+  const handleAddToCart = (
+    item: MenuLiveItemOutput,
+    quantity: number,
+    comments: string | null
+  ) => {
+    addToCart(item, quantity, comments);
     setSelectedItem(null);
   };
 
   const handleClearCart = () => {
-    setCart([]);
-    setTotalPrice(0);
+    clearCart();
   };
 
-  const handleSendToKitchen = () => {
-    // Implementar lógica para enviar o pedido para a cozinha
-    console.log("Pedido enviado para a cozinha:", cart);
-    handleClearCart();
+  const handleSendToKitchen = async () => {
+    try {
+      console.log(`Pedido enviado para a cozinha: ${cart} \n restaurantId: ${restaurantId} \n tableNumber: ${tableNumber}`);
+
+      await HandleSendOrderToKitchen(cart, restaurantId ?? "", tableNumber ?? "");
+      clearCart();
+    } catch (error) {
+      console.error("Erro ao enviar pedido para a cozinha:", error);
+    }
   };
 
   const getMenuCategories = (menu: GroupedMenuItemsByCategoryOutput[]) => {
@@ -72,6 +86,7 @@ export default function MenuLivePage() {
         const response = await HandleGetMenuLive();
         console.log("response", response);
         setMenu(response);
+        console.log("menu", response);
         getMenuCategories(response.menuByCategories);
         setLoading(false);
       } catch (err) {
@@ -87,7 +102,7 @@ export default function MenuLivePage() {
     <>
       {selectedItem ? (
         <MenuLiveItem
-          handleAddToCart={(item, quantity) => handleAddToCart(item, quantity)}
+          handleAddToCart={handleAddToCart}
           item={selectedItem}
           onBack={() => handleBackClick()}
         />
@@ -152,7 +167,7 @@ export default function MenuLivePage() {
             </aside>
           </header>
 
-          <main className="mt-[calc(8rem+12px)]">
+          <main className="mt-[calc(8rem)]">
             <MenuLive
               menu={menu?.menuByCategories}
               setSelectedItem={handleItemClick}

@@ -3,21 +3,21 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { Separator } from "@/components/ui/separator"
-import AppSidebar from "@/components/DashboardContent/AppSidebar"
 import DollarSignIcon from "../../../../public/assets/Icons/dollar-sign.svg"
 import OpenedEye from "../../../../public/assets/Icons/eye.svg";
 import ClosedEye from "../../../../public/assets/Icons/eye-closed.svg";
 import AvaliationStar from "../../../../public/assets/Icons/avaliation-star.svg"
-import DashboardLoading from "@/components/DashboardContent/DashboardLoading"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { handleGetRestaurantById } from "@/business/restaurant/restaurantBusiness"
-import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import Image from "next/image"
-import StatusComponent from "@/components/StatusComponent"
 import { Status } from "@/models/Status"
-import { TableOccupancyComponent } from "@/components/TableOccupancyComponent"
 import Link from "next/link"
+import { OutputGetRestaurantById } from "@/models/dtos/output/Restaurant/OutputGetRestaurantById"
+import DashboardLoading from "./container/DashboardLoading"
+import AppSidebar from "./container/AppSidebar"
+import { TableOccupancyComponent } from "./container/TableOccupancyComponent"
+import StatusComponent from "./container/StatusComponent"
 
 export default function DashboardPage() {
   const { slug } = useParams()

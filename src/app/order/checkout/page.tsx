@@ -1,7 +1,7 @@
 "use client";
 
 import { handleCreatePaymentIntent } from "@/business/payments/paymentsBusiness";
-import CheckoutForm from "@/components/PaymentContent/Checkout";
+import CheckoutForm from "./container/Checkout";
 import { stripePromise } from "@/utils/stripe";
 import { Elements } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";

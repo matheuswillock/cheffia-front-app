@@ -1,6 +1,6 @@
 "use client"
-import { SignUpForm } from "@/components/SignUpContent/SignUpForm";
 import { signUp, signUpActionWithProvider } from "@/business/auth/actions";
+import { SignUpForm } from "./container/SignUpForm";
 
 export default function SignUpPage()  {
   const handleSignUp = async (formData: FormData) => {
