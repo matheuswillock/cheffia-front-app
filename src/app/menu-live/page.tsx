@@ -16,19 +16,17 @@ import { useSearchParams } from "next/navigation";
 
 export default function MenuLivePage() {
   const searchParams = useSearchParams();
-  const tableNumber = searchParams.get("t");
-  console.log("tableNumber", tableNumber);
-  const restaurantId = searchParams.get("r");
-  console.log("restaurantId", restaurantId);
-
-  const [selectedItem, setSelectedItem] = useState<MenuLiveItemOutput | null>(
-    null
-  );
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [tableNumber, setTableNumber] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [menu, setMenu] = useState<MenuLiveOutput>();
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<string[]>([]);
   const { cart, totalPrice, addToCart, clearCart } = useCart();
+
+  const [selectedItem, setSelectedItem] = useState<MenuLiveItemOutput | null>(
+    null
+  );
 
   if (error) {
     return <p className="text-red-500">{error}</p>;
@@ -81,22 +79,35 @@ export default function MenuLivePage() {
   useEffect(() => {
     const fetchMenu = async () => {
       try {
+        const r = searchParams.get("r");
+        console.log("restaurantId", r);
+        const t = searchParams.get("t");
+        console.log("tableNumber", t);
+
+        if (!r || !t) {
+          setError("Parâmetros do restaurante ou mesa não fornecidos.");
+          setLoading(false);
+          return;
+        }
+
+        setRestaurantId(r);
+        setTableNumber(t);
         setLoading(true);
         setError(null);
-        const response = await HandleGetMenuLive();
-        console.log("response", response);
+
+        const response = await HandleGetMenuLive(r, t); // ← erro vem daqui
         setMenu(response);
-        console.log("menu", response);
         getMenuCategories(response.menuByCategories);
-        setLoading(false);
       } catch (err) {
+        console.error("Erro ao carregar o menu:", err);
         setError("Erro ao carregar o menu.");
+      } finally {
         setLoading(false);
       }
     };
 
     fetchMenu();
-  }, []);
+  }, [searchParams]);
 
   return (
     <>

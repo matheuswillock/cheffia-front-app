@@ -2,14 +2,14 @@ import { Output } from "@/models/Output";
 import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
 import { MenuLiveRoutes } from "./routes/routesConfig";
 
-export const GetMenuByRestaurantIdAndTableNumber = async (): Promise<Output> => {
+export const GetMenuByRestaurantIdAndTableNumber = async (restaurantId: string, tableNumber: string): Promise<Output> => {
   try {
     console.log('GetMenuByRestaurantIdAndTableNumber');
 
     const response = await cheffiaApiConfig.get(
       MenuLiveRoutes.getMenuLiveByTable(
-        '16ddd75a-58e3-4f3b-9fb7-23dee72d557b',
-        '12'
+        restaurantId,
+        tableNumber
       )
     );
 
