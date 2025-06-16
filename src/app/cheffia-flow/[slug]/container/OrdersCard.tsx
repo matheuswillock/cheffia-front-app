@@ -9,15 +9,27 @@ interface OrdersCardProps {
 export function OrdersCard({ order, onAction }: OrdersCardProps) {
   return (
     <div className="rounded-lg border bg-background-default p-4 mb-4 shadow flex flex-col gap-2">
-      <div className="font-bold text-lg">Pedido #{order.orderNumber}</div>
-      <div className="text-sm text-muted-foreground">
-        Mesa {order.tableNumber}
+      <div className="flex justify-between items-center">
+        <span className="font-bold text-lg">Pedido #{order.orderNumber}</span>
+        <span className="text-sm text-muted-foreground">
+          Mesa {order.tableNumber}
+        </span>
       </div>
-      {/* <div className="flex gap-2 text-base">
-        {order.items.map((item, i) => (
-          <span key={i}>{item}</span>
-        ))}
-      </div> */}
+      <div className="flex items-center font-inter justify-between">
+        <span className="text-base text-muted-foreground ml-2">
+          {order.quantity}x - {order.itemName}
+        </span>
+        <span className="text-base text-foreground-default ml-2">
+          R$ {order.price}
+        </span>
+        <span>
+          {order.comments && (
+            <span className="text-xs text-muted-foreground ml-2">
+              Observações: {order.comments}
+            </span>
+          )}
+        </span>
+      </div>
       <div className="flex justify-between items-center mt-2">
         <span className="text-xs">
           {order.dispatchDate
