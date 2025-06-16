@@ -1,6 +1,7 @@
 import { NewRequestOrder } from "@/models/cheffiaFlowModels/NewRequestOrder";
 import { OrderItem } from "@/models/cheffiaFlowModels/OrderItem";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { InputEventToSend } from "./models/InputEventToSend";
 const websocketServerUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL as string;
 
 function mapOrderItem(data: any): OrderItem {
@@ -38,6 +39,7 @@ export function useWebSocket(slug: string) {
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const MAX_ATTEMPTS = 5;
+  const heartbeatInterval = useRef<NodeJS.Timeout | null>(null);
 
   const connectWebSocket = useCallback(() => {
     const url = `${websocketServerUrl}/OrderHub/connection/${slug}`;
@@ -96,19 +98,42 @@ export function useWebSocket(slug: string) {
     };
   }, [slug]);
 
-  useEffect(() => {
-    connectWebSocket();
-
-    return () => {
-      ws.current?.close();
-    };
-  }, [connectWebSocket]);
-
   const sendMessage = (message: object) => {
     if (ws.current?.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify(message));
     }
   };
+
+  useEffect(() => {
+    connectWebSocket();
+
+    return () => {
+      ws.current?.close();
+      if (heartbeatInterval.current) {
+        clearInterval(heartbeatInterval.current);
+      }
+    };
+  }, [connectWebSocket]);
+
+  useEffect(() => {
+    if (status === "open") {
+      heartbeatInterval.current = setInterval(() => {
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          console.log("🔄 Enviando heartbeat para o backend...");
+          ws.current.send(JSON.stringify(
+            new InputEventToSend("restaurantId", "Heartbeat", null)
+          ));
+          console.log("🔄 Heartbeat enviado para o backend");
+        }
+      }, 80000);
+      console.log("🕒 Heartbeat configurado para 80 segundos");
+      return () => {
+        if (heartbeatInterval.current) {
+          clearInterval(heartbeatInterval.current);
+        }
+      };
+    }
+  }, [status]);
 
   return {
     status,
