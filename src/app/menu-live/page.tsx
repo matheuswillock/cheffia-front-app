@@ -13,6 +13,9 @@ import { GroupedMenuItemsByCategoryOutput } from "@/models/dtos/output/MenuLive/
 import { useCart } from "@/hooks/cartHooks/useCart";
 import { HandleSendOrderToKitchen } from "@/business/order/orderBusiness";
 import { useSearchParams } from "next/navigation";
+import CloseTabIcon from "../../../public/assets/Icons/scroll-text.svg";
+import CloseTab from "./container/CloseTab";
+import OrderReview from "./container/OrderReview";
 
 export default function MenuLivePage() {
   const searchParams = useSearchParams();
@@ -23,7 +26,8 @@ export default function MenuLivePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<string[]>([]);
   const { cart, totalPrice, addToCart, clearCart } = useCart();
-
+  const [showCloseTab, setShowCloseTab] = useState(false);
+  const [showOrderReview, setShowOrderReview] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuLiveItemOutput | null>(
     null
   );
@@ -80,9 +84,7 @@ export default function MenuLivePage() {
     const fetchMenu = async () => {
       try {
         const r = searchParams.get("r");
-        console.log("restaurantId", r);
         const t = searchParams.get("t");
-        console.log("tableNumber", t);
 
         if (!r || !t) {
           setError("Parâmetros do restaurante ou mesa não fornecidos.");
@@ -95,7 +97,7 @@ export default function MenuLivePage() {
         setLoading(true);
         setError(null);
 
-        const response = await HandleGetMenuLive(r, t); // ← erro vem daqui
+        const response = await HandleGetMenuLive(r, t);
         setMenu(response);
         getMenuCategories(response.menuByCategories);
       } catch (err) {
@@ -111,14 +113,34 @@ export default function MenuLivePage() {
 
   return (
     <>
-      {selectedItem ? (
+      {showCloseTab ? (
+        <CloseTab
+          tableNumber={tableNumber ?? ""}
+          onClose={() => setShowCloseTab(false)}
+          setShowCloseTab={setShowCloseTab}
+          setShowOrderReview={setShowOrderReview}
+        />
+      ) : selectedItem ? (
         <MenuLiveItem
           handleAddToCart={handleAddToCart}
           item={selectedItem}
           onBack={() => handleBackClick()}
         />
+      ) : showOrderReview ? (
+        <OrderReview
+          setShowOrderReview={setShowOrderReview}
+          sendToKitchen={handleSendToKitchen}
+          tableNumber={tableNumber ?? ""}
+          setShowCloseTab={setShowCloseTab}
+          onClose={() => setShowOrderReview(false)}
+          cart={cart}
+          totalPrice={totalPrice}
+          clearCart={handleClearCart}
+          restaurantId={restaurantId ?? ""}
+        />
       ) : (
         <div className="w-screen mx-auto overflow-hidden">
+
           <header className="fixed top-0 left-0 w-screen h-24 sm:h-28 bg-background-default text-foreground-default z-50">
             <div className="w-full h-full px-4 flex items-center justify-between">
               <Image
@@ -128,9 +150,24 @@ export default function MenuLivePage() {
                 height={46}
                 className="w-36 sm:w-40 md:w-44 lg:w-48 xl:w-52"
               />
-              <h1 className="text-sm font-inter font-normal text-end">
-                Mesa 07
-              </h1>
+
+              <div className="flex items-center justify-between gap-2">
+                <h1 className="text-sm font-inter font-normal text-end">
+                  Mesa {tableNumber}
+                </h1>
+                <Button
+                  className="bg-transparent hover:bg-transparent text-foreground-default p-0 m-0"
+                  onClick={() => setShowCloseTab(true)}
+                >
+                  <Image
+                    src={CloseTabIcon}
+                    alt="Fechar conta"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                </Button>
+              </div>
             </div>
 
             <aside
@@ -180,22 +217,23 @@ export default function MenuLivePage() {
 
           <main className="mt-[calc(8rem)]">
             <MenuLive
+              loading={loading}
               menu={menu?.menuByCategories}
               setSelectedItem={handleItemClick}
             />
           </main>
 
-          <footer className="fixed bottom-0 left-0 w-screen h-20 sm:h-24 px-2 bg-background-default text-foreground-default flex items-center justify-between z-50 rounded-t-lg shadow-lg">
+          <footer className="fixed bottom-0 left-0 w-screen h-20 sm:h-24 px-4 bg-background-default text-foreground-default flex items-center justify-between z-50 rounded-t-lg shadow-lg">
             <div className="w-full h-full bg-background-default text-foreground-default flex items-center justify-between">
-              <p className="text-base font-inter font-normal">
+              <p className="text-lg font-inter font-normal">
                 Total: R$ {totalPrice.toFixed(2)}
               </p>
               <Button
-                onClick={handleSendToKitchen}
+                onClick={() => setShowOrderReview(true)}
                 disabled={cart.length === 0}
-                className="w-48 text-base md:text-lg xl:text-xl h-9 sm:h-10 md:h-11 xl:h-12 font-medium font-inter text-center bg-background-green hover:bg-background-green/90 text-foreground-black rounded-lg p-2 transition-colors duration-200 flex items-center justify-center"
+                className="w-32 text-lg md:text-lg xl:text-xl h-9 sm:h-10 md:h-11 xl:h-12 font-medium font-inter text-center bg-background-green hover:bg-background-green/90 text-foreground-black rounded-lg p-2 transition-colors duration-200 flex items-center justify-center"
               >
-                Enviar para cozinha
+                Bandeja
               </Button>
             </div>
           </footer>

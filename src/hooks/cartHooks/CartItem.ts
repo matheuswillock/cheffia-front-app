@@ -9,6 +9,8 @@ export class CartItem {
   price: number;
   comments: string | null;
   quantity: number;
+  mediaImgixUrl: string | null;
+  mediaUrl: string | null;
 
   constructor(
     id: string,
@@ -18,7 +20,9 @@ export class CartItem {
     ingredients: string[],
     price: number,
     comments: string | null,
-    quantity: number
+    quantity: number,
+    mediaImgixUrl: string | null,
+    mediaUrl: string | null
   ) {
     this.id = id;
     this.orderId = orderId;
@@ -28,6 +32,8 @@ export class CartItem {
     this.price = price;
     this.comments = comments;
     this.quantity = quantity;
+    this.mediaImgixUrl = mediaImgixUrl;
+    this.mediaUrl = mediaUrl;
   }
 
   static FromMenuLiveItem(item: MenuLiveItemOutput, quantity: number, comments: string | null, orderId: string | null): CartItem {
@@ -39,7 +45,9 @@ export class CartItem {
       item.ingredients,
       item.price,
       comments,
-      quantity
+      quantity,
+      item.mediaImgixUrl,
+      item.mediaUrl
     );
   }
 }

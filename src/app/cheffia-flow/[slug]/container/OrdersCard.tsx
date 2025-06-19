@@ -20,7 +20,7 @@ export function OrdersCard({ order, onAction }: OrdersCardProps) {
           {order.quantity}x - {order.itemName}
         </span>
         <span className="text-base text-foreground-default ml-2">
-          R$ {order.price}
+          R$ {(order.price * order.quantity).toFixed(2)}
         </span>
         <span>
           {order.comments && (

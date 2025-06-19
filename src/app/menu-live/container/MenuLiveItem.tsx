@@ -35,7 +35,7 @@ export default function MenuLiveItem({ item, onBack, handleAddToCart }: MenuLive
   return (
     <div className="w-screen h-full flex flex-col">
       <Image
-        src={item.mediaUrl || (ImageOff as StaticImageData)}
+        src={item.mediaImgixUrl || (ImageOff as StaticImageData)}
         width={256}
         height={256}
         alt={""}

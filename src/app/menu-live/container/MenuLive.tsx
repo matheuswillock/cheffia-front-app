@@ -4,13 +4,15 @@ import ImageOff from "@/assets/image-off.svg";
 import { StaticImageData } from "next/image";
 import { GroupedMenuItemsByCategoryOutput } from "@/models/dtos/output/MenuLive/GroupedMenuItemsByCategoryOutput";
 import { MenuLiveItemOutput } from "@/models/dtos/output/MenuLive/MenuLiveItemOutput";
+import LoaderCircle from "../../../../public/assets/Icons/loader-circle.svg";
 
 interface MenuLiveProps {
   menu: GroupedMenuItemsByCategoryOutput[] | undefined;
   setSelectedItem: (item: MenuLiveItemOutput) => void;
+  loading: boolean;
 }
 
-export default function MenuLive({ setSelectedItem, menu }: MenuLiveProps) {
+export default function MenuLive({ setSelectedItem, menu, loading }: MenuLiveProps) {
   useEffect(() => {
     console.log("MenuLive", menu);
     console.log("setSelectedItem", setSelectedItem);
@@ -18,8 +20,18 @@ export default function MenuLive({ setSelectedItem, menu }: MenuLiveProps) {
 
   return (
     <main className="w-screen overflow-hidden pb-20 sm:pb-24">
-      {menu?.length === 0 ? (
-        <p className="text-gray-600 text-lg flex items-center justify-center h-[calc(100vh-20rem)]">
+      { loading ? (
+        <div className="flex items-center justify-center h-[calc(100vh-20rem)]">
+          <Image
+            src={LoaderCircle}
+            alt="Carregando..."
+            width={64}
+            height={64}
+            className="animate-spin"
+          />
+        </div>
+      ) : menu?.length === 0 ? (
+        <p className="text-gray-400 text-lg flex items-center justify-center h-[calc(100vh-20rem)]">
           Nenhum item no menu.
         </p>
       ) : (
@@ -55,7 +67,7 @@ export default function MenuLive({ setSelectedItem, menu }: MenuLiveProps) {
                   </div>
 
                   <Image
-                    src={menuItem.mediaImgixUrl || (ImageOff as StaticImageData)}
+                    src={menuItem.mediaUrl || (ImageOff as StaticImageData)}
                     alt={menuItem.name}
                     width={128}
                     height={160}

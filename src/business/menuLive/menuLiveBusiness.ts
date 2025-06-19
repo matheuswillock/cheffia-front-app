@@ -1,7 +1,7 @@
 import { GetMenuByRestaurantIdAndTableNumber } from "@/api/menuLive";
 import { MenuLiveOutput } from "@/models/dtos/output/MenuLive/MenuLiveOutput";
 
-export const HandleGetMenuLive = async (restaurantId: string|null, tableNumber: string|null): Promise<MenuLiveOutput> => {
+export const HandleGetMenuLive = async (restaurantId: string | null, tableNumber: string | null): Promise<MenuLiveOutput> => {
   try {
     console.log('HandleGetMenuLive');
 
