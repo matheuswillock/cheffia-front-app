@@ -16,6 +16,7 @@ import { useSearchParams } from "next/navigation";
 import CloseTabIcon from "../../../public/assets/Icons/scroll-text.svg";
 import CloseTab from "./container/CloseTab";
 import OrderReview from "./container/OrderReview";
+import MenuFooter from "@/components/MenuLiveContent/MenuFooter";
 
 export default function MenuLivePage() {
   const searchParams = useSearchParams();
@@ -140,7 +141,6 @@ export default function MenuLivePage() {
         />
       ) : (
         <div className="w-screen mx-auto overflow-hidden">
-
           <header className="fixed top-0 left-0 w-screen h-24 sm:h-28 bg-background-default text-foreground-default z-50">
             <div className="w-full h-full px-4 flex items-center justify-between">
               <Image
@@ -223,20 +223,12 @@ export default function MenuLivePage() {
             />
           </main>
 
-          <footer className="fixed bottom-0 left-0 w-screen h-20 sm:h-24 px-4 bg-background-default text-foreground-default flex items-center justify-between z-50 rounded-t-lg shadow-lg">
-            <div className="w-full h-full bg-background-default text-foreground-default flex items-center justify-between">
-              <p className="text-lg font-inter font-normal">
-                Total: R$ {totalPrice.toFixed(2)}
-              </p>
-              <Button
-                onClick={() => setShowOrderReview(true)}
-                disabled={cart.length === 0}
-                className="w-32 text-lg md:text-lg xl:text-xl h-9 sm:h-10 md:h-11 xl:h-12 font-medium font-inter text-center bg-background-green hover:bg-background-green/90 text-foreground-black rounded-lg p-2 transition-colors duration-200 flex items-center justify-center"
-              >
-                Bandeja
-              </Button>
-            </div>
-          </footer>
+          <MenuFooter
+            totalPrice={totalPrice}
+            cart={cart}
+            nextStep={setShowOrderReview}
+            nextStepName="Ver Bandeja"
+          />
         </div>
       )}
     </>

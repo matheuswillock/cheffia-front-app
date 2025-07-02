@@ -5,7 +5,8 @@ import CloseTabIcon from "../../../../public/assets/Icons/scroll-text.svg";
 import { useEffect } from "react";
 import ImageOff from "@/assets/image-off.svg";
 import { CartItem } from "@/hooks/cartHooks/CartItem";
-import MenuHeader from "@/components/MenuContent/MenuHeader";
+import MenuHeader from "@/components/MenuLiveContent/MenuHeader";
+import MenuFooter from "@/components/MenuLiveContent/MenuFooter";
 
 interface OrderReviewProps {
   setShowOrderReview: (value: boolean) => void;
@@ -31,49 +32,7 @@ export default function OrderReview({
   }, [cart, totalPrice]);
 
   return (
-    <div className="flex flex-col items-center h-full">
-      {/* <header className="fixed top-0 left-0 w-screen h-24 sm:h-28 bg-background-default text-foreground-default z-50">
-        <div className="w-full h-full px-4 flex items-center justify-between">
-          <Image
-            src={Logo}
-            alt="Cheffia Logo"
-            width={167}
-            height={46}
-            className="w-36 sm:w-40 md:w-44 lg:w-48 xl:w-52"
-          />
-
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="text-sm font-inter font-normal text-end">
-              Mesa {tableNumber}
-            </h1>
-            <Button
-              className="bg-transparent hover:bg-transparent text-foreground-default p-0 m-0"
-              onClick={() => setShowCloseTab(true)}
-            >
-              <Image
-                src={CloseTabIcon}
-                alt="Fechar conta"
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-            </Button>
-          </div>
-        </div>
-
-        <aside>
-          <Button
-            onClick={() => {
-              setShowOrderReview(false);
-              onClose(true);
-            }}
-            className=" text-lg md:text-lg xl:text-xl h-9 sm:h-10 md:h-11 xl:h-12 font-medium font-inter text-center bg-transparent text-white hover:bg-transparent rounded-lg p-2 transition-colors duration-200 flex items-center justify-center"
-          >
-            Voltar ao menu
-          </Button>
-        </aside>
-      </header> */}
-      
+    <div className="w-screen mx-auto overflow-hidden">
       <MenuHeader
         setShowOrderReview={setShowOrderReview}
         setShowCloseTab={setShowCloseTab}
@@ -81,7 +40,7 @@ export default function OrderReview({
         onClose={onClose}
       />
 
-      <main className="w-screen overflow-hidden pb-20 sm:pb-24 mt-[calc(8rem)]">
+      <main className="w-screen overflow-hidden pb-20 sm:pb-24 mt-40">
         <ul className="space-y-4">
           {cart.map((item) => (
             <li
@@ -89,14 +48,15 @@ export default function OrderReview({
               key={item.id}
             >
               <div className="text-sm font-inter font-normal flex-1">
-                <p className="font-medium text-base">{item.name}</p>
-                {/* <p className="text-gray-500">
-                  {item.description.length > 56
-                    ? `${item.description.slice(0, 56)}...`
-                    : item.description}
-                </p> */}
+                <p className="font-medium text-base">
+                  <span>{item.quantity}x</span>
+                  <span className="ml-2">{item.name}</span>
+                </p>
+                <p className="text-foreground-card">
+                  {item.comments || "Sem observações"}
+                </p>
                 <div className="flex justify-between items-center mt-2">
-                  <p className="text-green-600 font-bold">
+                  <p className="text-foreground-green font-bold">
                     R$ {item.price.toFixed(2)}
                   </p>
                 </div>
@@ -112,6 +72,14 @@ export default function OrderReview({
           ))}
         </ul>
       </main>
+
+      {/* TODO: Implementar a lógica de envio para a cozinha */}
+      <MenuFooter
+        totalPrice={totalPrice}
+        cart={cart}
+        nextStep={setShowOrderReview} // TODO: Ajustar a lógica de envio para a cozinha
+        nextStepName="Enviar para Cozinha"
+      />
     </div>
   );
 }

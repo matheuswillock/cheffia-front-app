@@ -9,16 +9,16 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
-    "strictNullChecks": true, 
+    "strictNullChecks": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node", 
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["node", "next", "next/types/global"], 
+    "types": ["node", "next", "next/types/global"],
     "plugins": [
       {
         "name": "next"

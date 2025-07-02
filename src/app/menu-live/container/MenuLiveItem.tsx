@@ -61,7 +61,7 @@ export default function MenuLiveItem({ item, onBack, handleAddToCart }: MenuLive
           <p className=" font-inter text-foreground-white font-light text-base leading-[18px] mt-2">
             {item.description}
           </p>
-          <p className="text-green-600 font-inter text-base font-semibold mt-4">
+          <p className="text-foreground-green font-inter text-base font-semibold mt-4">
             R$ {item.price.toFixed(2)}
           </p>
         </div>

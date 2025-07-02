@@ -40,7 +40,7 @@ export default function MenuLive({ setSelectedItem, menu, loading }: MenuLivePro
             <div
               className={`${
                 item.name &&
-                "border-b pb-2 pt-3 w-full flex items-center justify-between my-3"
+                "border-b pb-2 pt-3 w-full flex items-center justify-between my-3 font-semibold text-foreground-pureWhite"
               }`}
             >
               {item.name && <p className="px-3 text-2xl">{item.name}</p>}
@@ -53,14 +53,14 @@ export default function MenuLive({ setSelectedItem, menu, loading }: MenuLivePro
                   onClick={() => setSelectedItem(menuItem)}
                 >
                   <div className="text-sm font-inter font-normal flex-1">
-                    <p className="font-medium text-base">{menuItem.name}</p>
-                    <p className="text-gray-500">
+                    <p className="text-foreground-default text-base">{menuItem.name}</p>
+                    <p className="text-foreground-card">
                       {menuItem.description.length > 56
                         ? `${menuItem.description.slice(0, 56)}...`
                         : menuItem.description}
                     </p>
                     <div className="flex justify-between items-center mt-2">
-                      <p className="text-green-600 font-bold">
+                      <p className="text-foreground-green font-bold">
                         R$ {menuItem.price.toFixed(2)}
                       </p>
                     </div>

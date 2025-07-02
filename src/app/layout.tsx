@@ -1,4 +1,4 @@
-import "../styles/globals.css";
+import "../styles/globals.css"
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
