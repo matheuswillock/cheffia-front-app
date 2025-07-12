@@ -7,6 +7,10 @@ import ImageOff from "@/assets/image-off.svg";
 import { CartItem } from "@/hooks/cartHooks/CartItem";
 import MenuHeader from "@/components/MenuLiveContent/MenuHeader";
 import MenuFooter from "@/components/MenuLiveContent/MenuFooter";
+import IconMinus from "../../../../public/assets/Icons/icon-minus.svg";
+import IconPlus from "../../../../public/assets/Icons/icon-plus.svg";
+import IconTrash from "../../../../public/assets/Icons/trash-2.svg";
+import { Icon } from "lucide-react";
 
 interface OrderReviewProps {
   setShowOrderReview: (value: boolean) => void;
@@ -31,6 +35,14 @@ export default function OrderReview({
     console.log("Total Price", totalPrice);
   }, [cart, totalPrice]);
 
+  const handleIncrement = (item: CartItem) => {
+    console.log("Incrementar item:", item.id);
+  };
+
+  const handleDecrement = (item: CartItem) => {
+    console.log("Decrementar item:", item.id);
+  };
+
   return (
     <div className="w-screen mx-auto overflow-hidden">
       <MenuHeader
@@ -40,27 +52,59 @@ export default function OrderReview({
         onClose={onClose}
       />
 
-      <main className="w-screen overflow-hidden pb-20 sm:pb-24 mt-40">
+      <main className="w-screen overflow-hidden pb-20 sm:pb-24 mt-48">
         <ul className="space-y-4">
           {cart.map((item) => (
             <li
-              className="border-b pb-3 flex flex-row pl-4 pr-1 items-center cursor-pointer active:bg-background-card"
+              className="border-b pb-3 flex flex-row px-4 items-center cursor-pointer active:bg-background-card"
               key={item.id}
             >
               <div className="text-sm font-inter font-normal flex-1">
                 <p className="font-medium text-base">
                   <span>{item.quantity}x</span>
-                  <span className="ml-2">{item.name}</span>
+                  {' '}
+                  <span className="">{item.name}</span>
                 </p>
                 <p className="text-foreground-card">
                   {item.comments || "Sem observações"}
                 </p>
-                <div className="flex justify-between items-center mt-2">
+                <div className="flex justify-between items-center mt-2 mb-2">
                   <p className="text-foreground-green font-bold">
                     R$ {item.price.toFixed(2)}
                   </p>
                 </div>
+
+                <div className="text-sm font-inter font-normal h-10 w-24 p-1
+                 flex items-center justify-between rounded-lg bg-background-gray">
+                  {item.quantity > 1 ? (
+                    <Image
+                      onClick={() => handleDecrement(item)}
+                      src={IconMinus}
+                      alt={"Decrementar item"}
+                      className="cursor-pointer w-4"
+                    />
+                  ) : (
+                    <Image
+                      onClick={() => handleDecrement(item)}
+                      src={IconTrash}
+                      alt={"Decrementar item"}
+                      className="cursor-pointer w-4"
+                    />
+                  )}
+
+                  <span className="font-inter text-foreground-pureWhite font-bold text-xs">
+                    {item.quantity}
+                  </span>
+
+                  <Image
+                    onClick={() => handleIncrement(item)}
+                    src={IconPlus}
+                    alt={"Incrementar item"}
+                    className="cursor-pointer w-4"
+                  />
+                </div>
               </div>
+
               <Image
                 src={item.mediaUrl || (ImageOff as StaticImageData)}
                 alt={item.name}
@@ -77,7 +121,7 @@ export default function OrderReview({
       <MenuFooter
         totalPrice={totalPrice}
         cart={cart}
-        nextStep={setShowOrderReview} // TODO: Ajustar a lógica de envio para a cozinha
+        nextStep={sendToKitchen}
         nextStepName="Enviar para Cozinha"
       />
     </div>

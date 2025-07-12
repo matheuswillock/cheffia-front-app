@@ -13,7 +13,7 @@
   "aliases": {
     "src": "@/src",
     "app": "@/src/app",
-    "globals": "@/src/app/styles/globals",
+    "globals": "@/src/app/globals",
     "assets": "@/src/assets",
     "styles": "@/src/app/styles",
     "components": "@/components",

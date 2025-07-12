@@ -34,11 +34,9 @@ export function SignUpForm({
       <Card className="overflow-hidden bg-background-default">
         <CardContent className="grid p-0 md:grid-cols-2">
           <div className="px-6 md:px-8 mb-12 mt-8 gap-4 flex flex-col justify-center">
-            
             <Form {...form}>
               <form  onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4">
-
                   <div className="flex flex-col items-center text-center">
                     <h1 className="text-2xl font-bold">
                       Olá Cheffia

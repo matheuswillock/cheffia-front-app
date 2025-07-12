@@ -48,11 +48,27 @@ export function useCart() {
     setCart(updated);
   };
 
+  const incrementItem = (id: string) => {
+    const updated = cart.map((item) =>
+      item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+    );
+    setCart(updated);
+  };
+
+  const decrementItem = (id: string) => {
+    const updated = cart.map((item) =>
+      item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+    );
+    setCart(updated);
+  };
+
   return {
     cart,
     totalPrice,
     addToCart,
     clearCart,
     removeItem,
+    incrementItem,
+    decrementItem
   };
 }

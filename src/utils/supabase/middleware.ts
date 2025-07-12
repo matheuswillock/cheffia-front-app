@@ -1,6 +1,5 @@
-// utils/supabase/middleware.ts
-import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -43,4 +42,69 @@ export async function updateSession(request: NextRequest) {
   }
 
   return supabaseResponse;
+}
+
+/**
+* Creates a Supabase client for use in Next.js middleware and Route Handlers.
+* This function encapsulates the cookie handling logic to maintain the user session.
+* @param request The NextRequest object for the current request.
+* @returns An object containing the Supabase client and the Next.js response object.
+*/
+export function createClient(request: NextRequest) {
+// Creates an unmodified response to be used and updated.
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          // Se um cookie for definido, atualiza os cookies na requisição e na resposta.
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          // Se um cookie for removido, atualiza os cookies na requisição e na resposta.
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  )
+
+  return { supabase, response }
 }

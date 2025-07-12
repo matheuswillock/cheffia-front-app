@@ -1,6 +1,4 @@
 import { z } from "zod";
-import AskAQuestion from '../components/AskAQuestion';
-import JoinWaitlist from '@/components/JoinWaitlist';
 
 export const signUpFormSchema = z.object({
   email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
