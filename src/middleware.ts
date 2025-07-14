@@ -1,7 +1,7 @@
 import { updateSession } from '@/utils/supabase/middleware';
 import { type NextRequest } from 'next/server';
 
-const publicRoutes = ['/', '/signin', '/signup', '/menu-live'];
+const publicRoutes = ['/', '/sign-in', '/sign-up', '/menu-live'];
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
