@@ -14,10 +14,12 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          response.cookies.set({ name, value, ...options });
+          request.cookies.set({ name, value, ...options });
+          response.cookies.set({ name, value, ...options });        
         },
         remove(name: string, options: CookieOptions) {
-          response.cookies.set({ name, value: '', ...options });
+          request.cookies.delete(name);
+          response.cookies.delete({ name, ...options });        
         },
       },
     }
@@ -26,18 +28,8 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  
-  const isAuthRoute = ['/sign-in', '/sign-up', '/menu-live', '/'].some(path =>
-    request.nextUrl.pathname.startsWith(path)
-  );
 
-  if (!session && !isAuthRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/sign-in';
-    return NextResponse.redirect(url);
-  }
-
-  return response;
+  return { session, response };
 }
 
 // import { createServerClient } from '@supabase/ssr';
