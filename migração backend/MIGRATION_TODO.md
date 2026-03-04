@@ -35,9 +35,9 @@ Arquivos/paths envolvidos: `src/app/api/v1/cheffia/**`, `src/server/**`.
 Riscos/observacoes: conflitos com codigo legado em `src/api/**`.
 Nota multi-tenant/idempotencia: toda nova rota deve nascer com `TenantContext` e suporte a idempotencia quando houver escrita.
 
-- [ ] 02. Congelar contratos da API v1 atual
+- [x] 02. Congelar contratos da API v1 atual
 Definicao de pronto: lista completa de rotas, metodos, inputs e outputs documentada e validada contra o backend atual.
-Arquivos/paths envolvidos: `migração backend/api-routes.md` (futuro), `src/server/contracts/v1/**`.
+Arquivos/paths envolvidos: `migração backend/api-routes.md`, `src/server/contracts/v1/**`.
 Riscos/observacoes: divergencias entre comportamento real e contratos esperados pelo frontend.
 Nota multi-tenant/idempotencia: marcar em cada rota se exige tenant obrigatorio e se exige `Idempotency-Key`.
 
