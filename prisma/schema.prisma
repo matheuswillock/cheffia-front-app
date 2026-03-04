@@ -53,6 +53,9 @@ model Tenant {
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   restaurants       Restaurant[]
+  menus             Menu[]
+  menuCategories    MenuCategory[]
+  menuItems         MenuItem[]
   idempotencyKeys   IdempotencyKey[]
   asaasWebhookEvents AsaasWebhookEvent[]
   outboxEvents      OutboxEvent[]
@@ -80,6 +83,7 @@ model Restaurant {
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  menu   Menu?
 
   @@index([tenantId], map: "restaurants_tenant_id_idx")
   @@index([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_idx")
@@ -89,6 +93,69 @@ model Restaurant {
   @@unique([tenantId, document], map: "restaurants_tenant_document_uk")
   @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
   @@map("restaurants")
+}
+
+model Menu {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  restaurantId String   @unique(map: "menus_restaurant_id_uk") @map("restaurant_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  categories MenuCategory[]
+  items      MenuItem[]
+
+  @@index([tenantId], map: "menus_tenant_id_idx")
+  @@unique([tenantId, restaurantId], map: "menus_tenant_restaurant_uk")
+  @@unique([tenantId, id], map: "menus_tenant_id_uk")
+  @@map("menus")
+}
+
+model MenuCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  menuId    String   @map("menu_id") @db.Uuid
+  name      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  menu      Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  menuItems MenuItem[]
+
+  @@index([tenantId], map: "menu_categories_tenant_id_idx")
+  @@index([tenantId, menuId], map: "menu_categories_tenant_menu_idx")
+  @@unique([tenantId, menuId, name], map: "menu_categories_tenant_menu_name_uk")
+  @@unique([tenantId, id], map: "menu_categories_tenant_id_uk")
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  menuId        String   @map("menu_id") @db.Uuid
+  categoryId    String?  @map("category_id") @db.Uuid
+  name          String   @db.Text
+  description   String   @db.Text
+  ingredients   String[] @default([])
+  price         Decimal  @db.Decimal(10, 2)
+  mediaId       String?  @map("media_id") @db.Text
+  mediaUrl      String?  @map("media_url") @db.Text
+  mediaImgixUrl String?  @map("media_imgix_url") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant   Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  menu     Menu          @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  category MenuCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId], map: "menu_items_tenant_id_idx")
+  @@index([tenantId, menuId], map: "menu_items_tenant_menu_idx")
+  @@index([tenantId, categoryId], map: "menu_items_tenant_category_idx")
+  @@unique([tenantId, id], map: "menu_items_tenant_id_uk")
+  @@map("menu_items")
 }
 
 model IdempotencyKey {

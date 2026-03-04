@@ -89,7 +89,7 @@ Arquivos/paths envolvidos: `src/app/api/v1/cheffia/Restaurant/**`, `src/server/a
 Riscos/observacoes: diferenca de serializacao e validacao entre .NET e TS.
 Nota multi-tenant/idempotencia: validacao de tenant em leitura/escrita e idempotencia em operacoes que possam repetir.
 
-- [ ] 10. Migrar vertical slice Menu + MenuLive
+- [x] 10. Migrar vertical slice Menu + MenuLive
 Definicao de pronto: `items/add`, `items/delete/{id}`, `get`, `MenuLive` migrados com contratos compativeis.
 Arquivos/paths envolvidos: `src/app/api/v1/cheffia/Menu/**`, `src/app/api/v1/cheffia/MenuLive/**`, `src/server/application/menu/**`.
 Riscos/observacoes: upload multipart e relacionamento categoria/item.
