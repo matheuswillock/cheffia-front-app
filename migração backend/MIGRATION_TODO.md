@@ -29,7 +29,7 @@ git merge --no-ff feature/nome-da-task
 git push origin migration-backend
 ```
 
-- [ ] 01. Preparar estrutura de backend no app Next
+- [x] 01. Preparar estrutura de backend no app Next
 Definicao de pronto: estrutura `src/app/api/v1/cheffia/**` criada com pastas por dominio (`Restaurant`, `Menu`, `MenuLive`, `OrderHub`, `Payment`) sem quebrar o frontend atual.
 Arquivos/paths envolvidos: `src/app/api/v1/cheffia/**`, `src/server/**`.
 Riscos/observacoes: conflitos com codigo legado em `src/api/**`.
