@@ -6,11 +6,11 @@ Decisao de realtime adotada: **Opcao 1 - Supabase Realtime + Outbox de eventos**
 
 ## Fluxo de branches obrigatorio
 1. Branch base de migracao: `migration-backend` (criada a partir de `develop`).
-2. Cada nova task deve nascer de `migration-backend` com padrao:
+2. Cada nova task deve nascer de `migration-backend` com padrao local:
 `feature/<nome-da-task-em-kebab-case>`.
-3. PR de task: `feature/*` -> `migration-backend`.
-4. PR de integracao: `migration-backend` -> `develop`.
-5. PR de release: `develop` -> `main`.
+3. A branch `feature/*` e usada para desenvolvimento local da task.
+4. O push remoto deve ser feito sempre para `migration-backend` (nunca para `feature/*`).
+5. Fluxo remoto oficial: `migration-backend` -> `develop` -> `main`.
 
 Comandos de referencia:
 ```bash
@@ -18,6 +18,15 @@ Comandos de referencia:
 git checkout migration-backend
 git pull
 git checkout -b feature/nome-da-task
+
+# desenvolver e commitar na feature
+git add .
+git commit -m "feat: nome da task"
+
+# integrar localmente e publicar somente migration-backend
+git checkout migration-backend
+git merge --no-ff feature/nome-da-task
+git push origin migration-backend
 ```
 
 - [ ] 01. Preparar estrutura de backend no app Next
@@ -44,11 +53,17 @@ Arquivos/paths envolvidos: `src/server/shared/tenant/**`, middlewares/helpers de
 Riscos/observacoes: rotas publicas podem introduzir bypass se resolver tenant de forma insegura.
 Nota multi-tenant/idempotencia: nenhum use case executa sem `ctx.tenantId`.
 
-- [ ] 05. Modelar schema multi-tenant no Supabase
-Definicao de pronto: tabelas de dominio com `tenant_id`, indices compostos por tenant e politicas RLS aplicadas.
-Arquivos/paths envolvidos: `supabase/migrations/**`, `supabase/policies/**`.
-Riscos/observacoes: necessidade de backfill e cuidado com politicas que bloqueiem acessos validos.
-Nota multi-tenant/idempotencia: isolamento por tenant no banco e em toda query de dominio.
+- [ ] 05. Modelar schema multi-tenant no Supabase com Prisma (configuracao base obrigatoria)
+Definicao de pronto: `prisma/schema.prisma` criado com datasource Supabase (`DATABASE_URL` pooler + `DIRECT_URL` para migration), modelos iniciais com `tenant_id`, indices por tenant, suporte a idempotencia e webhook; politicas RLS aplicadas no banco.
+Arquivos/paths envolvidos: `prisma/schema.prisma`, `prisma/migrations/**`, `prisma/erd/diagram.md`, `migração backend/SUPABASE_PRISMA_SETUP.md`, `supabase/policies/**`.
+Riscos/observacoes: nao commitar senha do banco no git; risco de bloqueio por RLS mal configurada e divergencia entre Prisma migrations e SQL manual no Supabase.
+Nota multi-tenant/idempotencia: isolamento por `tenant_id` em todas as tabelas criticas (`idempotency_keys`, `asaas_webhook_events`, `outbox_events`) com chaves unicas compostas.
+
+Parametros Supabase desta migracao:
+- `SUPABASE_PROJECT_ID=zhtlkgobqilvuzoeugct`
+- Database password (usar somente em secrets locais/CI/Vercel; nao commitar): `PodGiuNTglwO7pke`
+- `DATABASE_URL="postgresql://postgres.zhtlkgobqilvuzoeugct:[YOUR-PASSWORD]@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"`
+- `DIRECT_URL="postgresql://postgres.zhtlkgobqilvuzoeugct:[YOUR-PASSWORD]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres"`
 
 - [ ] 06. Criar modulo de idempotencia generico
 Definicao de pronto: tabela e helper para registrar/reusar respostas por `Idempotency-Key` em endpoints de escrita.
