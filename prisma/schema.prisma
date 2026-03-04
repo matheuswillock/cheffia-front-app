@@ -65,7 +65,17 @@ model Restaurant {
   tenantId       String   @map("tenant_id") @db.Uuid
   supabaseUserId String?  @map("supabase_user_id") @db.Uuid
   name           String   @db.Text
+  address        String?  @db.Text
+  phoneNumber    String?  @map("phone_number") @db.Text
+  email          String?  @db.Text
+  ownerFullName  String?  @map("owner_full_name") @db.Text
   document       String?  @db.Text
+  verificationCode String? @map("verification_code") @db.Text
+  emailVerified  Boolean  @default(false) @map("email_verified")
+  registerDate   DateTime @default(now()) @map("register_date") @db.Timestamptz(6)
+  providerAvatarUrl String? @map("provider_avatar_url") @db.Text
+  restaurantMenuId String? @map("restaurant_menu_id") @db.Uuid
+  restaurantKitchenId String? @map("restaurant_kitchen_id") @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -73,6 +83,10 @@ model Restaurant {
 
   @@index([tenantId], map: "restaurants_tenant_id_idx")
   @@index([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_idx")
+  @@index([tenantId, verificationCode], map: "restaurants_tenant_verification_code_idx")
+  @@unique([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_uk")
+  @@unique([tenantId, email], map: "restaurants_tenant_email_uk")
+  @@unique([tenantId, document], map: "restaurants_tenant_document_uk")
   @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
   @@map("restaurants")
 }

@@ -83,7 +83,7 @@ Arquivos/paths envolvidos: `src/app/api/v1/cheffia/OrderHub/webhook/asaas/route.
 Riscos/observacoes: eventos duplicados, fora de ordem, ou com atraso.
 Nota multi-tenant/idempotencia: `unique(tenant_id, provider, provider_event_id)` e processamento exactly-once logico.
 
-- [ ] 09. Migrar vertical slice Restaurant
+- [x] 09. Migrar vertical slice Restaurant
 Definicao de pronto: rotas `GET /Restaurant/{supabaseId}`, `POST /Restaurant/register`, `GET /Restaurant/confirm-email`, `DELETE /Restaurant/{id}/delete` funcionando em Next.
 Arquivos/paths envolvidos: `src/app/api/v1/cheffia/Restaurant/**`, `src/server/application/restaurant/**`.
 Riscos/observacoes: diferenca de serializacao e validacao entre .NET e TS.
