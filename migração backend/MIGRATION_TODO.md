@@ -71,7 +71,7 @@ Arquivos/paths envolvidos: `supabase/migrations/**`, `src/server/shared/idempote
 Riscos/observacoes: colisao de chave com payload diferente e expiracao de chaves antigas.
 Nota multi-tenant/idempotencia: chave unica por `tenant_id + endpoint + method + idempotency_key`.
 
-- [ ] 07. Implementar cliente Asaas centralizado
+- [x] 07. Implementar cliente Asaas centralizado
 Definicao de pronto: cliente HTTP tipado para Asaas com timeout, retries controlados, logs seguros e mapeamento de erros.
 Arquivos/paths envolvidos: `src/server/infra/external/asaas/**`.
 Riscos/observacoes: diferencas de ambiente sandbox/producao e erros de configuracao de token.
