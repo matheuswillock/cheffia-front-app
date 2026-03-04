@@ -1,0 +1,146 @@
+// Prisma baseline for backend migration (.NET -> Next.js Route Handlers)
+// - Supabase Postgres as primary database
+// - Multi-tenant enforced by tenant_id in all critical tables
+// - Idempotency + webhook event registry for retry-safe processing
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./erd/diagram.md"
+  format   = "mermaid"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum AsaasWebhookStatus {
+  pending
+  processing
+  processed
+  failed
+
+  @@map("asaas_webhook_status")
+}
+
+enum IdempotencyStatus {
+  started
+  completed
+  failed
+
+  @@map("idempotency_status")
+}
+
+enum OutboxStatus {
+  pending
+  published
+  failed
+
+  @@map("outbox_status")
+}
+
+model Tenant {
+  id         String   @id @default(uuid()) @db.Uuid
+  slug       String   @unique @db.Text
+  name       String   @db.Text
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  restaurants       Restaurant[]
+  idempotencyKeys   IdempotencyKey[]
+  asaasWebhookEvents AsaasWebhookEvent[]
+  outboxEvents      OutboxEvent[]
+
+  @@map("tenants")
+}
+
+model Restaurant {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  supabaseUserId String?  @map("supabase_user_id") @db.Uuid
+  name           String   @db.Text
+  document       String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], map: "restaurants_tenant_id_idx")
+  @@index([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_idx")
+  @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
+  @@map("restaurants")
+}
+
+model IdempotencyKey {
+  id                 String            @id @default(uuid()) @db.Uuid
+  tenantId           String            @map("tenant_id") @db.Uuid
+  method             String            @db.VarChar(10)
+  endpoint           String            @db.Text
+  idempotencyKey     String            @map("idempotency_key") @db.Text
+  requestHash        String?           @map("request_hash") @db.Text
+  status             IdempotencyStatus @default(started)
+  responseStatusCode Int?              @map("response_status_code")
+  responseBody       Json?             @map("response_body")
+  expiresAt          DateTime?         @map("expires_at") @db.Timestamptz(6)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, method, endpoint, idempotencyKey], map: "idempotency_tenant_method_endpoint_key_uk")
+  @@index([tenantId, createdAt], map: "idempotency_tenant_created_at_idx")
+  @@map("idempotency_keys")
+}
+
+model AsaasWebhookEvent {
+  id                 String             @id @default(uuid()) @db.Uuid
+  tenantId           String             @map("tenant_id") @db.Uuid
+  provider           String             @default("asaas") @db.Text
+  providerEventId    String             @map("provider_event_id") @db.Text
+  eventType          String             @map("event_type") @db.Text
+  rawPayload         Json               @map("raw_payload")
+  rawHeaders         Json               @map("raw_headers")
+  signatureValidated Boolean            @default(false) @map("signature_validated")
+  status             AsaasWebhookStatus @default(pending)
+  processingAttempts Int                @default(0) @map("processing_attempts")
+  firstReceivedAt    DateTime           @default(now()) @map("first_received_at") @db.Timestamptz(6)
+  lastReceivedAt     DateTime           @default(now()) @map("last_received_at") @db.Timestamptz(6)
+  processedAt        DateTime?          @map("processed_at") @db.Timestamptz(6)
+  lastError          String?            @map("last_error") @db.Text
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider, providerEventId], map: "asaas_webhook_tenant_provider_event_uk")
+  @@index([tenantId, status, firstReceivedAt], map: "asaas_webhook_tenant_status_received_idx")
+  @@map("asaas_webhook_events")
+}
+
+model OutboxEvent {
+  id            String      @id @default(uuid()) @db.Uuid
+  tenantId      String      @map("tenant_id") @db.Uuid
+  aggregateType String      @map("aggregate_type") @db.Text
+  aggregateId   String      @map("aggregate_id") @db.Text
+  eventType     String      @map("event_type") @db.Text
+  payload       Json
+  status        OutboxStatus @default(pending)
+  availableAt   DateTime    @default(now()) @map("available_at") @db.Timestamptz(6)
+  publishedAt   DateTime?   @map("published_at") @db.Timestamptz(6)
+  retryCount    Int         @default(0) @map("retry_count")
+  lastError     String?     @map("last_error") @db.Text
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status, availableAt], map: "outbox_tenant_status_available_idx")
+  @@index([tenantId, aggregateType, aggregateId], map: "outbox_tenant_aggregate_idx")
+  @@map("outbox_events")
+}
