@@ -1,4 +1,8 @@
 import { getSupabaseAdminClient } from "@/server/infra/supabase/adminClient";
+import {
+  SupabaseMenuMediaStorage,
+  type MenuMediaStorage,
+} from "@/server/infra/storage";
 import { failOutput, okOutput, type Output } from "@/server/shared/output";
 import type {
   AddMenuItemInput,
@@ -90,6 +94,8 @@ const mapMenuItem = (
 });
 
 export class MenuService {
+  constructor(private readonly menuMediaStorage: MenuMediaStorage = new SupabaseMenuMediaStorage()) {}
+
   public async getTenantByRestaurantId(restaurantId: string): Promise<string | null> {
     const supabase = getSupabaseAdminClient();
     const { data, error } = await supabase
@@ -169,6 +175,23 @@ export class MenuService {
         categoryId = category?.id ?? null;
       }
 
+      let mediaId: string | null = null;
+      let mediaUrl: string | null = null;
+      let mediaImgixUrl: string | null = null;
+
+      if (input.item.itemMedia) {
+        const uploaded = await this.menuMediaStorage.uploadMenuItemMedia({
+          tenantId,
+          menuId: menu.id,
+          fileName: input.item.itemMedia.name,
+          contentType: input.item.itemMedia.contentType,
+          data: input.item.itemMedia.data,
+        });
+        mediaId = uploaded.path;
+        mediaUrl = uploaded.publicUrl;
+        mediaImgixUrl = uploaded.publicUrl;
+      }
+
       const supabase = getSupabaseAdminClient();
       const { error: insertError } = await supabase.from("menu_items").insert({
         tenant_id: tenantId,
@@ -178,10 +201,9 @@ export class MenuService {
         description: input.item.description.trim(),
         ingredients: input.item.ingredients,
         price: input.item.price,
-        // Media upload will be migrated to Supabase Storage in Task 11.
-        media_id: null,
-        media_url: null,
-        media_imgix_url: null,
+        media_id: mediaId,
+        media_url: mediaUrl,
+        media_imgix_url: mediaImgixUrl,
       });
 
       if (insertError) {
@@ -199,6 +221,17 @@ export class MenuService {
   public async deleteItem(tenantId: string, itemId: string): Promise<Output<null>> {
     try {
       const supabase = getSupabaseAdminClient();
+      const { data: existingItem, error: findError } = await supabase
+        .from("menu_items")
+        .select("media_id")
+        .eq("tenant_id", tenantId)
+        .eq("id", itemId)
+        .maybeSingle<{ media_id: string | null }>();
+
+      if (findError) {
+        return failOutput(`Error deleting item from menu: ${findError.message}`);
+      }
+
       const { error } = await supabase
         .from("menu_items")
         .delete()
@@ -207,6 +240,22 @@ export class MenuService {
 
       if (error) {
         return failOutput(`Error deleting item from menu: ${error.message}`);
+      }
+
+      const mediaPath = existingItem?.media_id?.trim() ?? "";
+      if (mediaPath.startsWith("tenant/")) {
+        try {
+          await this.menuMediaStorage.removeMenuItemMedia(mediaPath);
+        } catch (storageError) {
+          const message =
+            storageError instanceof Error ? storageError.message : "Unknown storage delete error";
+          console.error("menu.delete.storage_remove_failed", {
+            tenantId,
+            itemId,
+            mediaPath,
+            message,
+          });
+        }
       }
 
       return okOutput<null>(null, ["Item deleted successfully"]);

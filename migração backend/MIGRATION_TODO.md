@@ -95,7 +95,7 @@ Arquivos/paths envolvidos: `src/app/api/v1/cheffia/Menu/**`, `src/app/api/v1/che
 Riscos/observacoes: upload multipart e relacionamento categoria/item.
 Nota multi-tenant/idempotencia: filtros obrigatorios por tenant no CRUD de menu.
 
-- [ ] 11. Substituir Cosmic por Supabase Storage
+- [x] 11. Substituir Cosmic por Supabase Storage
 Definicao de pronto: upload/remocao de imagens via Supabase Storage com namespace por tenant (`tenant/{tenantId}/...`).
 Arquivos/paths envolvidos: `src/server/infra/storage/**`, `supabase/storage-policies.sql` (ou migrations equivalentes).
 Riscos/observacoes: migracao de imagens existentes e links legados.

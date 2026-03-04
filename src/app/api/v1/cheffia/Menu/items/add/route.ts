@@ -12,6 +12,7 @@ const mediaMetadataSchema = z.object({
   name: z.string().trim().min(1),
   contentType: z.string().trim().default("application/octet-stream"),
   size: z.number().nonnegative(),
+  data: z.instanceof(Uint8Array).refine((value) => value.byteLength > 0),
 });
 
 const addMenuItemInputSchema = z.object({
@@ -69,6 +70,17 @@ const parseIngredients = (formData: FormData): string[] => {
 const parseInput = async (request: NextRequest): Promise<z.infer<typeof addMenuItemInputSchema>> => {
   const formData = await request.formData();
   const media = formData.get("Item.ItemMedia");
+  let parsedMedia: z.infer<typeof mediaMetadataSchema> | null = null;
+
+  if (media instanceof File && media.size > 0) {
+    const bytes = new Uint8Array(await media.arrayBuffer());
+    parsedMedia = {
+      name: media.name,
+      contentType: media.type || "application/octet-stream",
+      size: media.size,
+      data: bytes,
+    };
+  }
 
   const parsed = addMenuItemInputSchema.safeParse({
     restaurantId: getFormString(formData, "RestaurantId"),
@@ -78,14 +90,7 @@ const parseInput = async (request: NextRequest): Promise<z.infer<typeof addMenuI
       price: Number(getFormString(formData, "Item.Price")),
       ingredients: parseIngredients(formData),
       categoryId: getFormString(formData, "Item.CategoryId"),
-      itemMedia:
-        media instanceof File && media.size > 0
-          ? {
-              name: media.name,
-              contentType: media.type || "application/octet-stream",
-              size: media.size,
-            }
-          : null,
+      itemMedia: parsedMedia,
     },
   });
 
