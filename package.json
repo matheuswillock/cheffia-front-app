@@ -6,7 +6,11 @@
     "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_OPTIONS='--inspect' NODE_ENV=development next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "ngrok:webhook": "ngrok http 3000",
+    "ngrok:webhook:url": "node scripts/print-ngrok-webhook-url.mjs",
+    "webhook:local:url": "node scripts/print-ngrok-webhook-url.mjs --path /api/v1/cheffia/OrderHub/webhook/asaas"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
