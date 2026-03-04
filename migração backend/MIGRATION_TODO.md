@@ -53,7 +53,7 @@ Arquivos/paths envolvidos: `src/server/shared/tenant/**`, middlewares/helpers de
 Riscos/observacoes: rotas publicas podem introduzir bypass se resolver tenant de forma insegura.
 Nota multi-tenant/idempotencia: nenhum use case executa sem `ctx.tenantId`.
 
-- [ ] 05. Modelar schema multi-tenant no Supabase com Prisma (configuracao base obrigatoria)
+- [x] 05. Modelar schema multi-tenant no Supabase com Prisma (configuracao base obrigatoria)
 Definicao de pronto: `prisma/schema.prisma` criado com datasource Supabase (`DATABASE_URL` pooler + `DIRECT_URL` para migration), modelos iniciais com `tenant_id`, indices por tenant, suporte a idempotencia e webhook; politicas RLS aplicadas no banco.
 Arquivos/paths envolvidos: `prisma/schema.prisma`, `prisma/migrations/**`, `prisma/erd/diagram.md`, `migração backend/SUPABASE_PRISMA_SETUP.md`, `supabase/policies/**`.
 Riscos/observacoes: nao commitar senha do banco no git; risco de bloqueio por RLS mal configurada e divergencia entre Prisma migrations e SQL manual no Supabase.
