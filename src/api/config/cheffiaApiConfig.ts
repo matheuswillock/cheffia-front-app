@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 export const cheffiaApiConfig = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1/cheffia',
   timeout: 10000,
   // httpsAgent: new (require('https').Agent)({
   //   rejectUnauthorized: false // ATENÇÃO: Use apenas em desenvolvimento!

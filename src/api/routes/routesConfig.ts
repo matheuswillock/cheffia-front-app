@@ -3,7 +3,9 @@ const waitlistUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_WAITLIST as 
 
 export const restaurantRoutes = {
   registerRestaurant: '/Restaurant/register',
-  getRestaurant: (id: string) => `/Restaurant/${id}`
+  getRestaurant: (id: string) => `/Restaurant/${id}`,
+  confirmEmail: '/Restaurant/confirm-email',
+  deleteRestaurant: (restaurantId: string) => `/Restaurant/${restaurantId}/delete`,
 }
 
 export const paymentRoutes = {
