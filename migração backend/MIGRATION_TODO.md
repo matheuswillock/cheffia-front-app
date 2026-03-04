@@ -65,7 +65,7 @@ Parametros Supabase desta migracao:
 - `DATABASE_URL="postgresql://postgres.zhtlkgobqilvuzoeugct:[YOUR-PASSWORD]@aws-1-sa-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"`
 - `DIRECT_URL="postgresql://postgres.zhtlkgobqilvuzoeugct:[YOUR-PASSWORD]@aws-1-sa-east-1.pooler.supabase.com:5432/postgres"`
 
-- [ ] 06. Criar modulo de idempotencia generico
+- [x] 06. Criar modulo de idempotencia generico
 Definicao de pronto: tabela e helper para registrar/reusar respostas por `Idempotency-Key` em endpoints de escrita.
 Arquivos/paths envolvidos: `supabase/migrations/**`, `src/server/shared/idempotency/**`.
 Riscos/observacoes: colisao de chave com payload diferente e expiracao de chaves antigas.
