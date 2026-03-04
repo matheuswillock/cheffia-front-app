@@ -41,7 +41,7 @@ Arquivos/paths envolvidos: `migração backend/api-routes.md`, `src/server/contr
 Riscos/observacoes: divergencias entre comportamento real e contratos esperados pelo frontend.
 Nota multi-tenant/idempotencia: marcar em cada rota se exige tenant obrigatorio e se exige `Idempotency-Key`.
 
-- [ ] 03. Implementar envelope de resposta compativel
+- [x] 03. Implementar envelope de resposta compativel
 Definicao de pronto: utilitario `Output<T>` no backend TS retornando `isValid`, `successMessages`, `errorMessages`, `result`.
 Arquivos/paths envolvidos: `src/server/shared/output.ts`.
 Riscos/observacoes: regressao em telas que dependem da estrutura atual de erro/sucesso.
