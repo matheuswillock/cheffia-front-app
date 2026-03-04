@@ -59,6 +59,7 @@ export interface AddMenuItemInput {
           name: string;
           contentType: string;
           size: number;
+          data: Uint8Array;
         }
       | null;
   };

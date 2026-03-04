@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   },
 };
 
+const supabaseStorageHost = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID}.supabase.co`
+  : "zhtlkgobqilvuzoeugct.supabase.co";
+
 module.exports = {
   reactStrictMode: true,
   experimental: {
@@ -20,6 +24,10 @@ module.exports = {
       {
         protocol: 'https',
         hostname: 'imgix.cosmicjs.com',
+      },
+      {
+        protocol: 'https',
+        hostname: supabaseStorageHost,
       },
     ],
   },

@@ -26,6 +26,9 @@ DIRECT_URL="postgresql://postgres.zhtlkgobqilvuzoeugct:${SUPABASE_DB_PASSWORD}@a
 NEXT_PUBLIC_SUPABASE_URL="https://zhtlkgobqilvuzoeugct.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="<<preencher>>"
 SUPABASE_SERVICE_ROLE_KEY="<<somente backend seguro>>"
+
+# Storage (Task 11 - menu media)
+SUPABASE_STORAGE_MENU_BUCKET="cheffia-menu-media"
 ```
 
 ## 3) Scripts Prisma disponiveis
@@ -53,11 +56,13 @@ bun run prisma:erd
 Arquivos iniciais criados nesta migracao:
 - `prisma/migrations/20260304160000_init_multi_tenant_baseline/migration.sql`
 - `supabase/policies/20260304160500_multi_tenant_rls.sql`
+- `supabase/storage-policies.sql`
 
 Aplicacao das policies RLS:
 1. Executar migrations Prisma (local/CI).
 2. Abrir Supabase SQL Editor do projeto.
 3. Rodar `supabase/policies/20260304160500_multi_tenant_rls.sql`.
+4. Rodar `supabase/storage-policies.sql`.
 
 ## 5) Regras obrigatorias para migracao
 - Toda tabela de dominio deve ter `tenant_id`.
