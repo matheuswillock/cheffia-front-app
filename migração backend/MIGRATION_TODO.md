@@ -77,7 +77,7 @@ Arquivos/paths envolvidos: `src/server/infra/external/asaas/**`.
 Riscos/observacoes: diferencas de ambiente sandbox/producao e erros de configuracao de token.
 Nota multi-tenant/idempotencia: toda chamada externa deve carregar correlacao (`requestId`, `tenantId`).
 
-- [ ] 08. Implementar webhook Asaas seguro + idempotente
+- [x] 08. Implementar webhook Asaas seguro + idempotente
 Definicao de pronto: webhook valida token/assinatura/origem, persiste payload bruto + headers, deduplica evento e processa de forma reentrante.
 Arquivos/paths envolvidos: `src/app/api/v1/cheffia/OrderHub/webhook/asaas/route.ts`, `src/server/application/webhooks/**`, `supabase/migrations/**`.
 Riscos/observacoes: eventos duplicados, fora de ordem, ou com atraso.
