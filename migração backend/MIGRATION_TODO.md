@@ -47,7 +47,7 @@ Arquivos/paths envolvidos: `src/server/shared/output.ts`.
 Riscos/observacoes: regressao em telas que dependem da estrutura atual de erro/sucesso.
 Nota multi-tenant/idempotencia: incluir `requestId` e `tenantId` nos logs de erro para rastreio de tentativas repetidas.
 
-- [ ] 04. Definir e implementar TenantContext obrigatorio
+- [x] 04. Definir e implementar TenantContext obrigatorio
 Definicao de pronto: helper resolve `tenantId` por request (JWT claim, recurso, ou resolucao segura por `restaurantId`) e bloqueia chamadas sem tenant.
 Arquivos/paths envolvidos: `src/server/shared/tenant/**`, middlewares/helpers de rotas.
 Riscos/observacoes: rotas publicas podem introduzir bypass se resolver tenant de forma insegura.
