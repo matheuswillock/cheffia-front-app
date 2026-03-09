@@ -52,11 +52,77 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
+  migration-tests:
+    name: Migration Tests (Strict)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MIGRATION_E2E_BASE_URL: ${{ secrets.MIGRATION_E2E_BASE_URL }}
+      MIGRATION_E2E_TENANT_ID: ${{ secrets.MIGRATION_E2E_TENANT_ID }}
+      MIGRATION_E2E_FOREIGN_SUPABASE_ID: ${{ secrets.MIGRATION_E2E_FOREIGN_SUPABASE_ID }}
+      MIGRATION_E2E_ASAAS_WEBHOOK_TOKEN: ${{ secrets.MIGRATION_E2E_ASAAS_WEBHOOK_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb', '**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Migration regression tests
+        run: bun run test:migration:strict
+
+  contract-artifacts:
+    name: OpenAPI / Collections Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Cache Bun store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb', '**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Validate generated API artifacts
+        run: bun run artifacts:check
+
   build:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: quality
+    needs:
+      - quality
+      - migration-tests
+      - contract-artifacts
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,12 +212,23 @@ jobs:
               return;
             }
 
+            const body = [
+              '## PR automático (develop -> main)',
+              '',
+              '- [ ] Lint/Typecheck passaram?',
+              '- [ ] Build passou?',
+              '- [ ] Testes de migração estritos passaram?',
+              '- [ ] OpenAPI/collections estão sincronizados?',
+              '',
+              '*Criado automaticamente pelo GitHub Actions.*'
+            ].join('\n');
+
             const res = await github.rest.pulls.create({
               owner, repo,
               head,
               base,
               title: 'chore: develop -> main',
-              body: 'PR automático criado pelo CI.',
+              body,
               maintainer_can_modify: true,
             });
 

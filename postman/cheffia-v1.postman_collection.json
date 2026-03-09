@@ -1,0 +1,1013 @@
+{
+  "info": {
+    "_postman_id": "ebab3834-16f1-4903-bc90-9d0beb00dc0f",
+    "name": "Cheffia API v1 (Migration)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "tenantId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "idem-example-001"
+    },
+    {
+      "key": "asaasWebhookToken",
+      "value": "replace_me"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Solicitar redefinicao de senha",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "forgot-password"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"contato@restaurante.com\",\n  \"nextPath\": \"/set-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reenviar confirmacao de email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/resend-confirmation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "resend-confirmation"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"contato@restaurante.com\",\n  \"nextPath\": \"/register/restaurant\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurant",
+      "item": [
+        {
+          "name": "Registrar restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                "register"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Restaurante Exemplo\",\n  \"address\": \"Rua das Flores\",\n  \"addressNumber\": \"123\",\n  \"complement\": \"Sala 4\",\n  \"province\": \"Centro\",\n  \"postalCode\": \"01310100\",\n  \"phoneNumber\": \"11999999999\",\n  \"email\": \"contato@restaurante.com\",\n  \"emailVerified\": false,\n  \"supabaseId\": \"00000000-0000-0000-0000-000000000000\",\n  \"ownerFullName\": \"Maria Silva\",\n  \"document\": \"12345678901\",\n  \"birthDate\": \"1990-05-16\",\n  \"providerAvatarUrl\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Consultar status financeiro Asaas do restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/financial-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "financial-account"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Listar documentos financeiros sincronizados do restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/financial-account/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "financial-account",
+                "documents"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Sincronizar documentos financeiros no Asaas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/financial-account/documents/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "financial-account",
+                "documents",
+                "sync"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Enviar documento financeiro do restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/financial-account/documents/:documentId/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "financial-account",
+                "documents",
+                ":documentId",
+                "upload"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "documentFile",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Provisionar subconta Asaas do restaurante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/financial-account/provision",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "financial-account",
+                "provision"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Buscar restaurante por supabaseId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:supabaseId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":supabaseId"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Confirmar e-mail de restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/confirm-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                "confirm-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "12345",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Excluir restaurante",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "delete"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu",
+      "item": [
+        {
+          "name": "Adicionar item ao menu (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Menu/items/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Menu",
+                "items",
+                "add"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "RestaurantId",
+                  "type": "text",
+                  "value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "key": "Item.Name",
+                  "type": "text",
+                  "value": "Pizza Margherita"
+                },
+                {
+                  "key": "Item.Description",
+                  "type": "text",
+                  "value": "Massa fina e tomate fresco"
+                },
+                {
+                  "key": "Item.Price",
+                  "type": "text",
+                  "value": "39.9"
+                },
+                {
+                  "key": "Item.Ingredients",
+                  "type": "text",
+                  "value": "queijo, tomate, manjericao"
+                },
+                {
+                  "key": "Item.CategoryId",
+                  "type": "text",
+                  "value": "00000000-0000-0000-0000-000000000000"
+                },
+                {
+                  "key": "Item.ItemMedia",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Excluir item do menu (query legado)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Menu/items/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Menu",
+                "items",
+                "delete"
+              ],
+              "query": [
+                {
+                  "key": "itemId",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Excluir item do menu (path param)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Menu/items/delete/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Menu",
+                "items",
+                "delete",
+                ":itemId"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Buscar menu por restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Menu/get",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Menu",
+                "get"
+              ],
+              "query": [
+                {
+                  "key": "restaurantId",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar menu por restaurante (contrato legado POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Menu/get",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Menu",
+                "get"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"params\": {\n    \"restaurantId\": \"00000000-0000-0000-0000-000000000000\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MenuLive",
+      "item": [
+        {
+          "name": "Buscar MenuLive por restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/MenuLive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "MenuLive"
+              ],
+              "query": [
+                {
+                  "key": "restaurantId",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "disabled": false
+                },
+                {
+                  "key": "table",
+                  "value": "12",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OrderHub",
+      "item": [
+        {
+          "name": "Enviar pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/send",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "send"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerOrderId\": null,\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000000\",\n  \"tableNumber\": \"12\",\n  \"orderItems\": [\n    {\n      \"menuItemId\": \"00000000-0000-0000-0000-000000000000\",\n      \"quantity\": 2,\n      \"comments\": \"sem cebola\",\n      \"tableNumber\": \"12\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Buscar pedido por restaurantId + customerOrderId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/order",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "order"
+              ],
+              "query": [
+                {
+                  "key": "restaurantId",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "disabled": false
+                },
+                {
+                  "key": "customerOrderId",
+                  "value": "00000000-0000-0000-0000-000000000000",
+                  "disabled": false
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar cobranca PIX para pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/payment",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "payment"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerOrderId\": \"00000000-0000-0000-0000-000000000000\",\n  \"payTip\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Confirmar status de pagamento PIX",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/payment/confirmation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "payment",
+                "confirmation"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentPixId\": \"pay_1234567890\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Receber webhook Asaas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "asaas-access-token",
+                "value": "replace_me",
+                "disabled": false
+              },
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/webhook/asaas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "webhook",
+                "asaas"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"PAYMENT_RECEIVED\",\n  \"payment\": {\n    \"id\": \"pay_1234567890\",\n    \"status\": \"RECEIVED\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment",
+      "item": [
+        {
+          "name": "Criar payment intent (Stripe)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Payment/intent/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Payment",
+                "intent",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1099,\n  \"currency\": \"brl\",\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Criar produto + preco (Stripe)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{idempotencyKey}}",
+                "disabled": false
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Payment/product/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Payment",
+                "product",
+                "create"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Plano Pro\",\n  \"productDescription\": \"Plano mensal\",\n  \"price\": 4990,\n  \"currency\": \"brl\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { ComponentProps, FormEvent } from "react";
 import { Form } from "../ui/form";
 import SignUpFormField from "./SignUpFormField";
 import { UseSignUpForm } from "@/hooks/UseForms";
+import UserProfileFields from "../RegisterProfileContent/UserProfileFields";
 
 interface SignInFormProps extends ComponentProps<"div"> {
   onSignUp: (formData: FormData) => void;
@@ -48,6 +49,12 @@ export function SignUpForm({
                     </p>
                   </div>
 
+                  <UserProfileFields form={form} />
+
+                  <p className="text-sm text-foreground-default/70">
+                    O seu <span className="font-semibold">Cheffia ID</span> sera gerado automaticamente apos o cadastro.
+                  </p>
+
                   <SignUpFormField
                     control={form.control}
                     name="email"
@@ -78,7 +85,7 @@ export function SignUpForm({
                     label="Confirme a sua senha"
                     type="password"
                     placeholder="*******************"
-                    errorMessage={form.formState.errors.password?.message}
+                    errorMessage={form.formState.errors.confirmPassword?.message}
                     blurEvent={async () => {
                       await form.trigger("confirmPassword");
                     }}

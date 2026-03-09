@@ -56,12 +56,20 @@ export function SignInForm({
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Senha</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline hover:text-primary"
-                    >
-                      Esqueceu a sua senha?
-                    </a>
+                    <div className="ml-auto flex items-center gap-3 text-sm">
+                      <a
+                        href="/forgot-password"
+                        className="underline-offset-4 hover:underline hover:text-primary"
+                      >
+                        Esqueceu a sua senha?
+                      </a>
+                      <a
+                        href="/resend-confirmation"
+                        className="underline-offset-4 hover:underline hover:text-primary"
+                      >
+                        Reenviar confirmacao
+                      </a>
+                    </div>
                   </div>
                   <Input
                     id="password"

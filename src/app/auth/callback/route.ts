@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { verifySessionServer, createClient } from '@/utils/supabase/server';
+import { createClient } from '@/utils/supabase/server';
+import { UserProfileService } from '@/server/application/userProfiles';
+import { RestaurantService } from '@/server/application/restaurant';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -10,13 +12,26 @@ export async function GET(request: Request) {
     const { error, data } = await supabase.auth.exchangeCodeForSession(code);
 
     // // TODO: ADD LOGS
-    if (!error) {
+    if (!error && data.user) {
       const forwardedHost = request.headers.get('x-forwarded-host');
       const isLocalEnv = process.env.NODE_ENV === 'development';
+      const profileService = new UserProfileService();
+      const restaurantService = new RestaurantService();
 
-      // TODO: add validate ID to redirect to /register/restaurant or to /dashboard
-      const redirectUrl = searchParams.get('next') ??
-        await verifySessionServer() ? `/dashboard/${data?.user?.id}` : '/register/restaurant';
+      try {
+        await restaurantService.syncEmailVerifiedFromAuthState(data.user.id);
+      } catch (syncError) {
+        const message =
+          syncError instanceof Error ? syncError.message : 'Unknown email sync error';
+        console.error('auth.callback.email_sync_failed', {
+          supabaseUserId: data.user.id,
+          message,
+        });
+      }
+
+      const redirectUrl =
+        searchParams.get('next') ??
+        (await profileService.resolvePostAuthDestination(data.user.id));
 
       if (isLocalEnv) {
         return NextResponse.redirect(`${origin}${redirectUrl}`);

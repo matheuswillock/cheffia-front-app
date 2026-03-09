@@ -25,7 +25,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!idempotencyKey || !tenantId) {
-      const output = await service.register(body, tenantId);
+      const output = await service.register(body, tenantId, {
+        appBaseUrl: request.nextUrl.origin,
+      });
       return NextResponse.json(output, { status: output.isValid ? 200 : 400 });
     }
 
@@ -38,7 +40,9 @@ export async function POST(request: NextRequest) {
       payloadForHash: body,
       repository: idempotencyRepository,
       execute: async () => {
-        const output = await service.register(body, tenantId);
+        const output = await service.register(body, tenantId, {
+          appBaseUrl: request.nextUrl.origin,
+        });
         return { output, statusCode: output.isValid ? 200 : 400 };
       },
     });

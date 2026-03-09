@@ -10,7 +10,7 @@ interface RestaurantFormFieldProps<T extends FieldValues> {
   type: string;
   errorMessage?: string;
   blurEvent?: () => void;
-  changeEventType?: "phone" | "document";
+  changeEventType?: "phone" | "document" | "postalCode";
 }
 
 export default function RestaurantFormField<T extends FieldValues>({
@@ -48,6 +48,8 @@ export default function RestaurantFormField<T extends FieldValues>({
           "$1.$2.$3/$4-$5"
         );
       }
+    } else if (changeEventType === "postalCode") {
+      maskedValue = value.replace(/(\d{5})(\d)/, "$1-$2");
     }
 
     field.onChange(maskedValue);

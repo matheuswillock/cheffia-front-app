@@ -1,14 +1,44 @@
+import type { OrderHubEventView } from "./types";
+
 interface NewOrderProps {
-  message: string;
+  event: OrderHubEventView;
+  selected: boolean;
+  onSelect: (eventId: string) => void;
 }
 
-export function NewOrder ({message}: NewOrderProps) {
+const eventLabel = (eventType: string): string => {
+  if (eventType === "order.sent") return "Novo pedido";
+  if (eventType === "order.payment.requested") return "Pagamento solicitado";
+  if (eventType === "order.payment.confirmed") return "Pagamento confirmado";
+  return eventType;
+};
+
+export function NewOrder({ event, selected, onSelect }: NewOrderProps) {
+  const eventTime = new Date(event.createdAt).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
   return (
-    <div className="border-2 bg-gray-700 border-muted-foreground/40 p-2 rounded-xl min-h-full max-h-full overflow-y-auto cursor-pointer">
-      <p className="text-lg text-muted-foreground/80">Pedido n 1</p>
-      <p className="text-lg text-muted-foreground/80">mesa 23</p>
-      <p>{ message }</p>
-      <p className="text-lg text-muted-foreground/80">R$ 23,00</p>
-    </div>
+    <button
+      type="button"
+      onClick={() => onSelect(event.id)}
+      className={`border-2 p-3 rounded-xl min-h-full max-h-full overflow-y-auto cursor-pointer text-left transition-colors ${
+        selected
+          ? "bg-emerald-900/60 border-emerald-500"
+          : "bg-gray-700 border-muted-foreground/40 hover:bg-gray-600"
+      }`}
+    >
+      <p className="text-base text-muted-foreground/90">{eventLabel(event.eventType)}</p>
+      <p className="text-sm text-muted-foreground/80">
+        Pedido #{event.orderNumber ?? "-"} | Mesa {event.tableNumber ?? "-"}
+      </p>
+      <p className="text-xs text-muted-foreground/70">
+        {event.status} | {eventTime}
+      </p>
+      {event.paymentStatus ? (
+        <p className="text-xs text-emerald-300 mt-1">Status pagamento: {event.paymentStatus}</p>
+      ) : null}
+    </button>
   );
 }

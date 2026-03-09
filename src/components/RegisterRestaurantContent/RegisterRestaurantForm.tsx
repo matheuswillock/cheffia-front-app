@@ -4,12 +4,13 @@ import LoadingSpin from "@/assets/loading-spin.svg";
 import { Form } from "@/components/ui/form";
 import { UseRegisterRestaurantForm } from "@/hooks/UseForms";
 import { Button } from "@/components/ui/button";
-import { FormEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Alert from "../ui/Alert";
 import RestaurantFormField from "./RestaurantFormField";
 import { handleRegisterRestaurant } from "@/business/restaurant/restaurantBusiness";
 import { useRouter } from "next/navigation";
+import type { RegisterRestaurantFormData } from "@/types/formTypes";
 
 interface RegisterRestaurantFormProps {
   ownerFullName?: string;
@@ -39,43 +40,37 @@ export default function RegisterRestaurantForm({
     emailVerified,
   });
 
-  const dataToSubmit = (e: FormEvent<HTMLFormElement>) => {
-    const formData = new FormData(e.currentTarget);
+  const documentDigits = form.watch("document").replace(/\D/g, "");
+  const isCompanyDocument = documentDigits.length > 11;
+
+  const buildPayload = (values: RegisterRestaurantFormData): RegisterRestaurantFormData => {
+    const isCompany = values.document.replace(/\D/g, "").length > 11;
+
     return {
-      ownerFullName: ownerFullName || (formData.get("ownerFullName") as string),
+      ...values,
+      ownerFullName: ownerFullName || values.ownerFullName,
       email: email,
       emailVerified: emailVerified,
-      name: formData.get("name") as string,
-      address: formData.get("address") as string,
-      phoneNumber: formData.get("phoneNumber") as string,
       providerAvatarUrl: avatarUrl || "",
       supabaseId: id,
-      document: formData.get("document") as string,
+      birthDate: isCompany ? undefined : values.birthDate || undefined,
+      companyType: isCompany ? values.companyType || undefined : undefined,
     };
   };
-
-  console.log('dataToSubmit', dataToSubmit);
-
-  useEffect(() => {
-    console.log('form.formState.isValid', form.formState.isValid)
-  }, [form.formState.isValid]);
 
   // TODO: add tratativa de erro para o caso de restaurante já cadastrado;
   // TODO: add tratativa de erro para o caso de erro no cadastro do restaurante;
   // TODO: Add Redirect para a página de dashboard após o cadastro do restaurante;
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      e.preventDefault();
       setLoading(true);
-      const response = await handleRegisterRestaurant(dataToSubmit(e));
-      console.log(response);
+      await handleRegisterRestaurant(buildPayload(values));
       setCloseAlertSuccess(true);
       form.reset();
       setLoading(false);
 
       setTimeout(() => {
         setCloseAlertSuccess(false);
-        console.log("Redirecting to dashboard...", `/dashboard/${response.RestaurantId}`);
         router.push(`/dashboard/${id}`);
       }, 3000);
     } catch (error) {
@@ -83,7 +78,7 @@ export default function RegisterRestaurantForm({
       setCloseAlertFail(true);
       setLoading(false);
     }
-  };
+  });
 
   return (
     <div className="mx-auto my-6 border border-zinc-600 rounded-xl p-10 overflow-hidden bg-background-default">
@@ -125,27 +120,95 @@ export default function RegisterRestaurantForm({
             <RestaurantFormField
               control={form.control}
               name="address"
-              label="Endereço"
+              label="Rua ou avenida"
               type="text"
-              placeholder="Endereço"
+              placeholder="Av. Paulista"
               errorMessage={form.formState.errors.address?.message}
               blurEvent={async () => {
                 await form.trigger("address");
               }}
             />
 
-            <RestaurantFormField
-              control={form.control}
-              name="phoneNumber"
-              label="Telefone"
-              type="text"
-              placeholder="(11) 99999-9999"
-              errorMessage={form.formState.errors.phoneNumber?.message}
-              blurEvent={async () => {
-                await form.trigger("phoneNumber");
-              }}
-              changeEventType="phone"
-            />
+            <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
+              <RestaurantFormField
+                control={form.control}
+                name="province"
+                label="Bairro"
+                type="text"
+                placeholder="Bela Vista"
+                errorMessage={form.formState.errors.province?.message}
+                blurEvent={async () => {
+                  await form.trigger("province");
+                }}
+              />
+
+              <RestaurantFormField
+                control={form.control}
+                name="addressNumber"
+                label="Número"
+                type="text"
+                placeholder="1000"
+                errorMessage={form.formState.errors.addressNumber?.message}
+                blurEvent={async () => {
+                  await form.trigger("addressNumber");
+                }}
+              />
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <RestaurantFormField
+                control={form.control}
+                name="postalCode"
+                label="CEP"
+                type="text"
+                placeholder="01310-100"
+                errorMessage={form.formState.errors.postalCode?.message}
+                blurEvent={async () => {
+                  await form.trigger("postalCode");
+                }}
+                changeEventType="postalCode"
+              />
+
+              <RestaurantFormField
+                control={form.control}
+                name="complement"
+                label="Complemento"
+                type="text"
+                placeholder="Sala 2"
+                errorMessage={form.formState.errors.complement?.message}
+                blurEvent={async () => {
+                  await form.trigger("complement");
+                }}
+              />
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <RestaurantFormField
+                control={form.control}
+                name="phoneNumber"
+                label="Telefone"
+                type="text"
+                placeholder="(11) 99999-9999"
+                errorMessage={form.formState.errors.phoneNumber?.message}
+                blurEvent={async () => {
+                  await form.trigger("phoneNumber");
+                }}
+                changeEventType="phone"
+              />
+
+              <RestaurantFormField
+                control={form.control}
+                name="document"
+                label="CPF ou CNPJ"
+                placeholder="Documento"
+                type="text"
+                errorMessage={form.formState.errors.document?.message}
+                blurEvent={async () => {
+                  await form.trigger("document");
+                }}
+                changeEventType="document"
+              />
+            </div>
 
             {!ownerFullName && (
               <RestaurantFormField
@@ -161,18 +224,31 @@ export default function RegisterRestaurantForm({
               />
             )}
 
-            <RestaurantFormField
-              control={form.control}
-              name="document"
-              label="Documento"
-              placeholder="Documento"
-              type="text"
-              errorMessage={form.formState.errors.document?.message}
-              blurEvent={async () => {
-                await form.trigger("document");
-              }}
-              changeEventType="document"
-            />
+            {isCompanyDocument ? (
+              <RestaurantFormField
+                control={form.control}
+                name="companyType"
+                label="Tipo da empresa no Asaas"
+                placeholder="Ex.: MEI"
+                type="text"
+                errorMessage={form.formState.errors.companyType?.message}
+                blurEvent={async () => {
+                  await form.trigger("companyType");
+                }}
+              />
+            ) : (
+              <RestaurantFormField
+                control={form.control}
+                name="birthDate"
+                label="Data de nascimento do titular"
+                placeholder="AAAA-MM-DD"
+                type="date"
+                errorMessage={form.formState.errors.birthDate?.message}
+                blurEvent={async () => {
+                  await form.trigger("birthDate");
+                }}
+              />
+            )}
           </div>
           <div className="flex justify-center">
             <Button

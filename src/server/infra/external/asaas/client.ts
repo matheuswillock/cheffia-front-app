@@ -6,10 +6,16 @@ import type {
   AsaasClientConfig,
   AsaasCustomerPayload,
   AsaasCustomerResponse,
+  AsaasDocumentUploadPayload,
+  AsaasDocumentUploadResponse,
   AsaasErrorResponse,
+  AsaasMyAccountDocumentsResponse,
+  AsaasMyAccountStatusResponse,
   AsaasPaymentResponse,
   AsaasRequestContext,
   AsaasRequestOptions,
+  AsaasSubaccountPayload,
+  AsaasSubaccountResponse,
   AsaasSubscriptionPayload,
   AsaasSubscriptionResponse,
 } from "./types";
@@ -94,14 +100,31 @@ export class AsaasClient {
       const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
 
       try {
+        const headers: Record<string, string> = {
+          accept: "application/json",
+          access_token: this.config.apiKey,
+          ...(options.headers ?? {}),
+        };
+        const hasContentType = Object.keys(headers).some(
+          (key) => key.toLowerCase() === "content-type"
+        );
+        const isFormData =
+          typeof FormData !== "undefined" && options.body instanceof FormData;
+        const requestBody =
+          options.body === undefined
+            ? undefined
+            : isFormData
+            ? (options.body as BodyInit)
+            : JSON.stringify(options.body);
+
+        if (options.body !== undefined && !isFormData && !hasContentType) {
+          headers["Content-Type"] = "application/json";
+        }
+
         const response = await this.fetchImpl(url, {
           method,
-          headers: {
-            "Content-Type": "application/json",
-            accept: "application/json",
-            access_token: this.config.apiKey,
-          },
-          body: options.body ? JSON.stringify(options.body) : undefined,
+          headers,
+          body: requestBody,
           signal: controller.signal,
         });
 
@@ -190,6 +213,24 @@ export class AsaasClient {
     });
   }
 
+  public async createSubaccount(
+    payload: AsaasSubaccountPayload,
+    context?: AsaasRequestContext
+  ): Promise<AsaasSubaccountResponse> {
+    logAsaas("info", "create_subaccount", {
+      requestId: context?.requestId ?? null,
+      tenantId: context?.tenantId ?? null,
+      hasWebhooks: Boolean(payload.webhooks?.length),
+    });
+
+    return this.performRequest<AsaasSubaccountResponse>({
+      method: "POST",
+      path: "/accounts",
+      body: payload,
+      context,
+    });
+  }
+
   public async createCharge(
     payload: AsaasChargePayload,
     context?: AsaasRequestContext
@@ -241,6 +282,63 @@ export class AsaasClient {
     return this.performRequest<AsaasPaymentResponse>({
       method: "GET",
       path: `/payments/${paymentId}`,
+      context,
+    });
+  }
+
+  public async getMyAccountDocuments(
+    context?: AsaasRequestContext
+  ): Promise<AsaasMyAccountDocumentsResponse> {
+    logAsaas("info", "get_my_account_documents", {
+      requestId: context?.requestId ?? null,
+      tenantId: context?.tenantId ?? null,
+    });
+
+    return this.performRequest<AsaasMyAccountDocumentsResponse>({
+      method: "GET",
+      path: "/myAccount/documents",
+      context,
+    });
+  }
+
+  public async getMyAccountStatus(
+    context?: AsaasRequestContext
+  ): Promise<AsaasMyAccountStatusResponse> {
+    logAsaas("info", "get_my_account_status", {
+      requestId: context?.requestId ?? null,
+      tenantId: context?.tenantId ?? null,
+    });
+
+    return this.performRequest<AsaasMyAccountStatusResponse>({
+      method: "GET",
+      path: "/myAccount/status",
+      context,
+    });
+  }
+
+  public async uploadMyAccountDocument(
+    documentGroupId: string,
+    payload: AsaasDocumentUploadPayload,
+    context?: AsaasRequestContext
+  ): Promise<AsaasDocumentUploadResponse> {
+    logAsaas("info", "upload_my_account_document", {
+      requestId: context?.requestId ?? null,
+      tenantId: context?.tenantId ?? null,
+      documentGroupId,
+      type: payload.type,
+      contentType: payload.contentType,
+      size: payload.data.byteLength,
+    });
+
+    const formData = new FormData();
+    const blob = new Blob([payload.data], { type: payload.contentType });
+    formData.append("documentFile", blob, payload.fileName);
+    formData.append("type", payload.type);
+
+    return this.performRequest<AsaasDocumentUploadResponse>({
+      method: "POST",
+      path: `/myAccount/documents/${documentGroupId}`,
+      body: formData,
       context,
     });
   }

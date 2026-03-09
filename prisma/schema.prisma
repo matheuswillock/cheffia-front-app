@@ -44,54 +44,289 @@ enum OutboxStatus {
   @@map("outbox_status")
 }
 
-model Tenant {
-  id         String   @id @default(uuid()) @db.Uuid
-  slug       String   @unique @db.Text
-  name       String   @db.Text
-  isActive   Boolean  @default(true) @map("is_active")
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+enum OrderStatus {
+  pending
+  in_progress
+  ready
+  cancelled
 
-  restaurants       Restaurant[]
-  menus             Menu[]
-  menuCategories    MenuCategory[]
-  menuItems         MenuItem[]
-  idempotencyKeys   IdempotencyKey[]
-  asaasWebhookEvents AsaasWebhookEvent[]
-  outboxEvents      OutboxEvent[]
+  @@map("order_status")
+}
+
+enum OrderPaymentStatus {
+  pending
+  completed
+  paid
+  canceled
+  expired
+  processing
+  refunded
+  rejected
+  failed
+  unknown
+
+  @@map("order_payment_status")
+}
+
+enum PaymentMethod {
+  pix
+  cash
+  apple_pay
+  google_pay
+  debit_card
+  samsung_pay
+  credit_card
+  bank_transfer
+  other
+  paypal
+  unknown
+
+  @@map("payment_method")
+}
+
+enum AsaasAccountType {
+  standard
+  white_label
+
+  @@map("asaas_account_type")
+}
+
+enum AccountApprovalStatus {
+  pending
+  awaiting_approval
+  approved
+  rejected
+  unknown
+
+  @@map("account_approval_status")
+}
+
+enum FinancialOnboardingStatus {
+  draft
+  provisioning
+  account_created
+  awaiting_documents
+  awaiting_review
+  approved
+  rejected
+  blocked
+  failed
+  commercial_info_expired
+
+  @@map("financial_onboarding_status")
+}
+
+enum FinancialWebhookStatus {
+  pending
+  configured
+  failed
+  disabled
+
+  @@map("financial_webhook_status")
+}
+
+enum SettlementStrategy {
+  split_automatico
+  transferencia_posterior
+
+  @@map("settlement_strategy")
+}
+
+enum FeeValueType {
+  fixed
+  percentage
+
+  @@map("fee_value_type")
+}
+
+enum FinancialLedgerEntryType {
+  charge_created
+  charge_paid
+  payment_received
+  provider_fee
+  platform_fee
+  payout_scheduled
+  payout_completed
+  payout_failed
+  refund
+  adjustment
+  reconciliation
+
+  @@map("financial_ledger_entry_type")
+}
+
+enum FinancialEntryDirection {
+  credit
+  debit
+
+  @@map("financial_entry_direction")
+}
+
+enum PayoutTransferStatus {
+  scheduled
+  processing
+  completed
+  failed
+  canceled
+
+  @@map("payout_transfer_status")
+}
+
+enum FinancialReconciliationStatus {
+  pending
+  matched
+  mismatched
+  ignored
+  failed
+
+  @@map("financial_reconciliation_status")
+}
+
+enum FinancialDocumentUploadStatus {
+  stored
+  uploaded
+  failed
+
+  @@map("financial_document_upload_status")
+}
+
+enum BackofficeUserRole {
+  admin
+  operator
+
+  @@map("backoffice_user_role")
+}
+
+enum RestaurantLifecycleStatus {
+  active
+  inactive
+  cancelled
+
+  @@map("restaurant_lifecycle_status")
+}
+
+model Tenant {
+  id        String   @id @default(uuid()) @db.Uuid
+  slug      String   @unique @db.Text
+  name      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  restaurants                            Restaurant[]
+  menus                                  Menu[]
+  menuCategories                         MenuCategory[]
+  menuItems                              MenuItem[]
+  customerOrders                         CustomerOrder[]
+  customerOrderItems                     CustomerOrderItem[]
+  customerOrderPaymentDetails            CustomerOrderPaymentDetail[]
+  restaurantPayments                     RestaurantPayment[]
+  restaurantFinancialAccounts            RestaurantFinancialAccount[]
+  restaurantFinancialOnboardingDocuments RestaurantFinancialOnboardingDocument[]
+  restaurantFinancialDocumentUploads     RestaurantFinancialOnboardingDocumentUpload[]
+  restaurantFinancialSettlementRules     RestaurantFinancialSettlementRule[]
+  financialLedgerEntries                 FinancialLedgerEntry[]
+  restaurantPayoutTransfers              RestaurantPayoutTransfer[]
+  financialReconciliationRuns            FinancialReconciliationRun[]
+  financialReconciliationItems           FinancialReconciliationItem[]
+  idempotencyKeys                        IdempotencyKey[]
+  asaasWebhookEvents                     AsaasWebhookEvent[]
+  outboxEvents                           OutboxEvent[]
 
   @@map("tenants")
 }
 
-model Restaurant {
+model UserProfile {
   id             String   @id @default(uuid()) @db.Uuid
-  tenantId       String   @map("tenant_id") @db.Uuid
-  supabaseUserId String?  @map("supabase_user_id") @db.Uuid
-  name           String   @db.Text
-  address        String?  @db.Text
-  phoneNumber    String?  @map("phone_number") @db.Text
-  email          String?  @db.Text
-  ownerFullName  String?  @map("owner_full_name") @db.Text
-  document       String?  @db.Text
-  verificationCode String? @map("verification_code") @db.Text
-  emailVerified  Boolean  @default(false) @map("email_verified")
-  registerDate   DateTime @default(now()) @map("register_date") @db.Timestamptz(6)
-  providerAvatarUrl String? @map("provider_avatar_url") @db.Text
-  restaurantMenuId String? @map("restaurant_menu_id") @db.Uuid
-  restaurantKitchenId String? @map("restaurant_kitchen_id") @db.Uuid
+  supabaseUserId String   @unique(map: "user_profiles_supabase_user_id_uk") @map("supabase_user_id") @db.Uuid
+  email          String   @unique(map: "user_profiles_email_uk") @db.Text
+  fullName       String   @map("full_name") @db.Text
+  birthDate      DateTime @map("birth_date") @db.Date
+  document       String   @unique(map: "user_profiles_document_uk") @db.Text
+  role           String   @db.Text
+  jobTitle       String   @map("job_title") @db.Text
+  department     String   @db.Text
+  cheffiaId      String   @unique(map: "user_profiles_cheffia_id_uk") @map("cheffia_id") @db.Text
+  avatarUrl      String?  @map("avatar_url") @db.Text
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  menu   Menu?
+  restaurants Restaurant[] @relation("RestaurantOwnerProfile")
 
-  @@index([tenantId], map: "restaurants_tenant_id_idx")
-  @@index([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_idx")
-  @@index([tenantId, verificationCode], map: "restaurants_tenant_verification_code_idx")
+  @@index([email], map: "user_profiles_email_idx")
+  @@index([cheffiaId], map: "user_profiles_cheffia_id_idx")
+  @@map("user_profiles")
+}
+
+model InternalUser {
+  id             String             @id @default(uuid()) @db.Uuid
+  supabaseUserId String             @unique(map: "internal_users_supabase_user_id_uk") @map("supabase_user_id") @db.Uuid
+  email          String             @unique(map: "internal_users_email_uk") @db.Text
+  fullName       String             @map("full_name") @db.Text
+  role           BackofficeUserRole
+  isActive       Boolean            @default(true) @map("is_active")
+  lastLoginAt    DateTime?          @map("last_login_at") @db.Timestamptz(6)
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([isActive], map: "internal_users_is_active_idx")
+  @@map("internal_users")
+}
+
+model Restaurant {
+  id                             String                    @id @default(uuid()) @db.Uuid
+  tenantId                       String                    @map("tenant_id") @db.Uuid
+  supabaseUserId                 String?                   @map("supabase_user_id") @db.Uuid
+  name                           String                    @db.Text
+  address                        String?                   @db.Text
+  phoneNumber                    String?                   @map("phone_number") @db.Text
+  email                          String?                   @db.Text
+  ownerFullName                  String?                   @map("owner_full_name") @db.Text
+  document                       String?                   @db.Text
+  personType                     String?                   @map("person_type") @db.Text
+  companyType                    String?                   @map("company_type") @db.Text
+  birthDate                      DateTime?                 @map("birth_date") @db.Date
+  postalCode                     String?                   @map("postal_code") @db.Text
+  addressNumber                  String?                   @map("address_number") @db.Text
+  province                       String?                   @db.Text
+  complement                     String?                   @db.Text
+  city                           String?                   @db.Text
+  state                          String?                   @db.Text
+  verificationCode               String?                   @map("verification_code") @db.Text
+  emailVerified                  Boolean                   @default(false) @map("email_verified")
+  lifecycleStatus                RestaurantLifecycleStatus @default(active) @map("lifecycle_status")
+  lifecycleStatusChangedAt       DateTime?                 @map("lifecycle_status_changed_at") @db.Timestamptz(6)
+  registerDate                   DateTime                  @default(now()) @map("register_date") @db.Timestamptz(6)
+  financialOnboardingStartedAt   DateTime?                 @map("financial_onboarding_started_at") @db.Timestamptz(6)
+  financialOnboardingCompletedAt DateTime?                 @map("financial_onboarding_completed_at") @db.Timestamptz(6)
+  providerAvatarUrl              String?                   @map("provider_avatar_url") @db.Text
+  restaurantMenuId               String?                   @map("restaurant_menu_id") @db.Uuid
+  restaurantKitchenId            String?                   @map("restaurant_kitchen_id") @db.Uuid
+  createdAt                      DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                      DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant                       Tenant                                        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ownerProfile                 UserProfile?                                  @relation("RestaurantOwnerProfile", fields: [supabaseUserId], references: [supabaseUserId], onDelete: SetNull, onUpdate: Cascade)
+  menu                         Menu?
+  customerOrders               CustomerOrder[]
+  restaurantPayments           RestaurantPayment[]
+  financialAccounts            RestaurantFinancialAccount[]
+  financialOnboardingDocuments RestaurantFinancialOnboardingDocument[]
+  financialDocumentUploads     RestaurantFinancialOnboardingDocumentUpload[]
+  financialSettlementRules     RestaurantFinancialSettlementRule[]
+  financialLedgerEntries       FinancialLedgerEntry[]
+  payoutTransfers              RestaurantPayoutTransfer[]
+  reconciliationRuns           FinancialReconciliationRun[]
+  reconciliationItems          FinancialReconciliationItem[]
+
   @@unique([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_uk")
   @@unique([tenantId, email], map: "restaurants_tenant_email_uk")
   @@unique([tenantId, document], map: "restaurants_tenant_document_uk")
   @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
+  @@index([tenantId], map: "restaurants_tenant_id_idx")
+  @@index([tenantId, supabaseUserId], map: "restaurants_tenant_supabase_user_idx")
+  @@index([tenantId, verificationCode], map: "restaurants_tenant_verification_code_idx")
+  @@index([lifecycleStatus, lifecycleStatusChangedAt], map: "restaurants_lifecycle_status_changed_idx")
   @@map("restaurants")
 }
 
@@ -107,9 +342,9 @@ model Menu {
   categories MenuCategory[]
   items      MenuItem[]
 
-  @@index([tenantId], map: "menus_tenant_id_idx")
   @@unique([tenantId, restaurantId], map: "menus_tenant_restaurant_uk")
   @@unique([tenantId, id], map: "menus_tenant_id_uk")
+  @@index([tenantId], map: "menus_tenant_id_idx")
   @@map("menus")
 }
 
@@ -125,10 +360,10 @@ model MenuCategory {
   menu      Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
   menuItems MenuItem[]
 
-  @@index([tenantId], map: "menu_categories_tenant_id_idx")
-  @@index([tenantId, menuId], map: "menu_categories_tenant_menu_idx")
   @@unique([tenantId, menuId, name], map: "menu_categories_tenant_menu_name_uk")
   @@unique([tenantId, id], map: "menu_categories_tenant_id_uk")
+  @@index([tenantId], map: "menu_categories_tenant_id_idx")
+  @@index([tenantId, menuId], map: "menu_categories_tenant_menu_idx")
   @@map("menu_categories")
 }
 
@@ -151,11 +386,399 @@ model MenuItem {
   menu     Menu          @relation(fields: [menuId], references: [id], onDelete: Cascade)
   category MenuCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
+  @@unique([tenantId, id], map: "menu_items_tenant_id_uk")
   @@index([tenantId], map: "menu_items_tenant_id_idx")
   @@index([tenantId, menuId], map: "menu_items_tenant_menu_idx")
   @@index([tenantId, categoryId], map: "menu_items_tenant_category_idx")
-  @@unique([tenantId, id], map: "menu_items_tenant_id_uk")
   @@map("menu_items")
+}
+
+model CustomerOrder {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  orderDate    DateTime @default(now()) @map("order_date") @db.Timestamptz(6)
+  tableNumber  String   @map("table_number") @db.Text
+  orderNumber  Int      @map("order_number")
+  totalToPay   Decimal  @default(0) @map("total_to_pay") @db.Decimal(10, 2)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant                 Tenant                        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant             Restaurant                    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items                  CustomerOrderItem[]
+  paymentDetail          CustomerOrderPaymentDetail?
+  restaurantPayments     RestaurantPayment[]
+  financialLedgerEntries FinancialLedgerEntry[]
+  payoutTransfers        RestaurantPayoutTransfer[]
+  reconciliationItems    FinancialReconciliationItem[]
+
+  @@unique([tenantId, id], map: "customer_orders_tenant_id_uk")
+  @@index([tenantId], map: "customer_orders_tenant_id_idx")
+  @@index([tenantId, restaurantId], map: "customer_orders_tenant_restaurant_idx")
+  @@index([tenantId, restaurantId, orderDate], map: "customer_orders_tenant_restaurant_order_date_idx")
+  @@map("customer_orders")
+}
+
+model CustomerOrderItem {
+  id              String      @id @default(uuid()) @db.Uuid
+  tenantId        String      @map("tenant_id") @db.Uuid
+  customerOrderId String      @map("customer_order_id") @db.Uuid
+  menuItemId      String      @map("menu_item_id") @db.Uuid
+  orderNumber     Int         @map("order_number")
+  name            String      @db.Text
+  orderStatus     OrderStatus @default(pending) @map("order_status")
+  price           Decimal     @db.Decimal(10, 2)
+  tableNumber     String      @map("table_number") @db.Text
+  quantity        Int
+  comments        String      @default("") @db.Text
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerOrder CustomerOrder @relation(fields: [customerOrderId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, id], map: "customer_order_items_tenant_id_uk")
+  @@index([tenantId], map: "customer_order_items_tenant_id_idx")
+  @@index([tenantId, customerOrderId], map: "customer_order_items_tenant_customer_order_idx")
+  @@index([tenantId, menuItemId], map: "customer_order_items_tenant_menu_item_idx")
+  @@map("customer_order_items")
+}
+
+model CustomerOrderPaymentDetail {
+  id                 String             @id @default(uuid()) @db.Uuid
+  tenantId           String             @map("tenant_id") @db.Uuid
+  customerOrderId    String             @unique(map: "customer_order_payment_details_customer_order_id_uk") @map("customer_order_id") @db.Uuid
+  financialAccountId String?            @map("financial_account_id") @db.Uuid
+  transactionId      String?            @map("transaction_id") @db.Text
+  providerCustomerId String?            @map("provider_customer_id") @db.Text
+  providerPaymentId  String?            @map("provider_payment_id") @db.Text
+  billingType        String?            @map("billing_type") @db.Text
+  status             OrderPaymentStatus @default(pending)
+  method             PaymentMethod      @default(unknown)
+  amount             Decimal?           @db.Decimal(10, 2)
+  grossAmount        Decimal?           @map("gross_amount") @db.Decimal(10, 2)
+  netAmount          Decimal?           @map("net_amount") @db.Decimal(10, 2)
+  platformFeeAmount  Decimal?           @map("platform_fee_amount") @db.Decimal(10, 2)
+  providerFeeAmount  Decimal?           @map("provider_fee_amount") @db.Decimal(10, 2)
+  pixQrCode          String?            @map("pix_qr_code") @db.Text
+  pixCopyPaste       String?            @map("pix_copy_paste") @db.Text
+  externalReference  String?            @map("external_reference") @db.Text
+  providerRawStatus  String?            @map("provider_raw_status") @db.Text
+  provider           String             @default("asaas") @db.Text
+  paymentDate        DateTime?          @map("payment_date") @db.Timestamptz(6)
+  lastProviderSyncAt DateTime?          @map("last_provider_sync_at") @db.Timestamptz(6)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant                 Tenant                        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerOrder          CustomerOrder                 @relation(fields: [customerOrderId], references: [id], onDelete: Cascade)
+  financialAccount       RestaurantFinancialAccount?   @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: NoAction)
+  financialLedgerEntries FinancialLedgerEntry[]
+  reconciliationItems    FinancialReconciliationItem[]
+
+  @@unique([tenantId, providerPaymentId], map: "customer_order_payment_details_tenant_provider_payment_uk")
+  @@unique([tenantId, transactionId], map: "customer_order_payment_details_tenant_transaction_uk")
+  @@unique([tenantId, id], map: "customer_order_payment_details_tenant_id_uk")
+  @@index([tenantId], map: "customer_order_payment_details_tenant_id_idx")
+  @@index([tenantId, transactionId], map: "customer_order_payment_details_tenant_transaction_idx")
+  @@index([tenantId, financialAccountId], map: "customer_order_payment_details_tenant_financial_account_idx")
+  @@map("customer_order_payment_details")
+}
+
+model RestaurantPayment {
+  id                 String              @id @default(uuid()) @db.Uuid
+  tenantId           String              @map("tenant_id") @db.Uuid
+  restaurantId       String              @map("restaurant_id") @db.Uuid
+  customerOrderId    String              @map("customer_order_id") @db.Uuid
+  financialAccountId String?             @map("financial_account_id") @db.Uuid
+  paymentDate        DateTime?           @map("payment_date") @db.Timestamptz(6)
+  amount             Decimal             @db.Decimal(10, 2)
+  grossAmount        Decimal?            @map("gross_amount") @db.Decimal(10, 2)
+  netAmount          Decimal?            @map("net_amount") @db.Decimal(10, 2)
+  platformFeeAmount  Decimal?            @map("platform_fee_amount") @db.Decimal(10, 2)
+  providerFeeAmount  Decimal?            @map("provider_fee_amount") @db.Decimal(10, 2)
+  transactionId      String              @map("transaction_id") @db.Text
+  method             PaymentMethod
+  status             OrderPaymentStatus
+  settlementStrategy SettlementStrategy? @map("settlement_strategy")
+  providerRawStatus  String?             @map("provider_raw_status") @db.Text
+  availableAt        DateTime?           @map("available_at") @db.Timestamptz(6)
+  provider           String              @default("asaas") @db.Text
+  paymentDetails     Json?               @map("payment_details")
+  createdAt          DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant       Restaurant                  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  customerOrder    CustomerOrder               @relation(fields: [customerOrderId], references: [id], onDelete: Cascade)
+  financialAccount RestaurantFinancialAccount? @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: NoAction)
+
+  @@unique([tenantId, transactionId], map: "restaurant_payments_tenant_transaction_uk")
+  @@unique([tenantId, id], map: "restaurant_payments_tenant_id_uk")
+  @@index([tenantId], map: "restaurant_payments_tenant_id_idx")
+  @@index([tenantId, restaurantId], map: "restaurant_payments_tenant_restaurant_idx")
+  @@index([tenantId, customerOrderId], map: "restaurant_payments_tenant_customer_order_idx")
+  @@index([tenantId, financialAccountId], map: "restaurant_payments_tenant_financial_account_idx")
+  @@map("restaurant_payments")
+}
+
+model RestaurantFinancialAccount {
+  id                                  String                    @id @default(uuid()) @db.Uuid
+  tenantId                            String                    @map("tenant_id") @db.Uuid
+  restaurantId                        String                    @map("restaurant_id") @db.Uuid
+  provider                            String                    @default("asaas") @db.Text
+  asaasAccountId                      String?                   @map("asaas_account_id") @db.Text
+  asaasWalletId                       String?                   @map("asaas_wallet_id") @db.Text
+  asaasApiKeyEncrypted                String?                   @map("asaas_api_key_encrypted") @db.Text
+  asaasApiKeyLast4                    String?                   @map("asaas_api_key_last4") @db.VarChar(4)
+  accountType                         AsaasAccountType          @default(white_label) @map("account_type")
+  onboardingStatus                    FinancialOnboardingStatus @default(draft) @map("onboarding_status")
+  commercialInfoStatus                AccountApprovalStatus     @default(pending) @map("commercial_info_status")
+  bankAccountStatus                   AccountApprovalStatus     @default(pending) @map("bank_account_status")
+  documentationStatus                 AccountApprovalStatus     @default(pending) @map("documentation_status")
+  generalStatus                       AccountApprovalStatus     @default(pending) @map("general_status")
+  commercialInfoExpirationScheduledAt DateTime?                 @map("commercial_info_expiration_scheduled_at") @db.Timestamptz(6)
+  commercialInfoIsExpired             Boolean                   @default(false) @map("commercial_info_is_expired")
+  webhookStatus                       FinancialWebhookStatus    @default(pending) @map("webhook_status")
+  lastStatusSyncAt                    DateTime?                 @map("last_status_sync_at") @db.Timestamptz(6)
+  lastError                           String?                   @map("last_error") @db.Text
+  createdAt                           DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                           DateTime                  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant                 Tenant                                        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant             Restaurant                                    @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  onboardingDocuments    RestaurantFinancialOnboardingDocument[]
+  documentUploads        RestaurantFinancialOnboardingDocumentUpload[]
+  settlementRules        RestaurantFinancialSettlementRule[]
+  paymentDetails         CustomerOrderPaymentDetail[]
+  restaurantPayments     RestaurantPayment[]
+  financialLedgerEntries FinancialLedgerEntry[]
+  payoutTransfers        RestaurantPayoutTransfer[]
+  reconciliationItems    FinancialReconciliationItem[]
+
+  @@unique([tenantId, id], map: "restaurant_financial_accounts_tenant_id_uk")
+  @@unique([tenantId, restaurantId, provider], map: "restaurant_financial_accounts_tenant_restaurant_provider_uk")
+  @@unique([tenantId, asaasAccountId], map: "restaurant_financial_accounts_tenant_asaas_account_uk")
+  @@unique([tenantId, asaasWalletId], map: "restaurant_financial_accounts_tenant_asaas_wallet_uk")
+  @@index([tenantId], map: "restaurant_financial_accounts_tenant_id_idx")
+  @@index([tenantId, restaurantId], map: "restaurant_financial_accounts_tenant_restaurant_idx")
+  @@index([tenantId, onboardingStatus], map: "restaurant_financial_accounts_tenant_onboarding_idx")
+  @@map("restaurant_financial_accounts")
+}
+
+model RestaurantFinancialOnboardingDocument {
+  id                      String                @id @default(uuid()) @db.Uuid
+  tenantId                String                @map("tenant_id") @db.Uuid
+  restaurantId            String                @map("restaurant_id") @db.Uuid
+  financialAccountId      String                @map("financial_account_id") @db.Uuid
+  providerDocumentGroupId String                @map("provider_document_group_id") @db.Text
+  type                    String                @db.Text
+  title                   String                @db.Text
+  description             String?               @db.Text
+  responsibleName         String?               @map("responsible_name") @db.Text
+  responsibleType         String?               @map("responsible_type") @db.Text
+  status                  AccountApprovalStatus @default(pending)
+  onboardingUrl           String?               @map("onboarding_url") @db.Text
+  rejectReasons           Json?                 @map("reject_reasons")
+  lastSyncedAt            DateTime?             @map("last_synced_at") @db.Timestamptz(6)
+  createdAt               DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant                                        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant       Restaurant                                    @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  financialAccount RestaurantFinancialAccount                    @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: Cascade)
+  uploads          RestaurantFinancialOnboardingDocumentUpload[]
+
+  @@unique([tenantId, id], map: "restaurant_financial_documents_tenant_id_uk")
+  @@unique([tenantId, financialAccountId, providerDocumentGroupId], map: "restaurant_financial_documents_account_provider_group_uk")
+  @@index([tenantId], map: "restaurant_financial_documents_tenant_id_idx")
+  @@index([tenantId, restaurantId], map: "restaurant_financial_documents_tenant_restaurant_idx")
+  @@index([tenantId, financialAccountId, status], map: "restaurant_financial_documents_account_status_idx")
+  @@map("restaurant_financial_onboarding_documents")
+}
+
+model RestaurantFinancialOnboardingDocumentUpload {
+  id                      String                        @id @default(uuid()) @db.Uuid
+  tenantId                String                        @map("tenant_id") @db.Uuid
+  restaurantId            String                        @map("restaurant_id") @db.Uuid
+  financialAccountId      String                        @map("financial_account_id") @db.Uuid
+  onboardingDocumentId    String                        @map("onboarding_document_id") @db.Uuid
+  providerDocumentGroupId String                        @map("provider_document_group_id") @db.Text
+  providerDocumentFileId  String?                       @map("provider_document_file_id") @db.Text
+  uploadType              String                        @map("upload_type") @db.Text
+  fileName                String                        @map("file_name") @db.Text
+  storageBucket           String                        @map("storage_bucket") @db.Text
+  storagePath             String                        @map("storage_path") @db.Text
+  contentType             String                        @map("content_type") @db.Text
+  fileSizeBytes           Int                           @map("file_size_bytes")
+  sha256                  String?                       @db.VarChar(64)
+  status                  FinancialDocumentUploadStatus @default(stored)
+  providerRawResponse     Json?                         @map("provider_raw_response")
+  errorMessage            String?                       @map("error_message") @db.Text
+  uploadedAt              DateTime?                     @map("uploaded_at") @db.Timestamptz(6)
+  createdAt               DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant             Tenant                                @relation(fields: [tenantId], references: [id], onDelete: Cascade, map: "restaurant_financial_document_uploads_tenant_fkey")
+  restaurant         Restaurant                            @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade, map: "restaurant_financial_document_uploads_tenant_restaurant_fkey")
+  financialAccount   RestaurantFinancialAccount            @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: Cascade, map: "restaurant_financial_document_uploads_tenant_account_fkey")
+  onboardingDocument RestaurantFinancialOnboardingDocument @relation(fields: [tenantId, onboardingDocumentId], references: [tenantId, id], onDelete: Cascade, map: "restaurant_financial_document_uploads_tenant_document_fkey")
+
+  @@unique([tenantId, id], map: "restaurant_financial_document_uploads_tenant_id_uk")
+  @@index([tenantId], map: "restaurant_financial_document_uploads_tenant_id_idx")
+  @@index([tenantId, restaurantId], map: "restaurant_financial_document_uploads_tenant_restaurant_idx")
+  @@index([tenantId, onboardingDocumentId], map: "restaurant_financial_document_uploads_tenant_document_idx")
+  @@index([tenantId, financialAccountId, status], map: "restaurant_financial_document_uploads_account_status_idx")
+  @@map("restaurant_financial_onboarding_document_uploads")
+}
+
+model RestaurantFinancialSettlementRule {
+  id                 String             @id @default(uuid()) @db.Uuid
+  tenantId           String             @map("tenant_id") @db.Uuid
+  restaurantId       String             @map("restaurant_id") @db.Uuid
+  financialAccountId String?            @map("financial_account_id") @db.Uuid
+  provider           String             @default("asaas") @db.Text
+  settlementStrategy SettlementStrategy @default(split_automatico) @map("settlement_strategy")
+  platformFeeType    FeeValueType       @default(percentage) @map("platform_fee_type")
+  platformFeeValue   Decimal            @map("platform_fee_value") @db.Decimal(10, 2)
+  transferDelayDays  Int                @default(0) @map("transfer_delay_days")
+  active             Boolean            @default(true)
+  metadata           Json?
+  effectiveFrom      DateTime           @default(now()) @map("effective_from") @db.Timestamptz(6)
+  effectiveTo        DateTime?          @map("effective_to") @db.Timestamptz(6)
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant       Restaurant                  @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  financialAccount RestaurantFinancialAccount? @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: NoAction)
+
+  @@unique([tenantId, id], map: "restaurant_financial_rules_tenant_id_uk")
+  @@index([tenantId], map: "restaurant_financial_rules_tenant_id_idx")
+  @@index([tenantId, restaurantId, active], map: "restaurant_financial_rules_restaurant_active_idx")
+  @@map("restaurant_financial_settlement_rules")
+}
+
+model FinancialLedgerEntry {
+  id                 String                   @id @default(uuid()) @db.Uuid
+  tenantId           String                   @map("tenant_id") @db.Uuid
+  restaurantId       String                   @map("restaurant_id") @db.Uuid
+  financialAccountId String?                  @map("financial_account_id") @db.Uuid
+  customerOrderId    String?                  @map("customer_order_id") @db.Uuid
+  paymentDetailId    String?                  @map("payment_detail_id") @db.Uuid
+  payoutTransferId   String?                  @map("payout_transfer_id") @db.Uuid
+  provider           String                   @default("asaas") @db.Text
+  providerReference  String?                  @map("provider_reference") @db.Text
+  entryType          FinancialLedgerEntryType @map("entry_type")
+  direction          FinancialEntryDirection
+  grossAmount        Decimal                  @default(0) @map("gross_amount") @db.Decimal(10, 2)
+  netAmount          Decimal                  @default(0) @map("net_amount") @db.Decimal(10, 2)
+  feeAmount          Decimal                  @default(0) @map("fee_amount") @db.Decimal(10, 2)
+  currency           String                   @default("BRL") @db.VarChar(3)
+  occurredAt         DateTime                 @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  metadata           Json?
+  createdAt          DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant       Restaurant                  @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  financialAccount RestaurantFinancialAccount? @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: NoAction)
+  customerOrder    CustomerOrder?              @relation(fields: [tenantId, customerOrderId], references: [tenantId, id], onDelete: NoAction)
+  paymentDetail    CustomerOrderPaymentDetail? @relation(fields: [tenantId, paymentDetailId], references: [tenantId, id], onDelete: NoAction)
+  payoutTransfer   RestaurantPayoutTransfer?   @relation(fields: [tenantId, payoutTransferId], references: [tenantId, id], onDelete: NoAction)
+
+  @@unique([tenantId, id], map: "financial_ledger_entries_tenant_id_uk")
+  @@index([tenantId], map: "financial_ledger_entries_tenant_id_idx")
+  @@index([tenantId, restaurantId, occurredAt], map: "financial_ledger_entries_restaurant_occurred_idx")
+  @@index([tenantId, financialAccountId], map: "financial_ledger_entries_account_idx")
+  @@map("financial_ledger_entries")
+}
+
+model RestaurantPayoutTransfer {
+  id                  String               @id @default(uuid()) @db.Uuid
+  tenantId            String               @map("tenant_id") @db.Uuid
+  restaurantId        String               @map("restaurant_id") @db.Uuid
+  financialAccountId  String?              @map("financial_account_id") @db.Uuid
+  customerOrderId     String?              @map("customer_order_id") @db.Uuid
+  amount              Decimal              @db.Decimal(10, 2)
+  currency            String               @default("BRL") @db.VarChar(3)
+  status              PayoutTransferStatus @default(scheduled)
+  sourceWalletId      String?              @map("source_wallet_id") @db.Text
+  destinationWalletId String               @map("destination_wallet_id") @db.Text
+  providerTransferId  String?              @map("provider_transfer_id") @db.Text
+  scheduledFor        DateTime             @default(now()) @map("scheduled_for") @db.Timestamptz(6)
+  processedAt         DateTime?            @map("processed_at") @db.Timestamptz(6)
+  lastError           String?              @map("last_error") @db.Text
+  metadata            Json?
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant                 Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant             Restaurant                  @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  financialAccount       RestaurantFinancialAccount? @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: NoAction)
+  customerOrder          CustomerOrder?              @relation(fields: [tenantId, customerOrderId], references: [tenantId, id], onDelete: NoAction)
+  financialLedgerEntries FinancialLedgerEntry[]
+
+  @@unique([tenantId, id], map: "restaurant_payout_transfers_tenant_id_uk")
+  @@unique([tenantId, providerTransferId], map: "restaurant_payout_transfers_tenant_provider_transfer_uk")
+  @@index([tenantId], map: "restaurant_payout_transfers_tenant_id_idx")
+  @@index([tenantId, restaurantId, status, scheduledFor], map: "restaurant_payout_transfers_schedule_idx")
+  @@map("restaurant_payout_transfers")
+}
+
+model FinancialReconciliationRun {
+  id           String                        @id @default(uuid()) @db.Uuid
+  tenantId     String                        @map("tenant_id") @db.Uuid
+  restaurantId String?                       @map("restaurant_id") @db.Uuid
+  provider     String                        @default("asaas") @db.Text
+  scope        String                        @default("restaurant") @db.Text
+  status       FinancialReconciliationStatus @default(pending)
+  startedAt    DateTime                      @default(now()) @map("started_at") @db.Timestamptz(6)
+  finishedAt   DateTime?                     @map("finished_at") @db.Timestamptz(6)
+  summary      Json?
+  createdAt    DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant                        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant?                   @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: NoAction)
+  items      FinancialReconciliationItem[]
+
+  @@unique([tenantId, id], map: "financial_reconciliation_runs_tenant_id_uk")
+  @@index([tenantId], map: "financial_reconciliation_runs_tenant_id_idx")
+  @@index([tenantId, restaurantId, status], map: "financial_reconciliation_runs_restaurant_status_idx")
+  @@map("financial_reconciliation_runs")
+}
+
+model FinancialReconciliationItem {
+  id                  String                        @id @default(uuid()) @db.Uuid
+  tenantId            String                        @map("tenant_id") @db.Uuid
+  restaurantId        String                        @map("restaurant_id") @db.Uuid
+  reconciliationRunId String                        @map("reconciliation_run_id") @db.Uuid
+  financialAccountId  String?                       @map("financial_account_id") @db.Uuid
+  customerOrderId     String?                       @map("customer_order_id") @db.Uuid
+  paymentDetailId     String?                       @map("payment_detail_id") @db.Uuid
+  providerReference   String?                       @map("provider_reference") @db.Text
+  status              FinancialReconciliationStatus @default(pending)
+  reason              String?                       @db.Text
+  internalSnapshot    Json?                         @map("internal_snapshot")
+  providerSnapshot    Json?                         @map("provider_snapshot")
+  resolvedAt          DateTime?                     @map("resolved_at") @db.Timestamptz(6)
+  createdAt           DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime                      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant            Tenant                      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant        Restaurant                  @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  reconciliationRun FinancialReconciliationRun  @relation(fields: [tenantId, reconciliationRunId], references: [tenantId, id], onDelete: Cascade)
+  financialAccount  RestaurantFinancialAccount? @relation(fields: [tenantId, financialAccountId], references: [tenantId, id], onDelete: NoAction)
+  customerOrder     CustomerOrder?              @relation(fields: [tenantId, customerOrderId], references: [tenantId, id], onDelete: NoAction)
+  paymentDetail     CustomerOrderPaymentDetail? @relation(fields: [tenantId, paymentDetailId], references: [tenantId, id], onDelete: NoAction)
+
+  @@unique([tenantId, id], map: "financial_reconciliation_items_tenant_id_uk")
+  @@index([tenantId], map: "financial_reconciliation_items_tenant_id_idx")
+  @@index([tenantId, restaurantId, status], map: "financial_reconciliation_items_restaurant_status_idx")
+  @@index([tenantId, reconciliationRunId], map: "financial_reconciliation_items_run_idx")
+  @@map("financial_reconciliation_items")
 }
 
 model IdempotencyKey {
@@ -205,19 +828,19 @@ model AsaasWebhookEvent {
 }
 
 model OutboxEvent {
-  id            String      @id @default(uuid()) @db.Uuid
-  tenantId      String      @map("tenant_id") @db.Uuid
-  aggregateType String      @map("aggregate_type") @db.Text
-  aggregateId   String      @map("aggregate_id") @db.Text
-  eventType     String      @map("event_type") @db.Text
+  id            String       @id @default(uuid()) @db.Uuid
+  tenantId      String       @map("tenant_id") @db.Uuid
+  aggregateType String       @map("aggregate_type") @db.Text
+  aggregateId   String       @map("aggregate_id") @db.Text
+  eventType     String       @map("event_type") @db.Text
   payload       Json
   status        OutboxStatus @default(pending)
-  availableAt   DateTime    @default(now()) @map("available_at") @db.Timestamptz(6)
-  publishedAt   DateTime?   @map("published_at") @db.Timestamptz(6)
-  retryCount    Int         @default(0) @map("retry_count")
-  lastError     String?     @map("last_error") @db.Text
-  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  availableAt   DateTime     @default(now()) @map("available_at") @db.Timestamptz(6)
+  publishedAt   DateTime?    @map("published_at") @db.Timestamptz(6)
+  retryCount    Int          @default(0) @map("retry_count")
+  lastError     String?      @map("last_error") @db.Text
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 

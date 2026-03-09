@@ -89,6 +89,13 @@ Arquivos/paths envolvidos: `src/app/api/v1/cheffia/Restaurant/**`, `src/server/a
 Riscos/observacoes: diferenca de serializacao e validacao entre .NET e TS.
 Nota multi-tenant/idempotencia: validacao de tenant em leitura/escrita e idempotencia em operacoes que possam repetir.
 
+- [x] 22. Implementar servico transacional de e-mails com Resend
+Definicao de pronto: camada server-side de e-mails criada no `cheffia-front-app` com `Resend` como provider inicial, incluindo cliente isolado, `EmailService` central, templates transacionais e fluxos prioritarios de `forgot password`, `email confirmation` e `welcome email`; confirmacao de e-mail consolidada com `Supabase Auth` como fonte de verdade e espelhamento seguro em `restaurants.email_verified`.
+Arquivos/paths envolvidos: futuro `src/server/infra/external/email/**`, futuro `src/server/application/email/**`, futuro `src/app/api/v1/auth/**`, `src/app/auth/confirm/route.ts`, `src/server/application/restaurant/restaurantService.ts`, `package.json`, `.env*`.
+Riscos/observacoes: manter dois fluxos permanentes de confirmacao (`Supabase Auth` e `verification_code` do dominio `Restaurant`) cria divergencia de estado; sem `EMAIL_TEST_MODE` existe risco de disparo acidental em homologacao; falhas de envio nao devem quebrar fluxos nao criticos apos persistencia de dados.
+Nota multi-tenant/idempotencia: links sensiveis de auth nao dependem de tenant, mas envios de onboarding e espelhamento de `email_verified` devem respeitar o `supabase_user_id`, `tenantId` e `restaurantId` corretos, sem duplicidade em retries.
+Referencias obrigatorias desta task: `migração backend/EMAIL_SERVICE_TODO.md`, `lead-flow-app/lib/email.ts`, `lead-flow-app/lib/services/EmailService.ts`, `lead-flow-app/app/api/v1/auth/forgot-password/route.ts`.
+
 - [x] 10. Migrar vertical slice Menu + MenuLive
 Definicao de pronto: `items/add`, `items/delete/{id}`, `get`, `MenuLive` migrados com contratos compativeis.
 Arquivos/paths envolvidos: `src/app/api/v1/cheffia/Menu/**`, `src/app/api/v1/cheffia/MenuLive/**`, `src/server/application/menu/**`.
@@ -101,29 +108,43 @@ Arquivos/paths envolvidos: `src/server/infra/storage/**`, `supabase/storage-poli
 Riscos/observacoes: migracao de imagens existentes e links legados.
 Nota multi-tenant/idempotencia: acesso ao bucket restrito por tenant e operacoes de upload seguras para retry.
 
-- [ ] 12. Migrar vertical slice OrderHub + Payment
+- [x] 12. Migrar vertical slice OrderHub + Payment
 Definicao de pronto: rotas `send`, `order`, `payment`, `payment/confirmation`, `Payment/intent/create`, `Payment/product/create` migradas.
 Arquivos/paths envolvidos: `src/app/api/v1/cheffia/OrderHub/**`, `src/app/api/v1/cheffia/Payment/**`, `src/server/application/orderhub/**`, `src/server/application/payments/**`.
 Riscos/observacoes: comportamento atual depende de WebSocket e AbacatePay.
 Nota multi-tenant/idempotencia: confirmacoes de pagamento e alteracoes de status devem ser idempotentes.
 
-- [ ] 13. Implementar realtime com Supabase Realtime + Outbox (Opcao 1)
+- [ ] 21. Implementar dominio financeiro Asaas para subcontas e remover Stripe 100%
+Definicao de pronto: modelagem financeira multi-tenant para subcontas Asaas criada no banco; onboarding financeiro do restaurante planejado no backend; entidades para `walletId`, status cadastral, onboarding, ledger, payout e conciliacao adicionadas; artefatos legados de Stripe mapeados para remocao total e substituicao por Asaas como provedor unico.
+Arquivos/paths envolvidos: `prisma/schema.prisma`, `prisma/migrations/**`, `supabase/policies/**`, `src/server/infra/external/asaas/**`, `src/server/application/orderhub/**`, `src/server/application/payments/**`, `src/app/api/v1/cheffia/Payment/**`, `src/components/PaymentContent/**`, `src/utils/stripe.ts`, `DOCUMENTAÇÃO_ASAAS/**`.
+Riscos/observacoes: esta task esta sendo executada em paralelo em outro chat; usar este TODO como ponto de coordenacao para evitar sobreposicao, drift de escopo e conflito entre a frente de migracao backend e a frente de implementacao financeira do Asaas.
+Nota multi-tenant/idempotencia: subcontas, credenciais, `walletId`, onboarding, ledger, payout, reconciliacao e eventos do provedor devem ser estritamente tenant-scoped e reprocessaveis sem efeito duplicado.
+Referencias obrigatorias desta task: `DOCUMENTAÇÃO_ASAAS/PROMPT_PLANO_IMPLEMENTACAO_CHEFFIA_ASAAS.md` e `DOCUMENTAÇÃO_ASAAS/DOCUMENTO_INICIAL_IMPLEMENTACAO_ASAAS_CHEFFIA.md`.
+Diretriz de execucao: a implementacao do Asaas deve seguir essas duas documentacoes como fonte principal de escopo, arquitetura e fases de entrega.
+
+- [x] 13. Implementar realtime com Supabase Realtime + Outbox (Opcao 1)
 Definicao de pronto: atualizacoes de pedidos/kitchen chegam no frontend via canais Realtime por tenant/restaurant, sem servidor WebSocket proprio.
-Arquivos/paths envolvidos: `src/server/application/events/**`, `src/server/infra/realtime/**`, hooks frontend em `src/hooks/**`.
+Arquivos/paths envolvidos: `src/server/application/events/**`, `src/server/infra/realtime/**`, hooks frontend em `src/hooks/**`, `src/app/restaurant/order-hub/[slug]/page.tsx`, `src/components/OrderHubContent/**`.
 Riscos/observacoes: ordem de eventos e reconexao do cliente.
 Nota multi-tenant/idempotencia: eventos com `event_id` unico e `tenant_id`, consumo seguro a duplicidade.
 
-- [ ] 14. Criar OpenAPI da nova API v1 e gerar collections
+- [x] 14. Criar OpenAPI da nova API v1 e gerar collections
 Definicao de pronto: `openapi.json` atualizado e script de geracao para Postman/Insomnia funcionando.
-Arquivos/paths envolvidos: `src/server/openapi/**`, `scripts/generate-openapi.ts`, `postman/**`.
+Arquivos/paths envolvidos: `src/server/openapi/**`, `scripts/generate-openapi.ts`, `postman/**`, `insomnia/**`, `package.json`.
 Riscos/observacoes: drift entre implementacao e documentacao.
 Nota multi-tenant/idempotencia: documentar headers obrigatorios (`tenant`, `Idempotency-Key`) por rota.
 
-- [ ] 15. Testes de regressao e seguranca de migracao
+- [x] 15. Testes de regressao e seguranca de migracao
 Definicao de pronto: testes cobrindo contratos v1, isolamento multi-tenant, duplicidade de webhook e retries.
-Arquivos/paths envolvidos: `tests/**` (ou `src/**/__tests__/**`), pipeline CI.
+Arquivos/paths envolvidos: `tests/migration/**`, `package.json` (`test:migration`), `src/server/openapi/openapi.json`.
 Riscos/observacoes: falso positivo sem fixtures proximas do real.
 Nota multi-tenant/idempotencia: casos obrigatorios de vazamento cross-tenant e replay de evento.
+
+- [ ] 20. Executar bateria completa de testes da migracao (todas as implementacoes concluidas)
+Definicao de pronto: execucao registrada (evidencias + resultados) para todos os slices migrados (`Restaurant`, `Menu`, `MenuLive`, `OrderHub`, `Payment`, `Webhook Asaas`, `Realtime Outbox`) com cenarios felizes, erro, retry e seguranca.
+Arquivos/paths envolvidos: `migração backend/MIGRATION_TEST_MATRIX.md`, `tests/migration/**`, `postman/**`, `src/server/openapi/openapi.json`, CI (`.github/workflows/**`).
+Riscos/observacoes: cobertura incompleta por falta de dados de fixture realistas e dependencia de servicos externos (Asaas/ngrok).
+Nota multi-tenant/idempotencia: obrigatorio validar isolamento cross-tenant em leitura/escrita, replay de webhook/evento sem efeito duplicado e reprocessamento seguro de chamadas com `Idempotency-Key`.
 
 - [ ] 16. Deploy Vercel + hardening
 Definicao de pronto: deploy preview/producao com env vars corretas, observabilidade e runbook de incidentes.
@@ -131,17 +152,23 @@ Arquivos/paths envolvidos: `migração backend/vercel-deploy.md` (futuro), confi
 Riscos/observacoes: timeout de functions, cold starts e secrets incorretos.
 Nota multi-tenant/idempotencia: smoke tests pos-deploy validando RLS e deduplicacao de webhook.
 
-- [ ] 17. Implementar fluxo CI/CD no padrao do `lead-flow-app/.github`
+- [x] 17. Implementar fluxo CI/CD no padrao do `lead-flow-app/.github`
 Definicao de pronto: workflows criados e ativos para `feature/**`, `bugfix/**`, `develop` e `main`, com quality gate (lint/typecheck/build), automacao de PR e deploy Vercel preview/producao.
 Arquivos/paths envolvidos: `.github/workflows/ci-feature.yml`, `.github/workflows/ci-bugfix.yml`, `.github/workflows/ci-migration-backend.yml`, `.github/workflows/ci-develop.yml`, `.github/workflows/ci-main.yml`, `.github/pull_request_template.md`.
 Riscos/observacoes: secrets ausentes (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, etc.), loops com bump de versao e triggers de branch incorretos.
 Nota multi-tenant/idempotencia: o quality gate deve incluir testes obrigatorios de isolamento por tenant e replay idempotente de webhook antes de permitir merge/deploy.
 
-- [ ] 18. Configurar e validar ngrok para webhook local (Asaas)
+- [x] 18. Configurar e validar ngrok para webhook local (Asaas)
 Definicao de pronto: tunel ngrok operacional para `localhost:3000`, URL publica do webhook gerada por script, endpoint recebendo webhook em ambiente local e evidencia de teste registrada.
 Arquivos/paths envolvidos: `package.json`, `scripts/print-ngrok-webhook-url.mjs`, `migração backend/NGROK_WEBHOOK_LOCAL.md`, `src/app/api/v1/cheffia/OrderHub/webhook/asaas/route.ts` (quando implementado).
 Riscos/observacoes: URL do ngrok muda a cada reinicio (plano free), falhas por tunel fechado e configuracao incorreta de token no provedor.
 Nota multi-tenant/idempotencia: testes locais de webhook devem incluir evento duplicado para validar deduplicacao e resolucao correta de `tenant_id`.
+
+- [x] 19. Gate final de banco antes do deploy (Prisma + Supabase)
+Definicao de pronto: `DIRECT_URL` e `DATABASE_URL` validados no ambiente alvo e comandos finais executados sem erro: `bun run prisma:validate` e `bun run prisma:migrate` (ou `bun run prisma:migrate:deploy` em CI/producao).
+Arquivos/paths envolvidos: `.env`, `.env.local`, `package.json`, `prisma/schema.prisma`, `prisma/migrations/**`, `migração backend/SUPABASE_PRISMA_SETUP.md`.
+Riscos/observacoes: variaveis duplicadas/conflitantes em `.env`, uso de placeholder `[YOUR-PASSWORD]`, drift entre migrations locais e ambiente remoto.
+Nota multi-tenant/idempotencia: validar no banco remoto as constraints e indices compostos por `tenant_id` e tabelas de idempotencia antes do deploy final.
 
 ---
 
@@ -149,10 +176,13 @@ Nota multi-tenant/idempotencia: testes locais de webhook devem incluir evento du
 1. Itens 01 a 06 (fundacao tecnica).
 2. Item 18 (ngrok local para acelerar ciclo de teste de webhook).
 3. Itens 07 e 08 (Asaas + webhook idempotente).
-4. Itens 09 a 13 (migracao por vertical slice + realtime Supabase).
-5. Itens 14 e 15 (OpenAPI e testes de regressao).
-6. Item 17 (CI/CD completo no padrao do lead-flow-app).
-7. Item 16 (deploy/hardening final em producao).
+4. Itens 09, 22 e 10 a 13 (Restaurant, email transacional, demais vertical slices e realtime Supabase).
+5. Item 21 (dominio financeiro Asaas para subcontas + remocao total do Stripe).
+6. Itens 14 e 15 (OpenAPI e testes de regressao).
+7. Item 20 (bateria completa de validacao da migracao).
+8. Item 17 (CI/CD completo no padrao do lead-flow-app).
+9. Item 19 (gate final de banco: validate + migrate).
+10. Item 16 (deploy/hardening final em producao).
 
 ## Instrucoes rapidas de ngrok (dentro do TODO)
 1. Iniciar app local:
@@ -167,7 +197,11 @@ bun run ngrok:webhook
 ```bash
 bun run webhook:local:url
 ```
-4. Configurar no Asaas a URL retornada (metodo `POST`).
-5. Validar recebimento local no endpoint:
+4. Rodar um smoke check local no endpoint:
+```bash
+bun run ngrok:webhook:check -- --tenant-id <TENANT_ID>
+```
+5. Configurar no Asaas a URL retornada (metodo `POST`).
+6. Validar recebimento local no endpoint:
 `/api/v1/cheffia/OrderHub/webhook/asaas`.
-6. Reenviar mesmo evento para validar idempotencia (resposta 2xx sem duplicar efeito de negocio).
+7. Reenviar mesmo evento para validar idempotencia (resposta 2xx sem duplicar efeito de negocio).

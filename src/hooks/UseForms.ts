@@ -5,12 +5,14 @@ import {
   AskAQuestionSchema, 
   JoinWaitlistSchema, 
   RegisterRestaurantFormSchema, 
-  signUpFormSchema 
+  signUpFormSchema,
+  userProfileFormSchema,
 } from "@/utils/validation";
 import { 
   AddMenuItemData, 
   RegisterRestaurantFormData, 
   SignUpFormData, 
+  UserProfileFormData,
   AskAQuestionData, 
   JoinWaitlistData
 } from "@/types/formTypes";
@@ -30,11 +32,15 @@ interface UseAddMenuItemFormProps {
 export function UseRegisterRestaurantForm({ 
   ownerFullName, email, id, avatarUrl, emailVerified
 }: UseRegisterRestaurantFormProps) {
-  const form = useForm<RegisterRestaurantFormData>({
+  return useForm<RegisterRestaurantFormData>({
     resolver: zodResolver(RegisterRestaurantFormSchema),
     defaultValues: {
       name: "",
       address: "",
+      addressNumber: "",
+      complement: "",
+      province: "",
+      postalCode: "",
       phoneNumber: "",
       email: email || "",
       supabaseId: id || "",
@@ -42,21 +48,40 @@ export function UseRegisterRestaurantForm({
       emailVerified: emailVerified,
       providerAvatarUrl: avatarUrl || "",
       document: "",
+      birthDate: "",
+      companyType: "",
     },
   });
-
-  console.log(form.getValues());
-  return form;
 }
 
 export function UseSignUpForm() {
   return useForm<SignUpFormData>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
+      fullName: "",
+      birthDate: "",
+      document: "",
+      role: "",
+      jobTitle: "",
+      department: "",
       email: "",
       password: "",
       confirmPassword: "",
     }
+  });
+}
+
+export function UseUserProfileForm(initialValues?: Partial<UserProfileFormData>) {
+  return useForm<UserProfileFormData>({
+    resolver: zodResolver(userProfileFormSchema),
+    defaultValues: {
+      fullName: initialValues?.fullName ?? "",
+      birthDate: initialValues?.birthDate ?? "",
+      document: initialValues?.document ?? "",
+      role: initialValues?.role ?? "",
+      jobTitle: initialValues?.jobTitle ?? "",
+      department: initialValues?.department ?? "",
+    },
   });
 }
 

@@ -6,6 +6,8 @@ Estrutura inicial de banco para a migracao do backend:
 
 ## Comandos uteis
 ```bash
+bun run prisma:env:check
+bun run prisma:gate
 bun run prisma:validate
 bun run prisma:format
 bun run prisma:migrate -- --name init_backend_migration
@@ -14,6 +16,8 @@ bun run prisma:erd
 ```
 
 Os scripts usam `prisma@6.16.3` via `bunx` para manter paridade com `lead-flow-app`.
+
+`bun run prisma:env:check` valida `DATABASE_URL` e `DIRECT_URL` sem expor segredos, detectando placeholders e conflito entre `.env*`.
 
 ## Regras
 - Toda tabela tenant-scoped deve incluir `tenant_id`.

@@ -2,19 +2,34 @@ import { unauthorized } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import useWebSocket from "@/hooks/useWebSocket";
 import { RegisterRestaurantFormData } from "@/types/formTypes";
-import { getRestaurantById, registerRestaurant } from "@/api/restaurant";
+import {
+  getRestaurantById,
+  getRestaurantFinancialAccount,
+  getRestaurantFinancialDocuments,
+  registerRestaurant,
+  syncRestaurantFinancialDocuments,
+  uploadRestaurantFinancialDocument,
+} from "@/api/restaurant";
 import {verifySessionClient, createClient} from "@/utils/supabase/client";
 import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
 import { OutputRegisterRestaurant } from "@/models/dtos/output/OutputRegisterRestaurant";
+import { OutputRestaurantFinancialAccount } from "@/models/dtos/output/OutputRestaurantFinancialAccount";
+import {
+  mapRestaurantFinancialOnboardingDocumentUpload,
+  mapRestaurantFinancialOnboardingDocuments,
+  type OutputRestaurantFinancialOnboardingDocument,
+  type OutputRestaurantFinancialOnboardingDocumentUpload,
+} from "@/models/dtos/output/OutputRestaurantFinancialOnboardingDocument";
 import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";
 
 const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
 
-// TODO: Add infos completas de endereço: cep, cidade, estado, bairro, complemento;
 export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData): Promise<OutputRegisterRestaurant> => {
   try {
     data.document = data.document.replace(/[^0-9]/g, "");
     data.phoneNumber = data.phoneNumber.replace(/[^0-9]/g, "");
+    data.postalCode = data.postalCode.replace(/[^0-9]/g, "");
+    data.companyType = data.companyType?.trim().toUpperCase() || undefined;
 
     const output = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
 
@@ -45,6 +60,76 @@ export const handleGetRestaurantById = async (id: string): Promise<OutputGetRest
     throw error;
     // TODO: Redirect to error page;
     // redirect('/error');
+  }
+}
+
+export const handleGetRestaurantFinancialAccount = async (
+  restaurantId: string
+): Promise<OutputRestaurantFinancialAccount> => {
+  try {
+    const response = await getRestaurantFinancialAccount(restaurantId);
+
+    if (!response.isValid) {
+      throw new Error(response.errorMessages[0] ?? "Erro ao carregar conta financeira");
+    }
+
+    return OutputRestaurantFinancialAccount.fromOutputResult(response);
+  } catch (error) {
+    console.error("Error getting restaurant financial account:", error);
+    throw error;
+  }
+}
+
+export const handleGetRestaurantFinancialDocuments = async (
+  restaurantId: string
+): Promise<OutputRestaurantFinancialOnboardingDocument[]> => {
+  try {
+    const response = await getRestaurantFinancialDocuments(restaurantId);
+
+    if (!response.isValid) {
+      throw new Error(response.errorMessages[0] ?? "Erro ao carregar documentos financeiros");
+    }
+
+    return mapRestaurantFinancialOnboardingDocuments(response);
+  } catch (error) {
+    console.error("Error getting restaurant financial documents:", error);
+    throw error;
+  }
+}
+
+export const handleSyncRestaurantFinancialDocuments = async (
+  restaurantId: string
+): Promise<OutputRestaurantFinancialOnboardingDocument[]> => {
+  try {
+    const response = await syncRestaurantFinancialDocuments(restaurantId);
+
+    if (!response.isValid) {
+      throw new Error(response.errorMessages[0] ?? "Erro ao sincronizar documentos financeiros");
+    }
+
+    return mapRestaurantFinancialOnboardingDocuments(response);
+  } catch (error) {
+    console.error("Error syncing restaurant financial documents:", error);
+    throw error;
+  }
+}
+
+export const handleUploadRestaurantFinancialDocument = async (
+  restaurantId: string,
+  documentId: string,
+  file: File
+): Promise<OutputRestaurantFinancialOnboardingDocumentUpload> => {
+  try {
+    const response = await uploadRestaurantFinancialDocument(restaurantId, documentId, file);
+
+    if (!response.isValid) {
+      throw new Error(response.errorMessages[0] ?? "Erro ao enviar documento financeiro");
+    }
+
+    return mapRestaurantFinancialOnboardingDocumentUpload(response);
+  } catch (error) {
+    console.error("Error uploading restaurant financial document:", error);
+    throw error;
   }
 }
 

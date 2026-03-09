@@ -8,11 +8,11 @@ import { SupabaseIdempotencyRepository } from "@/server/infra/persistence/idempo
 export const runtime = "nodejs";
 
 interface RouteParams {
-  params: Promise<{ restaurantId: string }>;
+  params: Promise<{ supabaseId: string }>;
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  const { restaurantId } = await params;
+  const { supabaseId: restaurantId } = await params;
   const idempotencyKey = request.headers.get("idempotency-key")?.trim() ?? null;
   const service = new RestaurantService();
 

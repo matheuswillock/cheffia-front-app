@@ -33,6 +33,8 @@ SUPABASE_STORAGE_MENU_BUCKET="cheffia-menu-media"
 
 ## 3) Scripts Prisma disponiveis
 No `package.json`:
+- `bun run prisma:env:check`
+- `bun run prisma:gate`
 - `bun run prisma:validate`
 - `bun run prisma:format`
 - `bun run prisma:generate`
@@ -46,12 +48,18 @@ Obs: os scripts estao fixados em `prisma@6.16.3` para manter compatibilidade com
 
 ## 4) Sequencia basica de bootstrap
 ```bash
+bun run prisma:env:check
+bun run prisma:gate
 bun run prisma:validate
 bun run prisma:format
 bun run prisma:migrate -- --name init_backend_migration
 bun run prisma:generate
 bun run prisma:erd
 ```
+
+Notas do preflight:
+- `bun run prisma:env:check` nao imprime segredos; ele apenas confirma presenca de `DATABASE_URL`/`DIRECT_URL`, detecta placeholders (`[YOUR-PASSWORD]`, `<<preencher>>`, `replace_me`, etc.) e acusa conflito entre `.env`, `.env.local`, `.env.development` e `process.env`.
+- `bun run prisma:gate` executa o preflight acima e, em seguida, roda `bun run prisma:validate`.
 
 Arquivos iniciais criados nesta migracao:
 - `prisma/migrations/20260304160000_init_multi_tenant_baseline/migration.sql`

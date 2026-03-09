@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { RestaurantFinancialAccountService } from "@/server/application/financialAccounts";
+import { OrderHubService } from "@/server/application/orderhub";
 import { AsaasWebhookService } from "@/server/application/webhooks";
+import {
+  getAccountStatusIdFromPayload,
+  getPaymentIdFromPayload,
+} from "@/server/application/webhooks/asaasWebhookPayload";
 import { failOutput, okOutput } from "@/server/shared/output";
 import { requireTenantContext, TenantContextError } from "@/server/shared/tenant";
 
@@ -56,11 +62,52 @@ const validateWebhookSecurity = (request: NextRequest): { signatureValidated: bo
   return { signatureValidated: Boolean(configuredToken) };
 };
 
+const resolveTenantIdFromPayload = async (
+  payload: Record<string, unknown>
+): Promise<string | null> => {
+  const financialAccounts = new RestaurantFinancialAccountService();
+  const orderHub = new OrderHubService();
+
+  const asaasAccountId = getAccountStatusIdFromPayload(payload);
+  if (asaasAccountId) {
+    const tenantId = await financialAccounts.getTenantByAsaasAccountId(asaasAccountId);
+    if (tenantId) return tenantId;
+  }
+
+  const paymentId = getPaymentIdFromPayload(payload);
+  if (paymentId) {
+    const tenantId = await orderHub.getTenantByTransactionId(paymentId);
+    if (tenantId) return tenantId;
+  }
+
+  return null;
+};
+
+const resolveWebhookTenantId = async (
+  request: NextRequest,
+  payload: Record<string, unknown>
+): Promise<string> => {
+  try {
+    const tenant = await requireTenantContext({ request });
+    return tenant.tenantId;
+  } catch (error) {
+    if (!(error instanceof TenantContextError) || error.code !== "TENANT_CONTEXT_MISSING") {
+      throw error;
+    }
+  }
+
+  const tenantId = await resolveTenantIdFromPayload(payload);
+  if (tenantId) return tenantId;
+
+  throw new TenantContextError(
+    "TENANT_CONTEXT_MISSING",
+    "Tenant context is required. For Asaas webhooks, the tenant must be resolvable from accountStatus.id or payment.id."
+  );
+};
+
 export async function POST(request: NextRequest) {
   try {
     const security = validateWebhookSecurity(request);
-    const tenant = await requireTenantContext({ request });
-
     const rawBody = await request.text();
     let payload: Record<string, unknown>;
 
@@ -70,9 +117,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(failOutput("Invalid JSON payload"), { status: 400 });
     }
 
+    const tenantId = await resolveWebhookTenantId(request, payload);
     const service = new AsaasWebhookService();
     const result = await service.processIncoming({
-      tenantId: tenant.tenantId,
+      tenantId,
       payload,
       rawHeaders: toHeadersObject(request),
       signatureValidated: security.signatureValidated,

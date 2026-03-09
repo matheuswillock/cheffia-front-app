@@ -1,20 +1,30 @@
 import { NewOrder } from "./NewOrder";
+import type { OrderHubEventView } from "./types";
 
 interface OrderListProps {
-  messages: string[];
+  events: OrderHubEventView[];
+  selectedEventId: string | null;
+  onSelectEvent: (eventId: string) => void;
 }
 
-export default function OrderList({messages} : OrderListProps) {
-  return (        
+export default function OrderList({ events, selectedEventId, onSelectEvent }: OrderListProps) {
+  return (
     <div className="overflow-y-auto max-h-[72vh] mx-3">
       <div className="flex flex-col gap-3 px-2 py-6">
-        {messages !== null && messages.length >= 1 && (
-          messages.map((message: string, index: number) => (
-            index >= 1 && message !== "[]" && (
-              <NewOrder key={index} message={`${message} + ${index}`} />
-            )
-          ))
-        )}
+        {events.length === 0 ? (
+          <div className="text-sm text-muted-foreground/70 border border-dashed rounded-lg p-3">
+            Sem eventos de pedido para este restaurante.
+          </div>
+        ) : null}
+
+        {events.map((event) => (
+          <NewOrder
+            key={event.id}
+            event={event}
+            selected={event.id === selectedEventId}
+            onSelect={onSelectEvent}
+          />
+        ))}
       </div>
     </div>
   );

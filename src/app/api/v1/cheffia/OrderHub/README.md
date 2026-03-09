@@ -1,4 +1,10 @@
 # OrderHub
 
-Pasta reservada para os Route Handlers do dominio `OrderHub`.
-Inclui rota de webhook Asaas em `/OrderHub/webhook/asaas` na etapa de billing.
+Route Handlers migrados:
+- `POST /OrderHub/send`
+- `GET /OrderHub/order`
+- `POST /OrderHub/payment`
+- `POST /OrderHub/payment/confirmation`
+- `POST /OrderHub/webhook/asaas`
+
+Observacao: `GET /OrderHub/connection/{restaurantId}` (WebSocket legado) nao e suportado em Vercel Functions.

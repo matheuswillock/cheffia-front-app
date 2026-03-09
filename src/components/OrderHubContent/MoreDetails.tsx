@@ -1,49 +1,50 @@
-export default function MoreDetails() {
+import type { OrderHubEventView } from "./types";
+
+interface MoreDetailsProps {
+  event: OrderHubEventView | null;
+}
+
+const formatPayload = (payload: Record<string, unknown>): string =>
+  JSON.stringify(payload, null, 2);
+
+export default function MoreDetails({ event }: MoreDetailsProps) {
+  if (!event) {
+    return (
+      <div className="border-2 bg-gray-700 border-muted-foreground/40 rounded-xl ml-4 min-h-[90%] max-h-[90%] max-w-[96%] overflow-y-auto flex items-center justify-center">
+        <p className="text-muted-foreground/70">Selecione um evento para ver os detalhes.</p>
+      </div>
+    );
+  }
+
+  const eventDate = new Date(event.createdAt).toLocaleString("pt-BR");
+
   return (
     <div className="border-2 bg-gray-700 border-muted-foreground/40 rounded-xl ml-4 min-h-[90%] max-h-[90%] max-w-[96%] overflow-y-auto flex flex-col gap-3 px-4 py-6 justify-between">
-      
       <div className="flex flex-col gap-8">
-
         <div className="flex flex-row justify-between">
-          <h2 className="text-5xl text-foreground-default">mesa 23</h2>
-          <h1 className="text-4xl text-muted-foreground">Pedido n 1</h1>
+          <h2 className="text-4xl text-foreground-default">Mesa {event.tableNumber ?? "-"}</h2>
+          <h1 className="text-2xl text-muted-foreground">Pedido #{event.orderNumber ?? "-"}</h1>
         </div>
 
-        {/* TODO: Externalizar este componente */}
-        <div className="flex flex-row justify-between items-center border-b-2 border-muted-foreground/40 pb-4">
-          <div className="flex flex-col gap-4 items-start">
-            <p className="text-xl text-muted-foreground/80">1x Coca-cola</p>  
-            <p className="text-2xl text-muted-foreground">SEM GELO</p>
-          </div>
-
-          <div className="flex flex-col gap-4 items-end">
-            <p className="text-3xl text-muted-foreground">R$ 5,00</p>
-            <button className="bg-primary-foreground text-foreground-default rounded-xl px-4 py-2">
-              Imprimir
-            </button>
-            <button className="bg-red-500 text-foreground-default rounded-xl px-4 py-2">
-              Cancelar item
-            </button>
-          </div>
-          
+        <div className="flex flex-col gap-2 border-b-2 border-muted-foreground/40 pb-4">
+          <p className="text-lg text-muted-foreground/90">Evento: {event.eventType}</p>
+          <p className="text-sm text-muted-foreground/80">Criado em: {eventDate}</p>
+          <p className="text-sm text-muted-foreground/80">Status outbox: {event.status}</p>
+          {event.paymentStatus ? (
+            <p className="text-sm text-emerald-300">Status pagamento: {event.paymentStatus}</p>
+          ) : null}
+          {event.transactionId ? (
+            <p className="text-xs text-muted-foreground/70">Transacao: {event.transactionId}</p>
+          ) : null}
         </div>
-
       </div>
 
-      <div className="flex flex-row justify-between ">
-
-        <p className="text-3xl text-muted-foreground/80">TOTAL: R$ 5,00</p>      
-
-        <div className="flex gap-4">
-          <button className="bg-primary-foreground text-foreground-default rounded-xl px-4 py-2">
-            Fechar conta
-          </button>
-        </div>
-        
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-muted-foreground/80">Payload</p>
+        <pre className="bg-black/30 rounded-lg p-3 text-xs text-muted-foreground/90 overflow-auto max-h-[280px]">
+          {formatPayload(event.payload)}
+        </pre>
       </div>
-
     </div>
-
-    
   );
 }

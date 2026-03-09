@@ -10,6 +10,8 @@ interface SignUpFormFieldProps<T extends FieldValues> {
   type: string;
   errorMessage?: string;
   blurEvent?: () => void;
+  disabled?: boolean;
+  changeEventType?: "document";
 }
 
 export default function SignUpFormField<T extends FieldValues>({
@@ -20,7 +22,24 @@ export default function SignUpFormField<T extends FieldValues>({
   type,
   errorMessage,
   blurEvent,
+  disabled,
+  changeEventType,
 }: SignUpFormFieldProps<T>) {
+  const changeEvent = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: { onChange: (value: string) => void }
+  ) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    let maskedValue = value;
+
+    if (changeEventType === "document") {
+      maskedValue = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    }
+
+    field.onChange(maskedValue);
+    e.target.value = maskedValue;
+  };
+
   return (
     <FormField
       control={control}
@@ -42,7 +61,15 @@ export default function SignUpFormField<T extends FieldValues>({
                 control._formState.errors[name] && "border-red-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
               }`}
               placeholder={placeholder}
+              disabled={disabled}
               onBlur={blurEvent}
+              onChange={(e) => {
+                if (changeEventType) {
+                  changeEvent(e, field);
+                } else {
+                  field.onChange(e.target.value);
+                }
+              }}
             />
           </FormControl>
           <FormMessage className=" text-red-500">

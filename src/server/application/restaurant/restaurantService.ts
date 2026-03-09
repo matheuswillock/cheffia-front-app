@@ -1,19 +1,54 @@
 import { randomInt, randomUUID } from "crypto";
 import { z } from "zod";
+import { buildAppUrl, getEmailService } from "@/server/application/email";
 import { getSupabaseAdminClient } from "@/server/infra/supabase/adminClient";
+import { RestaurantFinancialAccountService } from "@/server/application/financialAccounts";
 import { failOutput, okOutput, type Output } from "@/server/shared/output";
 import type { RegisterRestaurantInput, RestaurantOutput } from "./types";
 
 const registerSchema = z.object({
   name: z.string().min(3),
   address: z.string().min(4),
+  addressNumber: z.string().min(1),
+  complement: z.string().optional().default(""),
+  province: z.string().min(2),
+  postalCode: z.string().min(8).max(9),
   phoneNumber: z.string().min(8),
   email: z.string().email(),
   emailVerified: z.boolean().default(false),
   supabaseId: z.string().uuid(),
   ownerFullName: z.string().min(3),
   document: z.string().min(11).max(18),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  companyType: z.string().optional().nullable(),
   providerAvatarUrl: z.string().optional().default(""),
+}).superRefine((data, ctx) => {
+  const documentDigits = data.document.replace(/\D/g, "");
+
+  if (![11, 14].includes(documentDigits.length)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["document"],
+      message: "Invalid document",
+    });
+    return;
+  }
+
+  if (documentDigits.length === 11 && !data.birthDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["birthDate"],
+      message: "Birth date is required for CPF accounts",
+    });
+  }
+
+  if (documentDigits.length === 14 && !data.companyType?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["companyType"],
+      message: "Company type is required for CNPJ accounts",
+    });
+  }
 });
 
 interface RestaurantRow {
@@ -22,16 +57,27 @@ interface RestaurantRow {
   supabase_user_id: string | null;
   name: string;
   address: string | null;
+  address_number: string | null;
+  complement: string | null;
+  province: string | null;
+  postal_code: string | null;
   phone_number: string | null;
   email: string | null;
   owner_full_name: string | null;
   document: string | null;
+  person_type: string | null;
+  birth_date: string | null;
+  company_type: string | null;
   verification_code: string | null;
   email_verified: boolean;
   register_date: string;
   provider_avatar_url: string | null;
   restaurant_menu_id: string | null;
   restaurant_kitchen_id: string | null;
+}
+
+interface RegisterRestaurantOptions {
+  appBaseUrl?: string | null;
 }
 
 const validateDocument = (document: string): boolean => {
@@ -43,8 +89,15 @@ const mapRestaurant = (row: RestaurantRow): RestaurantOutput => ({
   id: row.id,
   name: row.name,
   address: row.address ?? "",
+  addressNumber: row.address_number ?? "",
+  complement: row.complement ?? "",
+  province: row.province ?? "",
+  postalCode: row.postal_code ?? "",
   phoneNumber: row.phone_number ?? "",
   document: row.document ?? "",
+  personType: row.person_type ?? "",
+  birthDate: row.birth_date,
+  companyType: row.company_type,
   providerAvatarUrl: row.provider_avatar_url ?? "",
   ownerFullName: row.owner_full_name ?? "",
   email: row.email ?? "",
@@ -99,6 +152,9 @@ const ensureTenant = async (
 };
 
 export class RestaurantService {
+  private readonly financialAccounts = new RestaurantFinancialAccountService();
+  private readonly emailService = getEmailService();
+
   public async getTenantByRestaurantId(restaurantId: string): Promise<string | null> {
     const supabase = getSupabaseAdminClient();
     const { data, error } = await supabase
@@ -159,9 +215,67 @@ export class RestaurantService {
     return okOutput(mapRestaurant(data));
   }
 
+  public async readAuthEmailVerified(supabaseUserId: string): Promise<boolean | null> {
+    try {
+      const supabase = getSupabaseAdminClient();
+      const { data, error } = await supabase.auth.admin.getUserById(supabaseUserId);
+
+      if (error || !data.user) {
+        console.error("restaurant.email_verified.auth_lookup_failed", {
+          supabaseUserId,
+          message: error?.message ?? "Auth user not found",
+        });
+        return null;
+      }
+
+      return Boolean(data.user.email_confirmed_at);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown auth lookup error";
+      console.error("restaurant.email_verified.auth_lookup_failed", {
+        supabaseUserId,
+        message,
+      });
+      return null;
+    }
+  }
+
+  public async syncEmailVerifiedBySupabaseUserId(
+    supabaseUserId: string,
+    emailVerified: boolean,
+    tenantId?: string | null
+  ): Promise<void> {
+    const supabase = getSupabaseAdminClient();
+    let query = supabase
+      .from("restaurants")
+      .update({ email_verified: emailVerified })
+      .eq("supabase_user_id", supabaseUserId);
+
+    if (tenantId) {
+      query = query.eq("tenant_id", tenantId);
+    }
+
+    const { error } = await query;
+
+    if (error) {
+      throw new Error(`Failed to sync restaurant email verification: ${error.message}`);
+    }
+  }
+
+  public async syncEmailVerifiedFromAuthState(
+    supabaseUserId: string,
+    tenantId?: string | null
+  ): Promise<boolean | null> {
+    const emailVerified = await this.readAuthEmailVerified(supabaseUserId);
+    if (emailVerified === null) return null;
+
+    await this.syncEmailVerifiedBySupabaseUserId(supabaseUserId, emailVerified, tenantId);
+    return emailVerified;
+  }
+
   public async register(
     input: unknown,
-    tenantIdFromContext: string | null
+    tenantIdFromContext: string | null,
+    options: RegisterRestaurantOptions = {}
   ): Promise<Output<{ restaurantId: string }>> {
     const parsed = registerSchema.safeParse(input);
     if (!parsed.success) {
@@ -171,6 +285,12 @@ export class RestaurantService {
     const data: RegisterRestaurantInput = {
       ...parsed.data,
       document: parsed.data.document.replace(/\D/g, ""),
+      postalCode: parsed.data.postalCode.replace(/\D/g, ""),
+      personType:
+        parsed.data.document.replace(/\D/g, "").length === 14 ? "JURIDICA" : "FISICA",
+      companyType: parsed.data.companyType?.trim().toUpperCase() || null,
+      birthDate: parsed.data.birthDate ?? null,
+      complement: parsed.data.complement?.trim() ?? "",
       providerAvatarUrl: parsed.data.providerAvatarUrl ?? "",
     };
 
@@ -178,6 +298,8 @@ export class RestaurantService {
       return failOutput("Invalid document");
     }
 
+    const authEmailVerified = await this.readAuthEmailVerified(data.supabaseId);
+    const resolvedEmailVerified = authEmailVerified ?? data.emailVerified;
     const tenantId = await ensureTenant(tenantIdFromContext, data.supabaseId);
     const supabase = getSupabaseAdminClient();
 
@@ -207,12 +329,19 @@ export class RestaurantService {
         supabase_user_id: data.supabaseId,
         name: data.name,
         address: data.address,
+        address_number: data.addressNumber,
+        complement: data.complement,
+        province: data.province,
+        postal_code: data.postalCode,
         phone_number: data.phoneNumber,
         email: data.email,
         owner_full_name: data.ownerFullName,
         document: data.document,
+        person_type: data.personType,
+        birth_date: data.birthDate,
+        company_type: data.companyType,
         verification_code: verificationCode,
-        email_verified: data.emailVerified,
+        email_verified: resolvedEmailVerified,
         register_date: new Date().toISOString(),
         provider_avatar_url: data.providerAvatarUrl,
         restaurant_menu_id: randomUUID(),
@@ -223,6 +352,59 @@ export class RestaurantService {
 
     if (insertError) {
       return failOutput(`Error adding restaurant - ${insertError.message}`);
+    }
+
+    try {
+      const bootstrap = await this.financialAccounts.provisionSubaccount(tenantId, inserted.id);
+      if (!bootstrap.isValid) {
+        console.error("restaurant.financial_account.provision_failed", {
+          tenantId,
+          restaurantId: inserted.id,
+          message: bootstrap.errorMessages.join("; "),
+          result: bootstrap.result ?? null,
+        });
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown financial account provisioning error";
+      console.error("restaurant.financial_account.provision_failed", {
+        tenantId,
+        restaurantId: inserted.id,
+        message,
+      });
+    }
+
+    try {
+      const welcomeResult = await this.emailService.sendWelcomeEmail(
+        {
+          userName: data.ownerFullName,
+          userEmail: data.email,
+          restaurantName: data.name,
+          dashboardUrl: buildAppUrl(`/dashboard/${data.supabaseId}`, options.appBaseUrl),
+        },
+        {
+          tenantId,
+          restaurantId: inserted.id,
+          supabaseUserId: data.supabaseId,
+        }
+      );
+
+      if (!welcomeResult.success) {
+        console.error("restaurant.welcome_email.failed", {
+          tenantId,
+          restaurantId: inserted.id,
+          supabaseUserId: data.supabaseId,
+          message: welcomeResult.error,
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown welcome email error";
+      console.error("restaurant.welcome_email.failed", {
+        tenantId,
+        restaurantId: inserted.id,
+        supabaseUserId: data.supabaseId,
+        message,
+      });
     }
 
     return okOutput(
