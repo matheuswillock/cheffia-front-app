@@ -51,6 +51,9 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
+      - name: Governance check
+        run: bun run governance:check
+
   migration-tests:
     name: Migration Tests (Strict)
     runs-on: ubuntu-latest

@@ -1,0 +1,70 @@
+{
+  "canonical": {
+    "path": "agents.md",
+    "requiredKeywords": [
+      "MUST",
+      "SHOULD",
+      "LEGACY EXCEPTIONS",
+      "FOR NEW FEATURES"
+    ]
+  },
+  "warnings": {
+    "maxExamplesPerCategory": 5
+  },
+  "adapters": [
+    {
+      "path": ".github/copilot-instructions.md",
+      "kind": "copilot"
+    },
+    {
+      "path": ".cursor/rules/cheffia-front-agents.mdc",
+      "kind": "cursor"
+    },
+    {
+      "path": "CLAUDE.md",
+      "kind": "claude"
+    },
+    {
+      "path": "AGENTS.md",
+      "kind": "codex"
+    }
+  ],
+  "legacyExceptions": {
+    "directInfraInV1RouteAllowlist": [],
+    "frontendFeatureStructureAllowlist": [
+      "src/app",
+      "src/app/(auth-pages)/forgot-password",
+      "src/app/(auth-pages)/resend-confirmation",
+      "src/app/(auth-pages)/set-password",
+      "src/app/(auth-pages)/sign-in",
+      "src/app/(auth-pages)/sign-up",
+      "src/app/backoffice/(portal)",
+      "src/app/backoffice/(portal)/dashboard",
+      "src/app/backoffice/(portal)/restaurants",
+      "src/app/backoffice/(portal)/restaurants/[restaurantId]",
+      "src/app/backoffice/(portal)/users",
+      "src/app/backoffice/sign-in",
+      "src/app/dashboard",
+      "src/app/error",
+      "src/app/order/checkout",
+      "src/app/order/checkout/success",
+      "src/app/register/profile",
+      "src/app/register/restaurant",
+      "src/app/restaurant/account",
+      "src/app/restaurant/menu/[slug]",
+      "src/app/restaurant/menu/[slug]/edit",
+      "src/app/restaurant/menu/[slug]/qrcode",
+      "src/app/restaurant/order-hub/[slug]",
+      "src/app/unauthorized"
+    ],
+    "nonTypeScriptFileAllowlist": [
+      "eslint.config.mjs",
+      "postcss.config.mjs",
+      "scripts/check-prisma-env.mjs",
+      "scripts/print-ngrok-webhook-url.mjs",
+      "scripts/validate-ngrok-webhook.mjs",
+      "tests/migration/contracts.openapi.test.mjs",
+      "tests/migration/runtime.e2e.test.mjs"
+    ]
+  }
+}

@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react"
 
 export default function DashboardLoading() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background-default-default">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background-default">
       <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>

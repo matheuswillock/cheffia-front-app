@@ -1,8 +1,15 @@
 // TODO: Configurar config
 import axios from 'axios';
 
+const LEGACY_LOCAL_BACKEND_URL = 'http://localhost:8080/api/v1/cheffia';
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+const apiBaseUrl =
+  configuredApiUrl && configuredApiUrl !== LEGACY_LOCAL_BACKEND_URL
+    ? configuredApiUrl
+    : '/api/v1/cheffia';
+
 export const cheffiaApiConfig = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api/v1/cheffia',
+  baseURL: apiBaseUrl,
   timeout: 10000,
   // httpsAgent: new (require('https').Agent)({
   //   rejectUnauthorized: false // ATENÇÃO: Use apenas em desenvolvimento!

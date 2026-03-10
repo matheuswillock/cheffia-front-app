@@ -1,0 +1,7 @@
+{
+  "excludeFromWarnAllowlist": {
+    "directInfraInV1RouteAllowlist": [],
+    "frontendFeatureStructureAllowlist": [],
+    "nonTypeScriptFileAllowlist": []
+  }
+}

@@ -28,7 +28,7 @@ export default async function RegisterProfilePage() {
   const email = session.email ?? readString(session.user_metadata?.email) ?? "";
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center bg-background-default-default p-6 md:p-10">
+    <div className="flex min-h-svh flex-col items-center justify-center bg-background-default p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
         <RegisterProfileForm
           email={email}
@@ -38,3 +38,4 @@ export default async function RegisterProfilePage() {
     </div>
   );
 }
+

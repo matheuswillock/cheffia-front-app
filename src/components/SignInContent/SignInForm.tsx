@@ -32,7 +32,7 @@ export function SignInForm({
       <Card className="overflow-hidden bg-background-default">
         <CardContent className="grid p-0 md:grid-cols-2">
           <div className="px-6 md:px-8 mb-12 mt-8 gap-4 flex flex-col justify-center">
-            <form  onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Olá Cheffia</h1>
@@ -56,19 +56,19 @@ export function SignInForm({
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Senha</Label>
-                    <div className="ml-auto flex items-center gap-3 text-sm">
+                    <div className="ml-auto flex items-center gap-3 text-xs text-foreground-white">
                       <a
                         href="/forgot-password"
                         className="underline-offset-4 hover:underline hover:text-primary"
                       >
-                        Esqueceu a sua senha?
+                        Esqueci minha senha
                       </a>
-                      <a
+                      {/* <a
                         href="/resend-confirmation"
                         className="underline-offset-4 hover:underline hover:text-primary"
                       >
                         Reenviar confirmacao
-                      </a>
+                      </a> */}
                     </div>
                   </div>
                   <Input
@@ -82,7 +82,7 @@ export function SignInForm({
 
                 <Button
                   type="submit"
-                  className="w-full rounded-xl text-lg font-semibold bg-button text-foreground-default hover:bg-button-solid hover:text-background"
+                  className="w-full rounded-xl text-lg font-semibold bg-button text-foreground-black hover:bg-button-dark transition-colors duration-300"
                 >
                   Login
                 </Button>
@@ -90,7 +90,6 @@ export function SignInForm({
             </form>
 
             <div className="flex flex-col gap-4">
-
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border-default">
                 <span className="relative z-10 bg-background-default px-2 text-muted-foreground">
                   Ou continue com
@@ -98,10 +97,10 @@ export function SignInForm({
               </div>
 
               <div className="flex justify-center items-center">
-                <Button 
+                <Button
                   onClick={googleSignIn}
-                  variant="outline" 
-                  className="w-full rounded-xl font-semibold"
+                  variant="outline"
+                  className="w-full transition-colors duration-300 hover:text-foreground-black rounded-xl font-semibold"
                 >
                   <Image
                     src={Google}
@@ -109,7 +108,7 @@ export function SignInForm({
                     width={20}
                     height={20}
                   />
-                  <span className="">Entrar com Google</span>
+                  <span>Entrar com Google</span>
                 </Button>
               </div>
 
@@ -122,9 +121,7 @@ export function SignInForm({
                   Inscreva-se
                 </a>
               </div>
-
             </div>
-
           </div>
 
           <div className="relative hidden bg-muted md:block">
@@ -137,14 +134,11 @@ export function SignInForm({
         </CardContent>
       </Card>
 
-      <div 
-        className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary"
-      >
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
         Ao clicar em continuar, você concorda com nossos{" "}
         <a href="#">Termos de Serviço</a> e{" "}
         <a href="#">Política de Privacidade</a>.
       </div>
-
     </div>
   );
 }

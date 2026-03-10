@@ -18,7 +18,7 @@ export default async function RestaurantPage() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col items-center bg-background-default-default justify-center p-6 md:p-10">
+    <div className="flex min-h-svh flex-col items-center bg-background-default justify-center p-6 md:p-10">
       <div className="w-full mx-auto max-w-sm md:max-w-3xl">
         <RegisterRestaurantForm 
           email={session.email ?? profile.email}
@@ -35,3 +35,4 @@ export default async function RestaurantPage() {
     </div>
   );
 }
+
