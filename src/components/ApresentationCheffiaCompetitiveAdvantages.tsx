@@ -69,7 +69,11 @@ export default function ApresentationCheffiaCompetitiveAdvantages({
             lg:text-5xl
             xl:text-6xl
             leading-8
+            md:leading-10
+            lg:leading-[48px]
+            xl:leading-[60px]
             text-foreground-pureWhite
+            font-clash
           "
         >
           <p className="font-thin">Diferenciais</p>
@@ -112,7 +116,7 @@ export default function ApresentationCheffiaCompetitiveAdvantages({
             />
 
             <div className="flex flex-col items-start justify-start gap-2 text-start w-full">
-              <h3 className="font-inter text-base lg:text-lg xl:text-2xl font-normal lg:font-medium leading-6">
+              <h3 className="font-inter text-base lg:text-lg xl:text-2xl font-normal lg:font-medium leading-6 xl:leading-8">
                 {item.title}
               </h3>
 

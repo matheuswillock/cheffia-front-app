@@ -69,6 +69,9 @@ export default function ApresentationCheffiaAbout({
                 lg:text-lg
                 xl:text-2xl
                 leading-3
+                md:leading-4
+                lg:leading-6
+                xl:leading-8
               "
             >
               Food Service Manager
@@ -78,6 +81,7 @@ export default function ApresentationCheffiaAbout({
           <div className="max-w-[280px] lg:max-w-[380px] xl:max-w-[462px] flex flex-col justify-items-start gap-4">
             <p
               className="
+                font-clash
                 font-medium
                 md:max-w-[280px]
                 lg:max-w-[360px]
@@ -89,6 +93,9 @@ export default function ApresentationCheffiaAbout({
                 lg:text-4xl
                 xl:text-6xl
                 leading-6
+                md:leading-7
+                lg:leading-10
+                xl:leading-[60px]
                 text-foreground-aboutBlack
                 relative
                 z-10
