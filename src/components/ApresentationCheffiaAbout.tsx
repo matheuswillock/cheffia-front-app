@@ -13,7 +13,7 @@ export default function ApresentationCheffiaAbout({
   return (
     <section
       id="about"
-      className="bg-background-white w-screen -mt-12 py-28 xl:py-40 px-10 flex flex-col items-center justify-center gap-10 lg:gap-16 xl:gap-20"
+      className="bg-background-white w-full max-w-full -mt-12 py-28 xl:py-40 px-10 flex flex-col items-center justify-center gap-10 lg:gap-16 xl:gap-20"
     >
       <div
         className="
@@ -426,7 +426,7 @@ export default function ApresentationCheffiaAbout({
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-1 md:mx-auto md:w-screen">
+      <div className="flex flex-col items-center justify-center gap-1 md:mx-auto md:w-full">
         <p
           className="
             max-w-[270px]

@@ -5,7 +5,7 @@ export default function NeonEffects() {
         <div className="h-[50%] w-full rounded-full bg-neon-radial opacity-45 blur-3xl" />
       </div>
 
-      <div className="absolute h-[211px] sm:h-[240px] xl:h-[337px] w-screen z-10">
+      <div className="absolute inset-x-0 h-[211px] sm:h-[240px] xl:h-[337px] w-full z-10">
         <div className="flex items-center justify-between w-full h-full px-4">
           <div className="h-full w-[30%] sm:w-[32%] md:w-[35%] xl:w-[38%] opacity-50 blur-xl bg-background-default rounded-full z-10" />
           <div className="h-full w-[30%] sm:w-[32%] md:w-[35%] xl:w-[38%] opacity-50 blur-xl bg-background-default rounded-full z-10" />

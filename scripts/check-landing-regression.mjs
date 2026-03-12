@@ -52,6 +52,11 @@ const rules = [
     regex: /\bmin-w-screen\b/g,
     message: "uso proibido de `min-w-screen` (quebra layout responsivo).",
   },
+  {
+    id: "forbidden-w-screen",
+    regex: /\bw-screen\b/g,
+    message: "uso proibido de `w-screen` na LP (pode gerar overflow horizontal).",
+  },
 ];
 
 const violations = [];

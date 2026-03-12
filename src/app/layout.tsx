@@ -145,7 +145,6 @@ export default function RootLayout({
           ${inter.variable}
           bg-background-default
           text-foreground-default
-          container
           font-clash
           min-h-screen
           w-full

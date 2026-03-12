@@ -77,7 +77,7 @@ export default function ApresentationCheffiaCompetitiveAdvantages({
         </div>
       </div>
 
-      <div className="relative flex flex-col lg:flex-row items-center justify-center gap-2 xl:gap-4 mb-4 w-screen">
+      <div className="relative flex flex-col lg:flex-row items-center justify-center gap-2 xl:gap-4 mb-4 w-full max-w-full">
         {items.map((item, index) => (
           <div
             key={index}

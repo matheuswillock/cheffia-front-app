@@ -44,7 +44,8 @@ export default function ApresentationMissionAndValues({
   return (
     <section
       className="
-        w-screen
+        w-full
+        max-w-full
         bg-background-missionAndValues
         -mt-12
         mx-auto

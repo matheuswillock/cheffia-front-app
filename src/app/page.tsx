@@ -22,7 +22,7 @@ export default function Home() {
   const [isWailtistModalOpen, setIsWailtistModalOpen] = useState(false);
 
   return (
-    <div className="w-screen mx-auto overflow-hidden">
+    <div className="w-full max-w-full mx-auto overflow-hidden">
       <Navbar />
       <ButtonClickToTop />
       <NeonEffects />
@@ -35,8 +35,8 @@ export default function Home() {
         onClose={() => setIsWailtistModalOpen(false)}
       />
 
-      <main className="w-screen">
-        <aside className="bg-transparent w-screen">
+      <main className="w-full max-w-full">
+        <aside className="bg-transparent w-full max-w-full">
           <ApresentationInitialSection
             setIsModalOpen={() => setIsWailtistModalOpen(true)}
           />
@@ -60,7 +60,7 @@ export default function Home() {
         </aside>
       </main>
 
-      <footer className="w-screen text-center flex flex-col py-10 gap-4 md:gap-0 bg-background-default">
+      <footer className="w-full max-w-full text-center flex flex-col py-10 gap-4 md:gap-0 bg-background-default">
         <FooterSection />
         <div
           className="
