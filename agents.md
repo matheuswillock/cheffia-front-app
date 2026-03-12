@@ -118,6 +118,14 @@ Expected structure for a new route under `src/app/**`:
   - follow shadcn-style accessibility and composition patterns;
   - include explicit technical justification in the PR.
 
+## Design System and Theme Policy (Critical, FOR NEW FEATURES)
+
+- Canonical global style source **MUST** be `src/app/globals.css`.
+- `src/styles/globals.css` **MUST NOT** become a second source of truth for tokens.
+- New UI code **MUST** use semantic design tokens (`bg-*`, `text-*`, `border-*`) mapped in globals and **MUST NOT** hardcode HEX values directly in components.
+- Brand typography **MUST** use official families (`Clash Display` and `Inter Tight`) through project utilities/tokens (`font-clash`, `font-inter`, `ty-*` utilities).
+- Theme mode **MUST** default to dark and **MUST** support light toggle through the shared theme provider.
+- Theme persistence **MUST** use `sessionStorage` key `cheffia:theme` and **MUST** avoid flicker by applying theme class before hydration.
 ## API Routing Policy
 
 - Product APIs **FOR NEW FEATURES** **MUST** use `/api/v1/cheffia/...`.
@@ -324,3 +332,4 @@ Optional migration E2E variables:
 - Asaas webhook route: `src/app/api/v1/cheffia/OrderHub/webhook/asaas/route.ts`
 - OpenAPI docs: `src/server/openapi/README.md`
 - Migration tests: `tests/migration/README.md`
+

@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link";
 import Image from "next/image";
 import OpenCardIcon from "../../public/assets/Icons/icon-open-card.svg"
 import { useState } from "react";
@@ -87,11 +86,11 @@ export default function ApresentationQuestionsAndAsnwers({
     >
       <div className="flex flex-col items-center justify-center text-5xl leading-[44px] gap-2 lg:gap-4">
         <div className="flex flex-col md:flex-row md:gap-2 items-center justify-center text-5xl xl:text-6xl leading-[44px]">
-          <h2 className="font-medium">Dúvidas</h2>
-          <h3 className="font-extralight">frequentes</h3>
+          <h2 className="ty-title-h2 font-semibold">Dúvidas</h2>
+          <h3 className="ty-title-h2">frequentes</h3>
         </div>
 
-        <p className="font-normal font-inter text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
+        <p className="ty-subtitle-2 md:ty-subtitle-1 text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
           Não encontrou a resposta para a sua dúvida aqui?
         </p>
       </div>
@@ -102,7 +101,7 @@ export default function ApresentationQuestionsAndAsnwers({
         type="button"
         className="
           bg-button
-          text-foreground-aboutBlack
+          text-button-foreground
             px-6
             xl:px-8
             2xl:px-10
@@ -111,13 +110,11 @@ export default function ApresentationQuestionsAndAsnwers({
             xl:h-11
             2xl:h-12
             text-center
-            text-base
+            ty-subtitle-2
             sm:text-lg
             lg:text-xl
             xl:text-[22px]
             2xl:text-2xl
-            font-medium
-            font-inter
             rounded-full
             shadow-md
             hover:bg-button-dark
@@ -165,23 +162,7 @@ export default function ApresentationQuestionsAndAsnwers({
                   isOpen ? "max-h-[500px] pb-4" : "max-h-0 pb-0"
                 }`}
               >
-                <p
-                  className="
-                    font-inter
-                    text-foreground-card
-                    font-medium
-                    sm:font-normal
-                    text-sm
-                    md:text-base
-                    lg:text-lg
-                    xl:text-xl
-                    leading-4
-                    md:leading-4
-                    lg:leading-5
-                    xl:leading-6
-                    text-start
-                  "
-                >
+                <p className="ty-body-1 text-foreground-card text-sm md:text-base lg:text-lg xl:text-xl leading-4 md:leading-4 lg:leading-5 xl:leading-6 text-start">
                   {item.answer}
                 </p>
               </div>

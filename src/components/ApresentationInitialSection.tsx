@@ -40,13 +40,9 @@ export default function ApresentationInitialSection({
           "
         >
           <span className="underline decoration-primary/70 decoration-2 underline-offset-4 md:underline-offset-[6px] rounded-xl">
-            Di
-          </span>
-          g
-          <span className="underline decoration-primary/70 decoration-2 underline-offset-4 md:underline-offset-[6px] rounded-xl">
-            a adeus
+            Diga adeus aos
           </span>{" "}
-          aos <span className="text-primary">erros</span> nos pedidos
+          <span className="text-primary">erros</span> nos pedidos
         </h1>
 
         <p
@@ -63,19 +59,19 @@ export default function ApresentationInitialSection({
             lg:h-20
             xl:h-24
             2xl:h-32
-            text-xl
+            text-[20px]
             sm:text-2xl
             lg:text-3xl
             xl:text-4xl
             2xl:text-5xl
             text-center
+            font-extralight
             leading-6
             sm:leading-8
             lg:leading-10
             xl:leading-[40px]
             2xl:leading-[52px]
             tracking-[-0.02em]
-            font-extralight
             font-inter
             text-foreground-default
           "
@@ -85,9 +81,7 @@ export default function ApresentationInitialSection({
         </p>
       </div>
 
-      <ButtonCta 
-        setIsModalOpen={setIsModalOpen}
-      />
+      <ButtonCta setIsModalOpen={setIsModalOpen} />
     </section>
   );
 }

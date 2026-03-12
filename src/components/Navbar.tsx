@@ -48,7 +48,7 @@ export function Navbar() {
             <li key={item.label}>
               <Link
                 href={item.href}
-                className="sm:text-base lg:text-lg font-inter font-normal leading-[18px] text-foreground-default hover:text-primary hover:cursor-pointer hover:underline"
+                className="ty-subtitle-2 sm:text-base lg:text-lg leading-[18px] text-foreground-default hover:text-primary hover:cursor-pointer hover:underline"
               >
                 {item.label}
               </Link>
@@ -56,7 +56,7 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden md:flex items-center justify-end gap-6 lg:gap-8">
+        <div className="hidden md:flex items-center justify-end gap-4 lg:gap-6">
           <div className="lg:flex gap-3 hidden ">
             <Link
               href={
@@ -149,7 +149,7 @@ export function Navbar() {
               <li key={item.label}>
                 <Link
                   href={item.href}
-                  className="text-foreground-default text-lg font-inter font-normal leading-[18px] hover:text-primary hover:cursor-pointer hover:underline"
+                  className="text-foreground-default ty-subtitle-2 text-lg leading-[18px] hover:text-primary hover:cursor-pointer hover:underline"
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
@@ -181,3 +181,4 @@ export function Navbar() {
     </header>
   );
 }
+

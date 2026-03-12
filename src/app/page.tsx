@@ -22,7 +22,7 @@ export default function Home() {
   const [isWailtistModalOpen, setIsWailtistModalOpen] = useState(false);
 
   return (
-    <div className="w-full max-w-full mx-auto overflow-hidden">
+    <div className="dark w-full max-w-full mx-auto overflow-hidden bg-background-default text-foreground-default min-h-screen">
       <Navbar />
       <ButtonClickToTop />
       <NeonEffects />

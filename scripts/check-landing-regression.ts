@@ -3,6 +3,7 @@ import path from "node:path";
 
 const repoRoot = process.cwd();
 const componentsDir = path.join(repoRoot, "src", "components");
+const canonicalGlobalsFile = path.join(repoRoot, "src", "app", "globals.css");
 
 const staticTargetFiles = [
   "src/app/page.tsx",
@@ -57,6 +58,11 @@ const rules = [
     regex: /\bw-screen\b/g,
     message: "uso proibido de `w-screen` na LP (pode gerar overflow horizontal).",
   },
+  {
+    id: "forbidden-hardcoded-hex",
+    regex: /#[0-9A-Fa-f]{3,8}\b/g,
+    message: "uso proibido de cor hardcoded na LP (use tokens semanticos).",
+  },
 ];
 
 const violations = [];
@@ -79,12 +85,27 @@ for (const filePath of targetFiles) {
   });
 }
 
+if (statSync(canonicalGlobalsFile).isFile()) {
+  const globalsContent = readFileSync(canonicalGlobalsFile, "utf8");
+  const globalsLines = globalsContent.split(/\r?\n/);
+  const forbiddenTailwindV3Directive = /@tailwind\s+(base|components|utilities)\b/g;
+
+  globalsLines.forEach((line, index) => {
+    if (forbiddenTailwindV3Directive.test(line)) {
+      violations.push({
+        filePath: path.relative(repoRoot, canonicalGlobalsFile),
+        line: index + 1,
+        message: "diretiva Tailwind v3 proibida no arquivo canônico (`@tailwind ...`).",
+      });
+    }
+    forbiddenTailwindV3Directive.lastIndex = 0;
+  });
+}
+
 if (violations.length > 0) {
   console.error("Landing regression check failed:");
   for (const violation of violations) {
-    console.error(
-      `- ${violation.filePath}:${violation.line} -> ${violation.message}`,
-    );
+    console.error(`- ${violation.filePath}:${violation.line} -> ${violation.message}`);
   }
   process.exit(1);
 }

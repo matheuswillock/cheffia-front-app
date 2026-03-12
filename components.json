@@ -13,9 +13,9 @@
   "aliases": {
     "src": "@/src",
     "app": "@/src/app",
-    "globals": "@/src/app/styles/globals",
+    "globals": "@/src/app/globals",
     "assets": "@/src/assets",
-    "styles": "@/src/app/styles",
+    "styles": "@/src/app",
     "components": "@/components",
     "utils": "@/lib/utils",
     "ui": "@/components/ui",
@@ -25,3 +25,5 @@
   },
   "iconLibrary": "lucide"
 }
+
+

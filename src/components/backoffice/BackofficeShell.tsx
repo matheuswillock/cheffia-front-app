@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { backofficeSignOut } from "@/business/backoffice/auth/actions";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import type { BackofficeUserOutput } from "@/server/application/backoffice";
 
 interface BackofficeShellProps {
@@ -25,6 +26,8 @@ export function BackofficeShell({ currentUser, children }: BackofficeShellProps)
           </div>
 
           <div className="flex items-center gap-3 text-right">
+            <ThemeToggle />
+
             <div>
               <p className="text-sm font-medium">{currentUser.fullName}</p>
               <p className="text-xs text-slate-400">

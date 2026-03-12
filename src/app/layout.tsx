@@ -1,8 +1,10 @@
-import "../styles/globals.css";
+import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
 import localFont from "next/font/local";
+import { ThemeModeProvider } from "@/components/theme/theme-mode-provider";
+import { getThemeInitScript } from "@/components/theme/theme-mode";
 
 const clashDisplay = localFont({
   src: [
@@ -45,7 +47,7 @@ const inter = Inter_Tight({
   weight: ["100", "200", "300", "400", "500", "700"],
   style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-inter-tight",
   display: "swap",
 });
 
@@ -138,21 +140,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
+    <html lang="pt-br" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          id="theme-init-script"
+          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+        />
+      </head>
       <body
         className={`
           ${clashDisplay.variable}
           ${inter.variable}
           bg-background-default
           text-foreground-default
-          font-clash
+          font-inter
           min-h-screen
           w-full
           subpixel-antialiased`}
       >
-        <Analytics />
-        {children}
+        <ThemeModeProvider>
+          <Analytics />
+          {children}
+        </ThemeModeProvider>
       </body>
     </html>
   );
 }
+

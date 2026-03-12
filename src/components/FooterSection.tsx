@@ -36,8 +36,7 @@ export default function FooterSection () {
       <div className="flex flex-row gap-8 items-center justify-between h-full w-full">
         <div
           className="
-            font-inter
-            font-medium
+            ty-body-3
             text-sm
             xl:text-base
             leading-4
@@ -98,3 +97,6 @@ export default function FooterSection () {
     </section>
   );
 };
+
+
+
