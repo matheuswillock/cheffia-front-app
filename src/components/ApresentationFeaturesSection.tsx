@@ -63,7 +63,10 @@ export default function ApresentationFeaturesSection({
   ];
 
   return (
-    <section className="w-full max-w-full flex flex-col items-center justify-center gap-10 py-16 bg-background-black rounded-3xl relative overflow-hidden">
+    <section
+      id="features"
+      className="w-full max-w-full flex flex-col items-center justify-center gap-10 py-16 bg-background-black rounded-3xl relative overflow-hidden"
+    >
       <div className="flex flex-col items-center justify-center gap-1 md:gap-2 xl:gap-4">
         <p className="font-light text-sm md:text-lg xl:text-2xl 2xl:text-3xl font-inter text-foreground-pureWhite">
           Conheça as nossas

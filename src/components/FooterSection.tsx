@@ -30,7 +30,7 @@ export default function FooterSection () {
         alt="Icone Branco do Cheffia"
         width={42}
         height={50}
-        className="w-[42] h-[50] md:w-[43] md:h-[51] xl:w-[45.85] xl:h-[57]"
+        className="w-[42px] h-[50px] md:w-[43px] md:h-[51px] xl:w-[45.85px] xl:h-[57px]"
       />
 
       <div className="flex flex-row gap-8 items-center justify-between h-full w-full">
@@ -68,7 +68,7 @@ export default function FooterSection () {
               width={28}
               height={29}
               alt={"Whatsapp"}
-              className="w-[23.3] h-[24] lg:w-[28] lg:h-[29] xl:w-[32] xl:h-[33]"
+              className="w-[23.3px] h-[24px] lg:w-[28px] lg:h-[29px] xl:w-[32px] xl:h-[33px]"
             />
           </Link>
           <Link href={"mailto:contato@cheffia.com"}>
@@ -77,7 +77,7 @@ export default function FooterSection () {
               width={28}
               height={29}
               alt={"Email"}
-              className="w-[23.3] h-[24] lg:w-[28] lg:h-[29] xl:w-[32] xl:h-[33]"
+              className="w-[23.3px] h-[24px] lg:w-[28px] lg:h-[29px] xl:w-[32px] xl:h-[33px]"
             />
           </Link>
           <Link
@@ -90,7 +90,7 @@ export default function FooterSection () {
               width={28}
               height={29}
               alt={"Instagram"}
-              className="w-[23.3] h-[24] lg:w-[28] lg:h-[29] xl:w-[32] xl:h-[33]"
+              className="w-[23.3px] h-[24px] lg:w-[28px] lg:h-[29px] xl:w-[32px] xl:h-[33px]"
             />
           </Link>
         </div>

@@ -8,7 +8,7 @@ export default function ApresentationInitialSection({
   setIsModalOpen,
 }: ApresentationInitialSectionProps) {
   return (
-    <section className="hero w-screen flex flex-col items-center text-center py-12 md:py-14 lg:py-20 gap-8 sm:">
+    <section className="hero w-screen flex flex-col items-center gap-8 py-12 text-center md:py-14 lg:py-20">
       <div className="flex flex-col items-center gap-4 sm:gap-5 xl:gap-6">
         <h1
           className="

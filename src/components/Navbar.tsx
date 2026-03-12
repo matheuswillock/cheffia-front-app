@@ -22,11 +22,7 @@ export function Navbar() {
       label: "Funcionalidades",
     },
     {
-      href: "#pricing",
-      label: "Preços",
-    },
-    {
-      href: "#contact",
+      href: "#faq",
       label: "Contate-nos",
     }
   ];
@@ -72,7 +68,7 @@ export function Navbar() {
                 src={WhatsNavIcon}
                 width={32}
                 alt={"Entrar no Instagram"}
-                className="w-50 "
+                className="w-8 h-8"
               />
             </Link>
 
@@ -84,7 +80,7 @@ export function Navbar() {
                 src={InstagramNavIcon}
                 width={32}
                 alt={"Entrar no Instagram"}
-                className="w-50 "
+                className="w-8 h-8"
               />
             </Link>
           </div>
@@ -160,33 +156,6 @@ export function Navbar() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href="/sign-in">
-                <button
-                  className="
-                    h-7
-                    text-center
-                    justify-center
-                    items-center
-                    bg-transparent
-                    text-foreground-green
-                    border
-                    border-primary
-                    px-4
-                    rounded-full
-                    text-base
-                    font-medium
-                    font-inter
-                    hover:bg-background-green
-                    hover:text-foreground-black
-                    transition-all
-                    duration-300
-                  "
-                >
-                  Área do cliente
-                </button>
-              </Link>
-            </li>
           </ul>
         </div>
       )}

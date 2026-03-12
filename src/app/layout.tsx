@@ -1,4 +1,4 @@
-import "./globals.css";
+import "../styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
@@ -145,9 +145,9 @@ export default function RootLayout({
           ${inter.variable}
           bg-background-default
           text-foreground-default
+          container
           font-clash
           min-h-screen
-          min-w-screen
           w-full
           subpixel-antialiased`}
       >

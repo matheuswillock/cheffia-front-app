@@ -68,6 +68,7 @@ export default function ApresentationQuestionsAndAsnwers({
 
   return (
     <section
+      id="faq"
       className="
         bg-background-cardAdvantages
         rounded-3xl

@@ -11,7 +11,10 @@ export default function ApresentationCheffiaAbout({
   setIsModalOpen,
 }: ApresentationCheffiaAboutProps) {
   return (
-    <section className="bg-background-white w-screen -mt-12 py-28 xl:py-40 px-10 flex flex-col items-center justify-center gap-10 lg:gap-16 xl:gap-20">
+    <section
+      id="about"
+      className="bg-background-white w-screen -mt-12 py-28 xl:py-40 px-10 flex flex-col items-center justify-center gap-10 lg:gap-16 xl:gap-20"
+    >
       <div
         className="
           flex

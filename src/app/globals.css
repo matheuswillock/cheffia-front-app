@@ -111,11 +111,10 @@
   }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  text-decoration: none;
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -126,7 +125,7 @@ body,
 input,
 button,
 textarea {
-  font: 400 1.8rem/1 "Nunito", sans-serif;
+  font-family: inherit;
 }
 
 @layer base {
