@@ -133,56 +133,61 @@ export default function ApresentationQuestionsAndAsnwers({
       </button>
 
       <div className="flex items-center justify-center flex-col gap-4 w-full mb-6">
-        {itemsQA.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => toggleCard(index)}
-            className={`w-72 md:w-96 lg:w-[542px] xl:w-[620px] px-3 py-4 rounded-lg flex items-center justify-between flex-col gap-4 cursor-pointer transition-all duration-300 ${
-              openCardIndex === index
-                ? "bg-background-green/10"
-                : "bg-background-QA2"
-            }`}
-          >
-            <div className="flex items-center justify-between w-full flex-row gap-2">
-              <p className="font-inter text-foreground-pureWhite font-medium md:font-normal text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
-                {item.question}
-              </p>
+        {itemsQA.map((item, index) => {
+          const isOpen = openCardIndex === index;
 
-              <Image
-                src={OpenCardIcon}
-                alt="Icone para abrir o card"
-                width={20}
-                height={20}
-              />
-            </div>
-
+          return (
             <div
-              className={`overflow-hidden transition-all duration-300 ${
-                openCardIndex === index ? "max-h-[500px]" : "max-h-0"
+              key={index}
+              onClick={() => toggleCard(index)}
+              className={`w-72 md:w-96 lg:w-[542px] xl:w-[620px] px-3 py-4 rounded-lg flex items-center justify-between flex-col gap-4 cursor-pointer transition-all duration-300 ${
+                isOpen ? "bg-background-green/10" : "bg-background-QA2"
               }`}
             >
-              <p
-                className="
-                  font-inter
-                  text-foreground-card
-                  font-medium
-                  sm:font-normal
-                  text-sm
-                  md:text-base
-                  lg:text-lg
-                  xl:text-xl
-                  leading-4
-                  md:leading-4
-                  lg:leading-5
-                  xl:leading-6
-                  text-start
-                "
+              <div className="flex items-center justify-between w-full flex-row gap-2">
+                <p className="font-inter text-foreground-pureWhite font-medium md:font-normal text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
+                  {item.question}
+                </p>
+
+                <Image
+                  src={OpenCardIcon}
+                  alt="Icone para abrir o card"
+                  width={20}
+                  height={20}
+                  className={`transition-transform duration-300 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  isOpen ? "max-h-[500px]" : "max-h-0"
+                }`}
               >
-                {item.answer}
-              </p>
+                <p
+                  className="
+                    font-inter
+                    text-foreground-card
+                    font-medium
+                    sm:font-normal
+                    text-sm
+                    md:text-base
+                    lg:text-lg
+                    xl:text-xl
+                    leading-4
+                    md:leading-4
+                    lg:leading-5
+                    xl:leading-6
+                    text-start
+                  "
+                >
+                  {item.answer}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
