@@ -140,12 +140,12 @@ export default function ApresentationQuestionsAndAsnwers({
             <div
               key={index}
               onClick={() => toggleCard(index)}
-              className={`w-72 md:w-96 lg:w-[542px] xl:w-[620px] px-3 py-4 rounded-lg flex items-center justify-between flex-col gap-4 cursor-pointer transition-all duration-300 ${
+              className={`w-72 md:w-96 lg:w-[542px] xl:w-[620px] rounded-lg flex flex-col cursor-pointer transition-all duration-300 overflow-hidden ${
                 isOpen ? "bg-background-green/10" : "bg-background-QA2"
               }`}
             >
-              <div className="flex items-center justify-between w-full flex-row gap-2">
-                <p className="font-inter text-foreground-pureWhite font-medium md:font-normal text-base md:text-lg lg:text-xl xl:text-2xl leading-4">
+              <div className="h-[52px] px-3 flex items-center justify-between w-full gap-2">
+                <p className="font-inter font-normal text-[18px] leading-5 text-foreground-pureWhite">
                   {item.question}
                 </p>
 
@@ -154,15 +154,15 @@ export default function ApresentationQuestionsAndAsnwers({
                   alt="Icone para abrir o card"
                   width={20}
                   height={20}
-                  className={`transition-transform duration-300 ${
+                  className={`shrink-0 transition-transform duration-300 ${
                     isOpen ? "rotate-180" : ""
                   }`}
                 />
               </div>
 
               <div
-                className={`overflow-hidden transition-all duration-300 ${
-                  isOpen ? "max-h-[500px]" : "max-h-0"
+                className={`overflow-hidden transition-all duration-300 px-3 ${
+                  isOpen ? "max-h-[500px] pb-4" : "max-h-0 pb-0"
                 }`}
               >
                 <p
