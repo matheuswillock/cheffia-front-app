@@ -19,6 +19,24 @@ export interface RestaurantFinancialAccountOutput {
   lastError: string | null;
 }
 
+export interface RestaurantFinancialSummaryOutput {
+  restaurantId: string;
+  financialAccountId: string | null;
+  onboardingStatus: string;
+  currency: string;
+  pendingPixAmount: number;
+  receivedAmount: number;
+  availableAmount: number;
+  scheduledPayoutAmount: number;
+  pendingDocumentsCount: number;
+  rejectedDocumentsCount: number;
+  reconciliationMismatchCount: number;
+  lastStatusSyncAt: string | null;
+  lastPaymentAt: string | null;
+  lastReconciliationAt: string | null;
+  nextPayoutAt: string | null;
+}
+
 export interface RestaurantFinancialOnboardingDocumentUploadOutput {
   uploadId: string;
   providerDocumentGroupId: string;

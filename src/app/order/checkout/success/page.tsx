@@ -1,149 +1,65 @@
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
-import Image from "next/image";
-import { stripe } from "@/utils/stripe";
-import { redirect } from "next/navigation";
-import InfoIcon from "@/assets/InfoIcon.svg";
-import ErrorIcon from "@/assets/ErrorIcon.svg";
-import SuccessIcon from "@/assets/SuccessIcon.svg";
-
-type PaymentStatus =
-  | "succeeded"
-  | "processing"
-  | "requires_payment_method"
-  | "default";
-
-const STATUS_CONTENT_MAP: Record<
-  PaymentStatus,
-  { text: string; iconColor: string; icon: any }
-> = {
-  succeeded: {
-    text: "Pagamento realizado com sucesso",
-    iconColor: "#30B130",
-    icon: SuccessIcon,
-  },
-  processing: {
-    text: "Seu pagamento está sendo processado.",
-    iconColor: "#6D6E78",
-    icon: InfoIcon,
-  },
-  requires_payment_method: {
-    text: "Seu pagamento não foi bem-sucedido, tente novamente.",
-    iconColor: "#DF1B41",
-    icon: ErrorIcon,
-  },
-  default: {
-    text: "Algo deu errado, tente novamente.",
-    iconColor: "#DF1B41",
-    icon: ErrorIcon,
-  },
-};
+import { CheckCircle2, Clock3, QrCode } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface SuccessPageProps {
   searchParams: Promise<{
-    payment_intent?: string | undefined;
+    customerOrderId?: string;
+    paymentPixId?: string;
+    status?: string;
   }>;
 }
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
-  try {
-    const resolvedSearchParams = await searchParams;
-    const paymentIntentId = resolvedSearchParams.payment_intent;
+  const params = await searchParams;
+  const customerOrderId = typeof params.customerOrderId === "string" ? params.customerOrderId : null;
+  const paymentPixId = typeof params.paymentPixId === "string" ? params.paymentPixId : null;
+  const status = typeof params.status === "string" ? params.status : "Pendente";
+  const normalizedStatus = status.trim().toLowerCase();
+  const isPaid = normalizedStatus === "paid";
 
-    if (!paymentIntentId) {
-      redirect("/");
-    }
+  return (
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-10 md:px-6">
+      <Card className="w-full">
+        <CardHeader className="space-y-3 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            {isPaid ? <CheckCircle2 className="h-8 w-8" /> : <Clock3 className="h-8 w-8" />}
+          </div>
+          <CardTitle className="text-3xl">
+            {isPaid ? "Pagamento PIX confirmado" : "Pagamento PIX em acompanhamento"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            {isPaid
+              ? "O pedido foi reconhecido como pago pelo backend financeiro da Cheffia."
+              : "O PIX foi gerado e segue aguardando confirmação do banco pagador. Você pode voltar ao checkout para consultar novamente."}
+          </p>
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    const { status } = paymentIntent as { status: PaymentStatus };
+          <div className="rounded-2xl border border-border/70 bg-background/40 p-5 text-left text-sm">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Status</p>
+            <p className="mt-2 text-lg font-semibold">{status}</p>
+            <p className="mt-4 text-xs uppercase tracking-wide text-muted-foreground">ID do PIX</p>
+            <p className="mt-2 break-all font-medium">{paymentPixId ?? "Não informado"}</p>
+          </div>
 
-    return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 border-2 rounded-xl p-8 rounded-lg shadow-md">
-          <div className="flex flex-col items-center">
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-              style={{
-                backgroundColor:
-                  STATUS_CONTENT_MAP[status]?.iconColor ||
-                  STATUS_CONTENT_MAP.default.iconColor,
-              }}
-            >
-              <Image
-                src={
-                  STATUS_CONTENT_MAP[status]?.icon ||
-                  STATUS_CONTENT_MAP.default.icon
-                }
-                alt="Status Icon"
-                width={32}
-                height={32}
-                className="w-8 h-8"
-              />
-            </div>
-
-            <h2 className="text-2xl font-bold text-foreground-default text-center mb-6">
-              {STATUS_CONTENT_MAP[status]?.text ||
-                STATUS_CONTENT_MAP.default.text}
-            </h2>
-
-            <div className="w-full border-t border-secondary pt-6">
-              <table className="w-full">
-                <tbody>
-                  <tr>
-                    <td className="py-2 text-sm font-medium text-secondary">
-                      ID
-                    </td>
-                    <td className="py-2 text-sm text-foreground-default text-right">
-                      {paymentIntentId}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 text-sm font-medium text-secondary">
-                      Status
-                    </td>
-                    <td className="py-2 text-sm text-foreground-default text-right">
-                      {status}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Link
-              href={`https://dashboard.stripe.com/test/payments/${paymentIntentId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6  hover:text-secondary flex items-center"
+              href={customerOrderId ? `/order/checkout?customerOrderId=${customerOrderId}` : "/order/checkout"}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
             >
-              Ver detalhes
-              <svg
-                className="w-4 h-4 ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
+              <QrCode className="h-4 w-4" />
+              Voltar ao checkout
             </Link>
-
             <Link
               href="/"
-              className="mt-6 w-full bg-button-solid text-button py-3 px-4 rounded-md font-semibold transition-colors text-center rounded-xl"
+              className="inline-flex items-center justify-center rounded-md border border-border px-4 py-3 text-sm font-medium"
             >
-              Tentar novamente
+              Ir para a home
             </Link>
           </div>
-        </div>
-      </div>
-    );
-  } catch (error) {
-    console.error("Erro ao recuperar o pagamento:", error);
-    redirect("/");
-  }
+        </CardContent>
+      </Card>
+    </main>
+  );
 }

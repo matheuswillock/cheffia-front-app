@@ -452,6 +452,10 @@ model CustomerOrderPaymentDetail {
   financialAccountId String?            @map("financial_account_id") @db.Uuid
   transactionId      String?            @map("transaction_id") @db.Text
   providerCustomerId String?            @map("provider_customer_id") @db.Text
+  payerName          String?            @map("payer_name") @db.Text
+  payerPhoneNumber   String?            @map("payer_phone_number") @db.Text
+  payerEmail         String?            @map("payer_email") @db.Text
+  payerDocument      String?            @map("payer_document") @db.Text
   providerPaymentId  String?            @map("provider_payment_id") @db.Text
   billingType        String?            @map("billing_type") @db.Text
   status             OrderPaymentStatus @default(pending)
@@ -848,3 +852,6 @@ model OutboxEvent {
   @@index([tenantId, aggregateType, aggregateId], map: "outbox_tenant_aggregate_idx")
   @@map("outbox_events")
 }
+
+
+

@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "ebab3834-16f1-4903-bc90-9d0beb00dc0f",
+    "_postman_id": "914459bb-63a0-49b7-b4a2-161d066c337b",
     "name": "Cheffia API v1 (Migration)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -170,6 +170,35 @@
                 "Restaurant",
                 ":restaurantId",
                 "financial-account"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Consultar resumo financeiro Asaas do restaurante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/Restaurant/:restaurantId/financial-account/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "Restaurant",
+                ":restaurantId",
+                "financial-account",
+                "summary"
               ],
               "query": []
             }
@@ -805,7 +834,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customerOrderId\": \"00000000-0000-0000-0000-000000000000\",\n  \"payTip\": false\n}",
+              "raw": "{\n  \"customerOrderId\": \"00000000-0000-0000-0000-000000000000\",\n  \"payTip\": false,\n  \"payer\": {\n    \"name\": \"Cliente PIX\",\n    \"phoneNumber\": \"11999999999\",\n    \"email\": \"cliente@cheffia.com\",\n    \"document\": \"12345678901\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -914,7 +943,7 @@
       "name": "Payment",
       "item": [
         {
-          "name": "Criar payment intent (Stripe)",
+          "name": "Criar cobrança PIX compatível com o legado Payment/intent/create",
           "request": {
             "method": "POST",
             "header": [
@@ -951,7 +980,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": 1099,\n  \"currency\": \"brl\",\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "raw": "{\n  \"customerOrderId\": \"00000000-0000-0000-0000-000000000000\",\n  \"payTip\": false,\n  \"payer\": {\n    \"name\": \"Cliente PIX\",\n    \"phoneNumber\": \"11999999999\",\n    \"email\": \"cliente@cheffia.com\",\n    \"document\": \"12345678901\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -961,7 +990,7 @@
           }
         },
         {
-          "name": "Criar produto + preco (Stripe)",
+          "name": "Endpoint legado descontinuado após remoção do Stripe",
           "request": {
             "method": "POST",
             "header": [
@@ -998,7 +1027,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"productName\": \"Plano Pro\",\n  \"productDescription\": \"Plano mensal\",\n  \"price\": 4990,\n  \"currency\": \"brl\"\n}",
+              "raw": "{}",
               "options": {
                 "raw": {
                   "language": "json"

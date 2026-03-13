@@ -1,34 +1,39 @@
 import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
-import { Output } from '@/models/Output';
-import { paymentRoutes } from '@/api/routes/routesConfig';
+import { paymentRoutes } from "@/api/routes/routesConfig";
+import { Output } from "@/models/Output";
 
-export const createIntent = async (): Promise<Output> => {
+export interface PaymentPayerInput {
+  name: string;
+  phoneNumber: string;
+  email?: string | null;
+  document?: string | null;
+}
+
+export interface CreatePixIntentInput {
+  customerOrderId: string;
+  payTip: boolean;
+  payer: PaymentPayerInput;
+}
+
+export const createIntent = async (input: CreatePixIntentInput): Promise<Output> => {
   try {
-
-    const data = {
-      amount: 100.00,
-      currency: "brl"
-    }
-
-    console.log('Creating payment intent...');
-    console.log('Request to create payment intent:', data);
-    console.log('Request URL:', paymentRoutes.createItent);
-    const response = await cheffiaApiConfig.post(
-      paymentRoutes.createItent,
-      data,
-    )
-
-    console.log(response.data)
-    return response.data;
+    const response = await cheffiaApiConfig.post(paymentRoutes.createIntent, input);
+    return Output.fromOutputResult(response.data);
   } catch (error: any) {
-    // TODO: Criar tipos de erros para mapear quando não encontrar o restaurante e quaisquer outros erros no BACKEND e/ou FRONTEND;
+    if (error.isAxiosError && (error.response?.status === 400 || error.response?.status === 410)) {
+      return Output.fromOutputResult(error.response.data);
+    }
+    throw error;
+  }
+};
+
+export const confirmPixPayment = async (paymentPixId: string): Promise<Output> => {
+  try {
+    const response = await cheffiaApiConfig.post(paymentRoutes.confirmPixPayment, { paymentPixId });
+    return Output.fromOutputResult(response.data);
+  } catch (error: any) {
     if (error.isAxiosError && error.response?.status === 400) {
-      return new Output(
-        false,
-        [],
-        [error.message],
-        error
-      );
+      return Output.fromOutputResult(error.response.data);
     }
     throw error;
   }
@@ -36,29 +41,11 @@ export const createIntent = async (): Promise<Output> => {
 
 export const createProduct = async (): Promise<Output> => {
   try {
-
-    const data = {
-      productName: "string",
-      productDescription: "string",
-      price: 100,
-      currency: "brl"
-    }
-
-    const response = await cheffiaApiConfig.post(
-      paymentRoutes.createProduct,
-      data,
-    )
-
-    return response.data;
+    const response = await cheffiaApiConfig.post(paymentRoutes.createProduct, {});
+    return Output.fromOutputResult(response.data);
   } catch (error: any) {
-    // TODO: Criar tipos de erros para mapear quando não encontrar o restaurante e quaisquer outros erros no BACKEND e/ou FRONTEND;
-    if (error.isAxiosError && error.response?.status === 400) {
-      return new Output(
-        false,
-        [],
-        [error.message],
-        error
-      );
+    if (error.isAxiosError && (error.response?.status === 400 || error.response?.status === 410)) {
+      return Output.fromOutputResult(error.response.data);
     }
     throw error;
   }

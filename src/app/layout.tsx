@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react"
 import localFont from "next/font/local";
 import { ThemeModeProvider } from "@/components/theme/theme-mode-provider";
 import { getThemeInitScript } from "@/components/theme/theme-mode";
+import { Toaster } from "@/components/ui/sonner";
 
 const clashDisplay = localFont({
   src: [
@@ -160,6 +161,7 @@ export default function RootLayout({
       >
         <ThemeModeProvider>
           <Analytics />
+          <Toaster />
           {children}
         </ThemeModeProvider>
       </body>

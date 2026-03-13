@@ -3,7 +3,15 @@
 import { ChefHat, ClipboardList, LayoutDashboard, LifeBuoy, MessageCircleQuestion, UtensilsCrossed, WalletCards } from "lucide-react";
 import Link from "next/link";
 import { NavSecondary } from "@/components/nav-secondary";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import { RestaurantNavMain } from "@/components/restaurant-shell/nav-main";
 import { RestaurantNavUser } from "@/components/restaurant-shell/nav-user";
 
@@ -105,3 +113,4 @@ export function RestaurantSidebar({ restaurantId, user, ...props }: RestaurantSi
     </Sidebar>
   );
 }
+

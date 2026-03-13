@@ -1,6 +1,12 @@
+import type {
+  InputPaymentPayer,
+  PaymentOrderOutput,
+} from "@/server/application/orderhub/types";
+
 export interface CreatePaymentIntentInput {
-  amount: number;
-  currency: string;
+  customerOrderId: string;
+  payTip: boolean;
+  payer: InputPaymentPayer;
 }
 
 export interface CreateProductInput {
@@ -10,21 +16,9 @@ export interface CreateProductInput {
   currency: string;
 }
 
-export interface PaymentIntentOutput {
-  clientSecret: string | null;
-}
+export type PaymentIntentOutput = PaymentOrderOutput;
 
 export interface PaymentProductOutput {
-  productId: string;
-  priceId: string;
-  productName: string;
-  productDescription: string | null;
-  price: number | null;
-  currency: string;
-  interval: string | null;
-  intervalCount: number | null;
-  createdAt: string;
-  updatedAt: string;
-  productUrl: string | null;
-  productImage: string[];
+  code: "stripe_removed";
+  message: string;
 }

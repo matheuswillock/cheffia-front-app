@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { loadDashboardRestaurant } from "@/app/dashboard/[slug]/features/services/dashboard-feature.service";
+import { loadDashboardData } from "@/app/dashboard/[slug]/features/services/dashboard-feature.service";
 import type { DashboardFeatureState } from "@/app/dashboard/[slug]/features/types/dashboard-feature.types";
 
 interface DashboardFeatureContextValue extends DashboardFeatureState {
@@ -19,6 +19,7 @@ const initialState: DashboardFeatureState = {
   isLoading: true,
   errorMessage: null,
   restaurant: null,
+  financialSummary: null,
 };
 
 export function DashboardFeatureProvider({ children, slug }: DashboardFeatureProviderProps) {
@@ -34,11 +35,12 @@ export function DashboardFeatureProvider({ children, slug }: DashboardFeaturePro
       setState((current) => ({ ...current, isLoading: true, errorMessage: null }));
 
       try {
-        const restaurant = await loadDashboardRestaurant(slug);
+        const data = await loadDashboardData(slug);
         setState({
           isLoading: false,
           errorMessage: null,
-          restaurant,
+          restaurant: data.restaurant,
+          financialSummary: data.financialSummary,
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Não foi possível carregar o dashboard.";
@@ -46,6 +48,7 @@ export function DashboardFeatureProvider({ children, slug }: DashboardFeaturePro
           isLoading: false,
           errorMessage: message,
           restaurant: null,
+          financialSummary: null,
         });
       } finally {
         if (inFlightRequestKey.current === requestKey) {
@@ -60,11 +63,17 @@ export function DashboardFeatureProvider({ children, slug }: DashboardFeaturePro
     if (!slug) return;
 
     const requestKey = `dashboard:${slug}`;
-    if (latestRequestKey.current === requestKey && state.restaurant) return;
+    if (
+      latestRequestKey.current === requestKey &&
+      state.restaurant &&
+      state.financialSummary
+    ) {
+      return;
+    }
 
     latestRequestKey.current = requestKey;
     void runLoad(requestKey);
-  }, [runLoad, slug, state.restaurant]);
+  }, [runLoad, slug, state.financialSummary, state.restaurant]);
 
   const reload = useCallback(async () => {
     if (!slug) return;
@@ -78,9 +87,10 @@ export function DashboardFeatureProvider({ children, slug }: DashboardFeaturePro
       isLoading: state.isLoading,
       errorMessage: state.errorMessage,
       restaurant: state.restaurant,
+      financialSummary: state.financialSummary,
       reload,
     }),
-    [reload, state.errorMessage, state.isLoading, state.restaurant]
+    [reload, state.errorMessage, state.financialSummary, state.isLoading, state.restaurant]
   );
 
   return <DashboardFeatureContext.Provider value={value}>{children}</DashboardFeatureContext.Provider>;

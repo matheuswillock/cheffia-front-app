@@ -1,20 +1,38 @@
-import { createIntent, createProduct } from "@/api/payment";
+import {
+  confirmPixPayment,
+  createIntent,
+  type CreatePixIntentInput,
+} from "@/api/payment";
 import { OutputCreateIntent } from "@/models/dtos/output/OutputCreateIntent";
 
-// TODO: implement the INPUTS and OUTPUTS for this function
-export const handleCreatePaymentIntent = async () : Promise<OutputCreateIntent> => {
-  try {
-    console.log('Creating intent...');
-    const response = await createIntent();
-
-    if (!response.isValid) 
-      throw new Error('Erro ao criar intent de pagamento');
-
-    return OutputCreateIntent.fromOutputResult(response);
-  } catch (error) {
-    console.error('Error creating payment intent:', error);
-    throw error;
-    // TODO: Redirect to error page;
-    // redirect('/error');
-  }
+export interface PixPaymentConfirmationOutput {
+  status: string;
+  confirmationAt: string;
 }
+
+export const handleCreatePaymentIntent = async (
+  input: CreatePixIntentInput
+): Promise<OutputCreateIntent> => {
+  const response = await createIntent(input);
+
+  if (!response.isValid) {
+    throw new Error(response.errorMessages[0] ?? "Erro ao criar cobranca PIX");
+  }
+
+  return OutputCreateIntent.fromOutputResult(response);
+};
+
+export const handleConfirmPixPayment = async (
+  paymentPixId: string
+): Promise<PixPaymentConfirmationOutput> => {
+  const response = await confirmPixPayment(paymentPixId);
+
+  if (!response.isValid) {
+    throw new Error(response.errorMessages[0] ?? "Erro ao confirmar pagamento PIX");
+  }
+
+  return {
+    status: response.result.status,
+    confirmationAt: response.result.confirmationAt,
+  };
+};

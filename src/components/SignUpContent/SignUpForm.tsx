@@ -10,7 +10,6 @@ import { ComponentProps, FormEvent } from "react";
 import { Form } from "../ui/form";
 import SignUpFormField from "./SignUpFormField";
 import { UseSignUpForm } from "@/hooks/UseForms";
-import UserProfileFields from "../RegisterProfileContent/UserProfileFields";
 
 interface SignInFormProps extends ComponentProps<"div"> {
   onSignUp: (formData: FormData) => void;
@@ -24,7 +23,7 @@ export function SignUpForm({
   ...props
 }: SignInFormProps) {
   const form = UseSignUpForm();
-  
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSignUp(new FormData(e.currentTarget));
@@ -35,11 +34,9 @@ export function SignUpForm({
       <Card className="overflow-hidden bg-background-default">
         <CardContent className="grid p-0 md:grid-cols-2">
           <div className="px-6 md:px-8 mb-12 mt-8 gap-4 flex flex-col justify-center">
-            
             <Form {...form}>
-              <form  onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-4">
-
                   <div className="flex flex-col items-center text-center">
                     <h1 className="text-2xl font-bold">
                       Olá Cheffia
@@ -48,12 +45,6 @@ export function SignUpForm({
                       Crie uma conta
                     </p>
                   </div>
-
-                  <UserProfileFields form={form} />
-
-                  <p className="text-sm text-foreground-default/70">
-                    O seu <span className="font-semibold">Cheffia ID</span> sera gerado automaticamente apos o cadastro.
-                  </p>
 
                   <SignUpFormField
                     control={form.control}
@@ -98,13 +89,11 @@ export function SignUpForm({
                   >
                     Criar conta
                   </Button>
-
                 </div>
               </form>
             </Form>
 
             <div className="flex flex-col gap-4">
-
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border-default">
                 <span className="relative z-10 bg-background-default px-2 text-muted-foreground">
                   Ou continue com
@@ -112,9 +101,9 @@ export function SignUpForm({
               </div>
 
               <div className="flex justify-center items-center">
-                <Button 
+                <Button
                   onClick={googleSignUp}
-                  variant="outline" 
+                  variant="outline"
                   className="w-full rounded-xl font-semibold"
                 >
                   <Image
@@ -126,9 +115,7 @@ export function SignUpForm({
                   <span>Criar conta com Google</span>
                 </Button>
               </div>
-
             </div>
-
           </div>
 
           <div className="relative hidden bg-muted md:block">
@@ -141,7 +128,7 @@ export function SignUpForm({
         </CardContent>
       </Card>
 
-      <div 
+      <div
         className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary"
       >
         Ao clicar em criar conta, você concorda com nossos{" "}

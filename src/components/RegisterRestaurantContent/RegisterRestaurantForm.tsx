@@ -6,7 +6,7 @@ import { UseRegisterRestaurantForm } from "@/hooks/UseForms";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Image from "next/image";
-import Alert from "../ui/Alert";
+import { toast } from "sonner";
 import RestaurantFormField from "./RestaurantFormField";
 import { handleRegisterRestaurant } from "@/business/restaurant/restaurantBusiness";
 import { useRouter } from "next/navigation";
@@ -28,8 +28,6 @@ export default function RegisterRestaurantForm({
   emailVerified,
 }: RegisterRestaurantFormProps) {
   const [loading, setLoading] = useState(false);
-  const [closeAlertSuccess, setCloseAlertSuccess] = useState(false);
-  const [closeAlertFail, setCloseAlertFail] = useState(false);
   const router = useRouter();
 
   const form = UseRegisterRestaurantForm({
@@ -65,17 +63,20 @@ export default function RegisterRestaurantForm({
     try {
       setLoading(true);
       await handleRegisterRestaurant(buildPayload(values));
-      setCloseAlertSuccess(true);
+      toast.success("Restaurante cadastrado", {
+        description: "Seu restaurante foi cadastrado e os dados já alimentam o onboarding financeiro no Asaas.",
+      });
       form.reset();
       setLoading(false);
 
       setTimeout(() => {
-        setCloseAlertSuccess(false);
         router.push(`/dashboard/${id}`);
       }, 3000);
     } catch (error) {
       console.error("Failed to register restaurant:", error);
-      setCloseAlertFail(true);
+      toast.error("Ocorreu um erro ao cadastrar", {
+        description: "Não foi possível cadastrar o restaurante, tente novamente.",
+      });
       setLoading(false);
     }
   });
@@ -85,22 +86,9 @@ export default function RegisterRestaurantForm({
       <h2 className="scroll-m-20 border-b border-primary pb-2 text-3xl font-semibold tracking-tight first:mt-0">
         Cadastre seu restaurante
       </h2>
-
-      <Alert
-        IsOpen={closeAlertSuccess}
-        SetCloseAlert={setCloseAlertSuccess}
-        Title="Restaurante cadastrado"
-        Message="Seu restaurante foi cadastrado com sucesso!"
-        type="success"
-      />
-
-      <Alert
-        IsOpen={closeAlertFail}
-        SetCloseAlert={setCloseAlertFail}
-        Title="Ocorreu um erro ao cadastrar"
-        Message="Não foi possível cadastrar o restaurante, tente novamente."
-        type="fail"
-      />
+      <p className="mt-4 text-sm text-muted-foreground">
+        Este cadastro já prepara a sua conta financeira: endereço, documento, titularidade e dados operacionais serão reaproveitados no onboarding do Asaas.
+      </p>
 
       <Form {...form}>
         <form onSubmit={handleSubmit}>
@@ -272,3 +260,10 @@ export default function RegisterRestaurantForm({
     </div>
   );
 }
+
+
+
+
+
+
+

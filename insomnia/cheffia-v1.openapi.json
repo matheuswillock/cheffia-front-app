@@ -592,6 +592,147 @@
         }
       }
     },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/summary": {
+      "get": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Consultar resumo financeiro Asaas do restaurante",
+        "operationId": "restaurantConsultarresumofinanceiroAsaasdorestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/documents": {
       "get": {
         "tags": [
@@ -2831,7 +2972,13 @@
               },
               "example": {
                 "customerOrderId": "00000000-0000-0000-0000-000000000000",
-                "payTip": false
+                "payTip": false,
+                "payer": {
+                  "name": "Cliente PIX",
+                  "phoneNumber": "11999999999",
+                  "email": "cliente@cheffia.com",
+                  "document": "12345678901"
+                }
               }
             }
           }
@@ -3268,8 +3415,8 @@
         "tags": [
           "Payment"
         ],
-        "summary": "Criar payment intent (Stripe)",
-        "operationId": "paymentCriarpaymentintentStripe",
+        "summary": "Criar cobrança PIX compatível com o legado Payment/intent/create",
+        "operationId": "paymentCriarcobranaPIXcompatvelcomolegadoPaymentintentcreate",
         "parameters": [
           {
             "name": "x-tenant-id",
@@ -3302,9 +3449,14 @@
                 "additionalProperties": true
               },
               "example": {
-                "amount": 1099,
-                "currency": "brl",
-                "restaurantId": "00000000-0000-0000-0000-000000000000"
+                "customerOrderId": "00000000-0000-0000-0000-000000000000",
+                "payTip": false,
+                "payer": {
+                  "name": "Cliente PIX",
+                  "phoneNumber": "11999999999",
+                  "email": "cliente@cheffia.com",
+                  "document": "12345678901"
+                }
               }
             }
           }
@@ -3426,8 +3578,8 @@
         "tags": [
           "Payment"
         ],
-        "summary": "Criar produto + preco (Stripe)",
-        "operationId": "paymentCriarprodutoprecoStripe",
+        "summary": "Endpoint legado descontinuado após remoção do Stripe",
+        "operationId": "paymentEndpointlegadodescontinuadoapsremoodoStripe",
         "parameters": [
           {
             "name": "x-tenant-id",
@@ -3459,12 +3611,7 @@
                 "type": "object",
                 "additionalProperties": true
               },
-              "example": {
-                "productName": "Plano Pro",
-                "productDescription": "Plano mensal",
-                "price": 4990,
-                "currency": "brl"
-              }
+              "example": {}
             }
           }
         },

@@ -8,7 +8,7 @@ export const registerRestaurant = async (data: InputToRegisterRestaurant): Promi
     const response = await cheffiaApiConfig.post(
       restaurantRoutes.registerRestaurant,
       data,
-    )
+    );
 
     return response.data;
   } catch (error) {
@@ -19,20 +19,11 @@ export const registerRestaurant = async (data: InputToRegisterRestaurant): Promi
 
 export const getRestaurantById = async (id: string): Promise<Output> => {
   try {
-    const response = await cheffiaApiConfig.get(
-      restaurantRoutes.getRestaurant(id)
-    )
-
+    const response = await cheffiaApiConfig.get(restaurantRoutes.getRestaurant(id));
     return Output.fromOutputResult(response.data);
   } catch (error: any) {
-    // TODO: Criar tipos de erros para mapear quando não encontrar o restaurante e quaisquer outros erros no BACKEND e/ou FRONTEND;
     if (error.isAxiosError && error.response?.status === 400) {
-      return new Output(
-        false, 
-        [], 
-        [error.message], 
-        error
-      );
+      return new Output(false, [], [error.message], error);
     }
     throw error;
   }
@@ -44,6 +35,29 @@ export const getRestaurantFinancialAccount = async (
   try {
     const response = await cheffiaApiConfig.get(
       restaurantRoutes.getRestaurantFinancialAccount(restaurantId)
+    );
+
+    return Output.fromOutputResult(response.data);
+  } catch (error: any) {
+    if (error.isAxiosError && error.response?.status === 400) {
+      return new Output(
+        false,
+        [],
+        error.response?.data?.errorMessages ?? [error.message],
+        error.response?.data?.result ?? null
+      );
+    }
+
+    throw error;
+  }
+};
+
+export const getRestaurantFinancialSummary = async (
+  restaurantId: string
+): Promise<Output> => {
+  try {
+    const response = await cheffiaApiConfig.get(
+      restaurantRoutes.getRestaurantFinancialSummary(restaurantId)
     );
 
     return Output.fromOutputResult(response.data);

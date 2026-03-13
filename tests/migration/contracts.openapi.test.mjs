@@ -11,6 +11,7 @@ const expectedRoutes = [
   { method: "post", path: "/api/v1/auth/forgot-password" },
   { method: "post", path: "/api/v1/auth/resend-confirmation" },
   { method: "post", path: "/api/v1/cheffia/Restaurant/register" },
+  { method: "get", path: "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/summary" },
   { method: "get", path: "/api/v1/cheffia/Restaurant/{supabaseId}" },
   { method: "get", path: "/api/v1/cheffia/Restaurant/confirm-email" },
   { method: "delete", path: "/api/v1/cheffia/Restaurant/{restaurantId}/delete" },

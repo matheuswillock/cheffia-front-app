@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import Alert from "../ui/Alert";
+import { toast } from "sonner";
 import { UseUserProfileForm } from "@/hooks/UseForms";
 import UserProfileFields from "./UserProfileFields";
 import { completeUserProfile } from "@/business/auth/actions";
@@ -20,9 +20,6 @@ export default function RegisterProfileForm({
 }: RegisterProfileFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successOpen, setSuccessOpen] = useState(false);
-
   const form = UseUserProfileForm({
     fullName: initialFullName ?? "",
   });
@@ -30,7 +27,6 @@ export default function RegisterProfileForm({
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       setLoading(true);
-      setErrorMessage(null);
 
       const formData = new FormData();
       formData.set("fullName", values.fullName);
@@ -46,14 +42,18 @@ export default function RegisterProfileForm({
         throw new Error(response.errorMessages[0] ?? "Nao foi possivel concluir o perfil");
       }
 
-      setSuccessOpen(true);
+      toast.success("Perfil salvo", {
+        description: "Seu perfil foi concluido com sucesso.",
+      });
 
       setTimeout(() => {
         router.push("/register/restaurant");
       }, 1200);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Nao foi possivel concluir o perfil";
-      setErrorMessage(message);
+      toast.error("Erro ao salvar o perfil", {
+        description: message,
+      });
     } finally {
       setLoading(false);
     }
@@ -72,23 +72,6 @@ export default function RegisterProfileForm({
       <p className="mt-2 text-sm text-foreground-default/70">
         O seu <span className="font-semibold">Cheffia ID</span> sera gerado automaticamente apos salvar.
       </p>
-
-      <Alert
-        IsOpen={successOpen}
-        SetCloseAlert={setSuccessOpen}
-        Title="Perfil salvo"
-        Message="Seu perfil foi concluido com sucesso."
-        type="success"
-      />
-
-      <Alert
-        IsOpen={!!errorMessage}
-        SetCloseAlert={() => setErrorMessage(null)}
-        Title="Erro ao salvar o perfil"
-        Message={errorMessage ?? ""}
-        type="fail"
-      />
-
       <Form {...form}>
         <form onSubmit={handleSubmit} className="mt-12">
           <div className="flex flex-col gap-6">
@@ -109,3 +92,6 @@ export default function RegisterProfileForm({
     </div>
   );
 }
+
+
+

@@ -6,14 +6,16 @@ import {
   getRestaurantById,
   getRestaurantFinancialAccount,
   getRestaurantFinancialDocuments,
+  getRestaurantFinancialSummary,
   registerRestaurant,
   syncRestaurantFinancialDocuments,
   uploadRestaurantFinancialDocument,
 } from "@/api/restaurant";
-import {verifySessionClient, createClient} from "@/utils/supabase/client";
+import { verifySessionClient, createClient } from "@/utils/supabase/client";
 import { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
 import { OutputRegisterRestaurant } from "@/models/dtos/output/OutputRegisterRestaurant";
 import { OutputRestaurantFinancialAccount } from "@/models/dtos/output/OutputRestaurantFinancialAccount";
+import { OutputRestaurantFinancialSummary } from "@/models/dtos/output/OutputRestaurantFinancialSummary";
 import {
   mapRestaurantFinancialOnboardingDocumentUpload,
   mapRestaurantFinancialOnboardingDocuments,
@@ -22,7 +24,7 @@ import {
 } from "@/models/dtos/output/OutputRestaurantFinancialOnboardingDocument";
 import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";
 
-const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET
+const API_URL_WEBSOCKET = process.env.NEXT_PUBLIC_API_URL_WEBSOCKET;
 
 export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData): Promise<OutputRegisterRestaurant> => {
   try {
@@ -33,35 +35,31 @@ export const handleRegisterRestaurant = async (data: RegisterRestaurantFormData)
 
     const output = await registerRestaurant(InputToRegisterRestaurant.fromFormData(data));
 
-    if (!output.isValid) throw new Error('Erro ao cadastrar restaurante');
-    
+    if (!output.isValid) throw new Error("Erro ao cadastrar restaurante");
+
     return OutputRegisterRestaurant.fromOutputResult(output);
   } catch (error) {
-    console.error('Error registering restaurant:', error);
+    console.error("Error registering restaurant:", error);
     throw error;
   }
 };
 
 export const handleGetRestaurantById = async (id: string): Promise<OutputGetRestaurantById> => {
   try {
-
     const sessionIsValid = await verifySessionClient();
 
     if (!sessionIsValid) unauthorized();
 
     const response = await getRestaurantById(id);
 
-    // TODO: Criar tipos de erros para quando não encontrar o restaurante, não puder cadastrar um restaurante já cadastrado;
-    if (!response.isValid) redirect('/register/restaurant');
+    if (!response.isValid) redirect("/register/restaurant");
 
     return OutputGetRestaurantById.fromOutputResult(response);
   } catch (error) {
-    console.error('Error getting restaurant:', error);
+    console.error("Error getting restaurant:", error);
     throw error;
-    // TODO: Redirect to error page;
-    // redirect('/error');
   }
-}
+};
 
 export const handleGetRestaurantFinancialAccount = async (
   restaurantId: string
@@ -78,7 +76,24 @@ export const handleGetRestaurantFinancialAccount = async (
     console.error("Error getting restaurant financial account:", error);
     throw error;
   }
-}
+};
+
+export const handleGetRestaurantFinancialSummary = async (
+  restaurantId: string
+): Promise<OutputRestaurantFinancialSummary> => {
+  try {
+    const response = await getRestaurantFinancialSummary(restaurantId);
+
+    if (!response.isValid) {
+      throw new Error(response.errorMessages[0] ?? "Erro ao carregar resumo financeiro");
+    }
+
+    return OutputRestaurantFinancialSummary.fromOutputResult(response);
+  } catch (error) {
+    console.error("Error getting restaurant financial summary:", error);
+    throw error;
+  }
+};
 
 export const handleGetRestaurantFinancialDocuments = async (
   restaurantId: string
@@ -95,7 +110,7 @@ export const handleGetRestaurantFinancialDocuments = async (
     console.error("Error getting restaurant financial documents:", error);
     throw error;
   }
-}
+};
 
 export const handleSyncRestaurantFinancialDocuments = async (
   restaurantId: string
@@ -112,7 +127,7 @@ export const handleSyncRestaurantFinancialDocuments = async (
     console.error("Error syncing restaurant financial documents:", error);
     throw error;
   }
-}
+};
 
 export const handleUploadRestaurantFinancialDocument = async (
   restaurantId: string,
@@ -131,19 +146,19 @@ export const handleUploadRestaurantFinancialDocument = async (
     console.error("Error uploading restaurant financial document:", error);
     throw error;
   }
-}
+};
 
 export const useRestaurantWebSocket = (restaurantId: string) => {
   const { messages, sendMessage } = useWebSocket(`${API_URL_WEBSOCKET}/order-hub/connect/${restaurantId}/true`);
 
   return { messages, sendMessage };
-}
+};
 
 export const handleLogout = async () => {
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signOut()
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
 
-  if (error) return redirect('/error')
+  if (error) return redirect("/error");
 
-  return redirect('/sign-in')
-}
+  return redirect("/sign-in");
+};

@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createEmailConfirmationLink, getEmailService } from '@/server/application/email';
 import { createClient } from '@/utils/supabase/server';
-import { getSupabaseAdminClient } from '@/server/infra/supabase/adminClient';
 import { UserProfileService } from '@/server/application/userProfiles';
 
 async function getSupabaseClient() {
@@ -75,11 +74,10 @@ const buildUserProfileInputFromForm = (
       : null,
 });
 
-const authenticateWithOAuth = async (authType: string) => {
+const authenticateWithOAuth = async () => {
   const supabase = await getSupabaseClient();
   const origin = (await headers()).get("origin");
 
-  // TODO: add roteamento para o callback de acordo com o tipo de autenticação (sign-in ou sign-up)
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -91,9 +89,6 @@ const authenticateWithOAuth = async (authType: string) => {
     },
   });
 
-  // console.log('actions -> authenticateWithOAuth | data:', data)
-  // console.log('actions -> authenticateWithOAuth | error:', error)
-
   if (error) {
     console.error("Erro no authenticateWithOAuth", error.message);
     return redirect("/sign-in");
@@ -104,24 +99,15 @@ const authenticateWithOAuth = async (authType: string) => {
 
 export async function signIn(formData: FormData) {
   try {
-    console.log('signIn | formData:', formData)
-
     const supabase = await getSupabaseClient();
     const profileService = new UserProfileService();
-
-    console.log('supabase:', supabase)
 
     const credentials = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
     }
 
-    console.log('signIn | credentials:', credentials)
-
     const { data, error } = await supabase.auth.signInWithPassword(credentials)
-
-    console.log('signIn | data:', data)
-    console.log('signIn | error:', error)
 
     if (error || !data.user) {
       redirect('/error')
@@ -138,7 +124,6 @@ export async function signIn(formData: FormData) {
 
 export async function signUp(formData: FormData) {
   const supabase = await getSupabaseClient();
-  const profileService = new UserProfileService();
   const requestHeaders = await headers();
   const appBaseUrl = requestHeaders.get("origin");
 
@@ -149,43 +134,16 @@ export async function signUp(formData: FormData) {
 
   const { error, data } = await supabase.auth.signUp({
     ...credentials,
-    options: {
-      data: {
-        full_name: readStringFormField(formData, "fullName"),
-      },
-    },
   })
-
-  console.log('Actions -> signUp | error:', error)
 
   if (error || !data.user) {
     redirect('/error')
   }
 
-  const profile = await profileService.upsert(
-    buildUserProfileInputFromForm(formData, {
-      id: data.user.id,
-      email: data.user.email,
-      user_metadata: data.user.user_metadata,
-    })
-  );
-
-  if (!profile.isValid) {
-    try {
-      const adminClient = getSupabaseAdminClient();
-      await adminClient.auth.admin.deleteUser(data.user.id);
-    } catch (cleanupError) {
-      console.error("signUp | failed to cleanup auth user after profile failure", cleanupError);
-    }
-
-    console.error("signUp | failed to save user profile", profile.errorMessages);
-    redirect('/error');
-  }
-
   if (!data.user.email_confirmed_at) {
     await sendSignUpConfirmationEmail({
       email: credentials.email,
-      fullName: readStringFormField(formData, "fullName"),
+      fullName: credentials.email,
       supabaseUserId: data.user.id,
       appBaseUrl,
     });
@@ -228,7 +186,7 @@ export async function completeUserProfile(formData: FormData) {
 }
 
 export const signInActionWithProvider = async () => {
-  const data = await authenticateWithOAuth('sign-in');
+  const data = await authenticateWithOAuth();
 
   if (data.url) {
     return redirect(data.url);
@@ -238,16 +196,11 @@ export const signInActionWithProvider = async () => {
 };
 
 export const signUpActionWithProvider = async () => {
-  const data = await authenticateWithOAuth('sign-up');
-
-  const origin = (await headers()).get("origin");
-
-  console.log('origin:', origin)
-  console.log('data:', data)
+  const data = await authenticateWithOAuth();
 
   if (data.url) {
     return redirect(data.url);
   }
 
-  redirect('/register/profile')
+  redirect('/register/restaurant')
 };

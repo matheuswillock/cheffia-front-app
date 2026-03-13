@@ -65,7 +65,7 @@ const rules = [
   },
 ];
 
-const violations = [];
+const violations: Array<{ filePath: string; line: number; message: string }> = [];
 
 for (const filePath of targetFiles) {
   const content = readFileSync(filePath, "utf8");
@@ -111,3 +111,4 @@ if (violations.length > 0) {
 }
 
 console.log("Landing regression check passed.");
+

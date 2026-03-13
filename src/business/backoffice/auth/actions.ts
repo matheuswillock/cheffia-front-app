@@ -8,6 +8,9 @@ import {
   isCorporateBackofficeEmail,
 } from "@/server/application/backoffice";
 
+const BOOTSTRAP_ADMIN_EMAIL = "matheuswillock@cheffia-tech.com";
+const BOOTSTRAP_ADMIN_FULL_NAME = "Matheus Willock";
+
 const redirectWithError = (message: string): never =>
   redirect(`/backoffice/sign-in?error=${encodeURIComponent(message)}`);
 
@@ -53,22 +56,16 @@ export async function backofficeSignOut() {
 }
 
 export async function bootstrapBackofficeAdmin(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const fullName = String(formData.get("fullName") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
-  if (!email || !fullName || !password) {
-    redirectWithError("Preencha os dados do primeiro admin interno.");
-  }
-
-  if (!isCorporateBackofficeEmail(email)) {
-    redirectWithError("O primeiro admin tambem deve usar @cheffia-tech.com.");
+  if (!password) {
+    redirectWithError("Informe a senha inicial do CEO.");
   }
 
   const service = new InternalUsersService();
   const output = await service.bootstrapAdmin({
-    email,
-    fullName,
+    email: BOOTSTRAP_ADMIN_EMAIL,
+    fullName: BOOTSTRAP_ADMIN_FULL_NAME,
     password,
     role: "admin",
   });

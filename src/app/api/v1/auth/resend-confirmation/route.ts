@@ -2,10 +2,10 @@ import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import {
   createEmailConfirmationLink,
+  getDisplayNameFromSupabaseUser,
   getEmailService,
 } from "@/server/application/email";
 import { RestaurantService } from "@/server/application/restaurant";
-import { UserProfileService } from "@/server/application/userProfiles";
 import { failOutput, fromThrowable, okOutput } from "@/server/shared/output";
 
 export const runtime = "nodejs";
@@ -30,53 +30,45 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const profileService = new UserProfileService();
     const restaurantService = new RestaurantService();
-    const profile = await profileService.findByEmail(parsed.data.email);
-
-    if (!profile) {
-      return NextResponse.json(safeSuccessResponse, { status: 200 });
-    }
-
-    const emailVerified = await restaurantService.readAuthEmailVerified(profile.supabaseUserId);
-
-    if (emailVerified === true) {
-      try {
-        await restaurantService.syncEmailVerifiedBySupabaseUserId(profile.supabaseUserId, true);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown email sync error";
-        console.error("auth.resend_confirmation.email_sync_failed", {
-          email: parsed.data.email,
-          supabaseUserId: profile.supabaseUserId,
-          message,
-        });
-      }
-
-      return NextResponse.json(safeSuccessResponse, { status: 200 });
-    }
 
     try {
       const link = await createEmailConfirmationLink({
-        email: profile.email,
+        email: parsed.data.email,
         nextPath: parsed.data.nextPath,
         appBaseUrl: request.nextUrl.origin,
       });
 
+      if (link.supabaseUser.email_confirmed_at) {
+        try {
+          await restaurantService.syncEmailVerifiedBySupabaseUserId(link.supabaseUser.id, true);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unknown email sync error";
+          console.error("auth.resend_confirmation.email_sync_failed", {
+            email: parsed.data.email,
+            supabaseUserId: link.supabaseUser.id,
+            message,
+          });
+        }
+
+        return NextResponse.json(safeSuccessResponse, { status: 200 });
+      }
+
       const result = await getEmailService().sendEmailConfirmationEmail(
         {
-          userName: profile.fullName,
-          userEmail: profile.email,
+          userName: getDisplayNameFromSupabaseUser(link.supabaseUser, parsed.data.email),
+          userEmail: link.email,
           confirmationUrl: link.deliveryUrl,
         },
         {
-          supabaseUserId: profile.supabaseUserId,
+          supabaseUserId: link.supabaseUser.id,
         }
       );
 
       if (!result.success) {
         console.error("auth.resend_confirmation.email_failed", {
-          email: profile.email,
-          supabaseUserId: profile.supabaseUserId,
+          email: link.email,
+          supabaseUserId: link.supabaseUser.id,
           message: result.error,
         });
       }
@@ -84,7 +76,6 @@ export async function POST(request: NextRequest) {
       const message = error instanceof Error ? error.message : "Unknown resend confirmation error";
       console.error("auth.resend_confirmation.email_failed", {
         email: parsed.data.email,
-        supabaseUserId: profile.supabaseUserId,
         message,
       });
     }

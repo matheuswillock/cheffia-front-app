@@ -12,9 +12,21 @@ import {
   type PrismaClient,
 } from "@prisma/client";
 import { OutboxEventsService } from "@/server/application/events";
+import { FinancialReconciliationService } from "@/server/application/financialAccounts/financialReconciliationService";
 import { AsaasClient } from "@/server/infra/external/asaas";
 import { prisma as defaultPrisma, withPrismaRetry } from "@/server/infra/prisma";
 import { failOutput, okOutput, type Output } from "@/server/shared/output";
+import {
+  buildPaymentLedgerTransition,
+  computeAvailableAt as computeAvailableAtFromDomain,
+  computeNetAmount as computeNetAmountFromDomain,
+  computePlatformFeeAmount as computePlatformFeeAmountFromDomain,
+  computeProviderFeeAmount as computeProviderFeeAmountFromDomain,
+  hasSamePayerProfile,
+  normalizeDigits,
+  type PayerProfile,
+  validateAndBuildPayerProfile,
+} from "@/server/domain/financial";
 import type {
   InputConfirmPayment,
   InputPaymentOrder,
@@ -149,26 +161,6 @@ const getDefaultTransferDelayDays = (): number =>
   Math.max(0, parseIntegerEnv(process.env.ASAAS_DEFAULT_TRANSFER_DELAY_DAYS, 0));
 
 const getDefaultSourceWalletId = (): string | null => readString(process.env.ASAAS_MAIN_WALLET_ID);
-
-const addDays = (value: Date, days: number): Date => {
-  const next = new Date(value);
-  next.setUTCDate(next.getUTCDate() + days);
-  return next;
-};
-
-const computePlatformFeeAmount = (
-  grossAmount: number,
-  platformFeeType: FeeValueType,
-  platformFeeValue: number
-): number => {
-  if (platformFeeValue <= 0 || grossAmount <= 0) return 0;
-
-  if (platformFeeType === FeeValueType.fixed) {
-    return roundCurrency(Math.min(platformFeeValue, grossAmount));
-  }
-
-  return roundCurrency((grossAmount * platformFeeValue) / 100);
-};
 
 const toOrderStatusEnum = (value: string | null | undefined): OrderStatus => {
   if (!value) return OrderStatus.pending;
@@ -311,7 +303,8 @@ const mapOrderItemOutput = (
 const buildAsaasChargeOutput = (
   charge: Record<string, unknown>,
   amount: number,
-  fallbackDescription: string
+  fallbackDescription: string,
+  platformFeeAmount = 0
 ): PaymentOrderOutput => {
   const chargeId =
     (typeof charge.id === "string" ? charge.id : null) ??
@@ -344,7 +337,7 @@ const buildAsaasChargeOutput = (
       method: "pix",
       brCode,
       brCodeBase64,
-      platformFee: 0,
+      platformFee: Math.round(roundCurrency(platformFeeAmount) * 100),
       description,
       createdAt: toIso(createdAt),
       updatedAt: toIso(updatedAt),
@@ -365,7 +358,8 @@ export class OrderHubService {
   constructor(
     private readonly prisma: PrismaClient = defaultPrisma,
     private readonly asaas: AsaasClient = new AsaasClient(),
-    private readonly outboxEvents: OutboxEventsService = new OutboxEventsService()
+    private readonly outboxEvents: OutboxEventsService = new OutboxEventsService(),
+    private readonly reconciliation: FinancialReconciliationService = new FinancialReconciliationService()
   ) {}
 
   public async getTenantByRestaurantId(restaurantId: string): Promise<string | null> {
@@ -723,24 +717,20 @@ export class OrderHubService {
     const resolvedGrossAmount = roundCurrency(
       snapshot.value ?? toNumber(paymentDetail.grossAmount ?? paymentDetail.amount ?? paymentDetail.customerOrder.totalToPay)
     );
-    const resolvedProviderFeeAmount =
-      snapshot.netValue !== null && snapshot.value !== null
-        ? roundCurrency(Math.max(snapshot.value - snapshot.netValue, 0))
-        : paymentDetail.providerFeeAmount !== null
-          ? roundCurrency(toNumber(paymentDetail.providerFeeAmount))
-          : null;
-    const resolvedPlatformFeeAmount = computePlatformFeeAmount(
+    const resolvedProviderFeeAmount = computeProviderFeeAmountFromDomain(
+      resolvedGrossAmount,
+      snapshot.netValue,
+      paymentDetail.providerFeeAmount !== null ? toNumber(paymentDetail.providerFeeAmount) : null
+    );
+    const resolvedPlatformFeeAmount = computePlatformFeeAmountFromDomain(
       resolvedGrossAmount,
       settlementContext.platformFeeType,
       settlementContext.platformFeeValue
     );
-    const resolvedNetAmount = roundCurrency(
-      Math.max(
-        resolvedGrossAmount -
-          (resolvedProviderFeeAmount ?? 0) -
-          resolvedPlatformFeeAmount,
-        0
-      )
+    const resolvedNetAmount = computeNetAmountFromDomain(
+      resolvedGrossAmount,
+      resolvedProviderFeeAmount,
+      resolvedPlatformFeeAmount
     );
     const resolvedPaymentDate =
       snapshot.paymentDate ??
@@ -748,20 +738,33 @@ export class OrderHubService {
       (mappedStatus === OrderPaymentStatus.paid ? now : null);
     const resolvedFinancialAccountId =
       paymentDetail.financialAccountId ?? settlementContext.financialAccountId;
-    const resolvedAvailableAt =
-      settlementContext.settlementStrategy === SettlementStrategy.transferencia_posterior
-        ? resolvedPaymentDate
-          ? addDays(resolvedPaymentDate, settlementContext.transferDelayDays)
-          : null
-        : snapshot.availableAt ?? resolvedPaymentDate;
+    const resolvedAvailableAt = computeAvailableAtFromDomain({
+      settlementStrategy: settlementContext.settlementStrategy,
+      transferDelayDays: settlementContext.transferDelayDays,
+      paymentDate: resolvedPaymentDate,
+      providerAvailableAt: snapshot.availableAt,
+    });
     const shouldPersistRestaurantPayment =
       mappedStatus === OrderPaymentStatus.paid ||
       mappedStatus === OrderPaymentStatus.refunded ||
       mappedStatus === OrderPaymentStatus.canceled;
     const wasPaid = paymentDetail.status === OrderPaymentStatus.paid;
-    const totalFeeAmount = roundCurrency(
-      (resolvedProviderFeeAmount ?? 0) + resolvedPlatformFeeAmount
-    );
+    const ledgerTransition = buildPaymentLedgerTransition({
+      paymentId: snapshot.id,
+      paymentStatus: mappedStatus,
+      grossAmount: resolvedGrossAmount,
+      netAmount: resolvedNetAmount,
+      providerFeeAmount: resolvedProviderFeeAmount,
+      platformFeeAmount: resolvedPlatformFeeAmount,
+      occurredAt: resolvedPaymentDate ?? now,
+      settlementRuleId: settlementContext.id,
+      settlementStrategy: settlementContext.settlementStrategy,
+      platformFeeType: settlementContext.platformFeeType,
+      platformFeeValue: settlementContext.platformFeeValue,
+      destinationWalletId: settlementContext.destinationWalletId,
+      sourceWalletId: getDefaultSourceWalletId(),
+      scheduledFor: resolvedAvailableAt,
+    });
 
     await withPrismaRetry(
       () =>
@@ -788,6 +791,25 @@ export class OrderHubService {
               paymentDate:
                 resolvedPaymentDate ?? paymentDetail.paymentDate,
               lastProviderSyncAt: now,
+            },
+          });
+          await this.reconciliation.reconcilePaymentSnapshot(tx, {
+            tenantId,
+            restaurantId: paymentDetail.customerOrder.restaurant.id,
+            financialAccountId: resolvedFinancialAccountId,
+            customerOrderId: paymentDetail.customerOrder.id,
+            paymentDetailId: paymentDetail.id,
+            providerReference: snapshot.id,
+            internalSnapshot: {
+              status: mappedStatus,
+              grossAmount: resolvedGrossAmount,
+              netAmount: resolvedNetAmount,
+            },
+            providerSnapshot: {
+              status: mapAsaasStatusToOrderPaymentStatus(snapshot.status),
+              grossAmount: snapshot.value ?? resolvedGrossAmount,
+              netAmount: snapshot.netValue ?? resolvedNetAmount,
+              rawPayload: snapshot.rawPayload,
             },
           });
 
@@ -845,81 +867,25 @@ export class OrderHubService {
             });
           }
 
-          if (mappedStatus === OrderPaymentStatus.paid) {
-            await this.upsertLedgerEntry(tx, {
-              tenantId,
-              restaurantId: paymentDetail.customerOrder.restaurant.id,
-              financialAccountId: resolvedFinancialAccountId,
-              customerOrderId: paymentDetail.customerOrder.id,
-              paymentDetailId: paymentDetail.id,
-              providerReference: `payment:${snapshot.id}:payment_received`,
-              entryType: FinancialLedgerEntryType.payment_received,
-              direction: FinancialEntryDirection.credit,
-              grossAmount: resolvedGrossAmount,
-              netAmount: resolvedNetAmount,
-              feeAmount: totalFeeAmount,
-              occurredAt: resolvedPaymentDate ?? now,
-              metadata: {
-                settlementRuleId: settlementContext.id,
-                settlementStrategy: settlementContext.settlementStrategy,
-                providerStatus: snapshot.status,
-              },
-            });
+          let payoutTransferId: string | null = null;
 
-            if ((resolvedProviderFeeAmount ?? 0) > 0) {
-              await this.upsertLedgerEntry(tx, {
-                tenantId,
-                restaurantId: paymentDetail.customerOrder.restaurant.id,
-                financialAccountId: resolvedFinancialAccountId,
-                customerOrderId: paymentDetail.customerOrder.id,
-                paymentDetailId: paymentDetail.id,
-                providerReference: `payment:${snapshot.id}:provider_fee`,
-                entryType: FinancialLedgerEntryType.provider_fee,
-                direction: FinancialEntryDirection.debit,
-                grossAmount: 0,
-                netAmount: 0,
-                feeAmount: resolvedProviderFeeAmount ?? 0,
-                occurredAt: resolvedPaymentDate ?? now,
-                metadata: {
-                  settlementRuleId: settlementContext.id,
-                  providerStatus: snapshot.status,
-                },
-              });
-            }
-
-            if (resolvedPlatformFeeAmount > 0) {
-              await this.upsertLedgerEntry(tx, {
-                tenantId,
-                restaurantId: paymentDetail.customerOrder.restaurant.id,
-                financialAccountId: resolvedFinancialAccountId,
-                customerOrderId: paymentDetail.customerOrder.id,
-                paymentDetailId: paymentDetail.id,
-                providerReference: `payment:${snapshot.id}:platform_fee`,
-                entryType: FinancialLedgerEntryType.platform_fee,
-                direction: FinancialEntryDirection.debit,
-                grossAmount: 0,
-                netAmount: 0,
-                feeAmount: resolvedPlatformFeeAmount,
-                occurredAt: resolvedPaymentDate ?? now,
-                metadata: {
-                  settlementRuleId: settlementContext.id,
-                  settlementStrategy: settlementContext.settlementStrategy,
-                  feeType: settlementContext.platformFeeType,
-                  feeValue: settlementContext.platformFeeValue,
-                },
-              });
-            }
-
+          if (
+            mappedStatus === OrderPaymentStatus.paid ||
+            mappedStatus === OrderPaymentStatus.refunded ||
+            mappedStatus === OrderPaymentStatus.canceled
+          ) {
             if (
+              mappedStatus === OrderPaymentStatus.paid &&
               settlementContext.settlementStrategy === SettlementStrategy.transferencia_posterior &&
-              resolvedNetAmount > 0
+              resolvedNetAmount > 0 &&
+              !settlementContext.destinationWalletId
             ) {
-              if (!settlementContext.destinationWalletId) {
-                throw new Error(
-                  `Missing destination wallet for payout scheduling on restaurant ${paymentDetail.customerOrder.restaurant.id}.`
-                );
-              }
+              throw new Error(
+                `Missing destination wallet for payout scheduling on restaurant ${paymentDetail.customerOrder.restaurant.id}.`
+              );
+            }
 
+            if (ledgerTransition.payoutTransfer) {
               const existingPayout = await tx.restaurantPayoutTransfer.findFirst({
                 where: {
                   tenantId,
@@ -936,12 +902,12 @@ export class OrderHubService {
                 ? await tx.restaurantPayoutTransfer.update({
                     where: { id: existingPayout.id },
                     data: {
-                      amount: resolvedNetAmount,
-                      currency: "BRL",
+                      amount: ledgerTransition.payoutTransfer.amount,
+                      currency: ledgerTransition.payoutTransfer.currency,
                       status: PayoutTransferStatus.scheduled,
-                      sourceWalletId: getDefaultSourceWalletId(),
-                      destinationWalletId: settlementContext.destinationWalletId,
-                      scheduledFor: resolvedAvailableAt ?? (resolvedPaymentDate ?? now),
+                      sourceWalletId: ledgerTransition.payoutTransfer.sourceWalletId,
+                      destinationWalletId: ledgerTransition.payoutTransfer.destinationWalletId,
+                      scheduledFor: ledgerTransition.payoutTransfer.scheduledFor,
                       lastError: null,
                       metadata: {
                         paymentDetailId: paymentDetail.id,
@@ -959,12 +925,12 @@ export class OrderHubService {
                       restaurantId: paymentDetail.customerOrder.restaurant.id,
                       financialAccountId: resolvedFinancialAccountId,
                       customerOrderId: paymentDetail.customerOrder.id,
-                      amount: resolvedNetAmount,
-                      currency: "BRL",
+                      amount: ledgerTransition.payoutTransfer.amount,
+                      currency: ledgerTransition.payoutTransfer.currency,
                       status: PayoutTransferStatus.scheduled,
-                      sourceWalletId: getDefaultSourceWalletId(),
-                      destinationWalletId: settlementContext.destinationWalletId,
-                      scheduledFor: resolvedAvailableAt ?? (resolvedPaymentDate ?? now),
+                      sourceWalletId: ledgerTransition.payoutTransfer.sourceWalletId,
+                      destinationWalletId: ledgerTransition.payoutTransfer.destinationWalletId,
+                      scheduledFor: ledgerTransition.payoutTransfer.scheduledFor,
                       metadata: {
                         paymentDetailId: paymentDetail.id,
                         transactionId: snapshot.id,
@@ -976,73 +942,56 @@ export class OrderHubService {
                     },
                   });
 
+              payoutTransferId = payoutTransfer.id;
+            }
+
+            if (
+              mappedStatus === OrderPaymentStatus.refunded ||
+              mappedStatus === OrderPaymentStatus.canceled
+            ) {
+              const pendingPayout = await tx.restaurantPayoutTransfer.findFirst({
+                where: {
+                  tenantId,
+                  customerOrderId: paymentDetail.customerOrder.id,
+                  financialAccountId: resolvedFinancialAccountId,
+                  status: {
+                    in: [PayoutTransferStatus.scheduled, PayoutTransferStatus.processing],
+                  },
+                },
+                orderBy: [{ createdAt: "desc" }],
+                select: {
+                  id: true,
+                },
+              });
+
+              if (pendingPayout) {
+                await tx.restaurantPayoutTransfer.update({
+                  where: { id: pendingPayout.id },
+                  data: {
+                    status: PayoutTransferStatus.canceled,
+                    lastError: `Transfer canceled because payment moved to ${mappedStatus}.`,
+                  },
+                });
+              }
+            }
+
+            for (const ledgerEntry of ledgerTransition.ledgerEntries) {
               await this.upsertLedgerEntry(tx, {
                 tenantId,
                 restaurantId: paymentDetail.customerOrder.restaurant.id,
                 financialAccountId: resolvedFinancialAccountId,
                 customerOrderId: paymentDetail.customerOrder.id,
                 paymentDetailId: paymentDetail.id,
-                payoutTransferId: payoutTransfer.id,
-                providerReference: `payment:${snapshot.id}:payout_scheduled`,
-                entryType: FinancialLedgerEntryType.payout_scheduled,
-                direction: FinancialEntryDirection.debit,
-                grossAmount: 0,
-                netAmount: resolvedNetAmount,
-                feeAmount: 0,
-                occurredAt: resolvedAvailableAt ?? (resolvedPaymentDate ?? now),
-                metadata: {
-                  settlementRuleId: settlementContext.id,
-                  destinationWalletId: settlementContext.destinationWalletId,
-                },
-              });
-            }
-          }
-
-          if (
-            mappedStatus === OrderPaymentStatus.refunded ||
-            mappedStatus === OrderPaymentStatus.canceled
-          ) {
-            await this.upsertLedgerEntry(tx, {
-              tenantId,
-              restaurantId: paymentDetail.customerOrder.restaurant.id,
-              financialAccountId: resolvedFinancialAccountId,
-              customerOrderId: paymentDetail.customerOrder.id,
-              paymentDetailId: paymentDetail.id,
-              providerReference: `payment:${snapshot.id}:refund`,
-              entryType: FinancialLedgerEntryType.refund,
-              direction: FinancialEntryDirection.debit,
-              grossAmount: resolvedGrossAmount,
-              netAmount: resolvedNetAmount,
-              feeAmount: totalFeeAmount,
-              occurredAt: resolvedPaymentDate ?? now,
-              metadata: {
-                settlementRuleId: settlementContext.id,
-                providerStatus: snapshot.status,
-              },
-            });
-
-            const pendingPayout = await tx.restaurantPayoutTransfer.findFirst({
-              where: {
-                tenantId,
-                customerOrderId: paymentDetail.customerOrder.id,
-                financialAccountId: resolvedFinancialAccountId,
-                status: {
-                  in: [PayoutTransferStatus.scheduled, PayoutTransferStatus.processing],
-                },
-              },
-              orderBy: [{ createdAt: "desc" }],
-              select: {
-                id: true,
-              },
-            });
-
-            if (pendingPayout) {
-              await tx.restaurantPayoutTransfer.update({
-                where: { id: pendingPayout.id },
-                data: {
-                  status: PayoutTransferStatus.canceled,
-                  lastError: `Transfer canceled because payment moved to ${mappedStatus}.`,
-                },
+                payoutTransferId:
+                  ledgerEntry.entryType === "payout_scheduled" ? payoutTransferId : null,
+                providerReference: ledgerEntry.providerReference,
+                entryType: ledgerEntry.entryType as FinancialLedgerEntryType,
+                direction: ledgerEntry.direction as FinancialEntryDirection,
+                grossAmount: ledgerEntry.grossAmount,
+                netAmount: ledgerEntry.netAmount,
+                feeAmount: ledgerEntry.feeAmount,
+                occurredAt: ledgerEntry.occurredAt,
+                metadata: ledgerEntry.metadata as Prisma.InputJsonValue | undefined,
               });
             }
           }
@@ -1339,6 +1288,14 @@ export class OrderHubService {
     input: InputPaymentOrder
   ): Promise<Output<PaymentOrderOutput | null>> {
     try {
+      const payerValidation = validateAndBuildPayerProfile(input.payer);
+      if (!payerValidation.profile) {
+        return failOutput(
+          `Invalid payer information: ${payerValidation.errors.join(", ") || "payer payload is incomplete"}`
+        );
+      }
+
+      const payerProfile: PayerProfile = payerValidation.profile;
       const order = await withPrismaRetry(
         () =>
           this.prisma.customerOrder.findFirst({
@@ -1350,10 +1307,6 @@ export class OrderHubService {
               restaurant: {
                 select: {
                   id: true,
-                  name: true,
-                  email: true,
-                  document: true,
-                  phoneNumber: true,
                 },
               },
               paymentDetail: true,
@@ -1384,28 +1337,55 @@ export class OrderHubService {
         order.restaurant.id,
         order.paymentDetail?.financialAccountId ?? null
       );
-
-      const asaasCustomer = await this.asaas.createCustomer(
-        {
-          name: order.restaurant.name,
-          email: order.restaurant.email ?? undefined,
-          cpfCnpj: order.restaurant.document ?? undefined,
-          mobilePhone: order.restaurant.phoneNumber ?? undefined,
-        },
-        { tenantId }
+      const platformFeeAmount = computePlatformFeeAmountFromDomain(
+        amount,
+        settlementContext.platformFeeType,
+        settlementContext.platformFeeValue
       );
+      const expectedNetAmount = roundCurrency(amount - platformFeeAmount);
+      const externalReference = `tenant:${tenantId}:order:${order.id}`;
+      const description = `Pedido ${order.orderNumber} - Mesa ${order.tableNumber}`;
+
+      const canReuseProviderCustomer =
+        Boolean(order.paymentDetail?.providerCustomerId) &&
+        Boolean(order.paymentDetail?.payerName) &&
+        hasSamePayerProfile(payerProfile, {
+          name: order.paymentDetail?.payerName ?? "",
+          normalizedPhoneNumber: normalizeDigits(order.paymentDetail?.payerPhoneNumber),
+          email: order.paymentDetail?.payerEmail ?? null,
+          normalizedDocument: normalizeDigits(order.paymentDetail?.payerDocument) || null,
+        });
+
+      const providerCustomerId = canReuseProviderCustomer
+        ? order.paymentDetail?.providerCustomerId ?? null
+        : (
+            await this.asaas.createCustomer(
+              {
+                name: payerProfile.name,
+                email: payerProfile.email ?? undefined,
+                cpfCnpj: payerProfile.document ?? undefined,
+                mobilePhone: payerProfile.normalizedPhoneNumber,
+              },
+              { tenantId }
+            )
+          ).id;
+
+      if (!providerCustomerId) {
+        return failOutput("Unable to resolve Asaas customer for PIX charge.");
+      }
 
       const charge = await this.asaas.createCharge(
         {
-          customer: asaasCustomer.id,
+          customer: providerCustomerId,
           billingType: "PIX",
           value: amount,
           dueDate: toAsaasDate(new Date()),
-          description: `Pedido ${order.orderNumber} - Mesa ${order.tableNumber}`,
-          externalReference: `tenant:${tenantId}:order:${order.id}`,
+          description,
+          externalReference,
         },
         { tenantId }
       );
+      const chargeRecord = charge as unknown as Record<string, unknown>;
 
       await withPrismaRetry(
         () =>
@@ -1415,49 +1395,79 @@ export class OrderHubService {
               data: { totalToPay: amount },
             });
 
-            await tx.customerOrderPaymentDetail.upsert({
+            const paymentDetail = await tx.customerOrderPaymentDetail.upsert({
               where: { customerOrderId: order.id },
               create: {
                 tenantId,
                 customerOrderId: order.id,
                 financialAccountId: settlementContext.financialAccountId,
                 transactionId: charge.id,
-                providerCustomerId: asaasCustomer.id,
+                providerCustomerId,
+                payerName: payerProfile.name,
+                payerPhoneNumber: payerProfile.phoneNumber,
+                payerEmail: payerProfile.email,
+                payerDocument: payerProfile.document,
                 providerPaymentId: charge.id,
                 status: OrderPaymentStatus.pending,
                 method: PaymentMethod.pix,
                 amount,
                 grossAmount: amount,
+                netAmount: expectedNetAmount,
+                platformFeeAmount,
                 billingType: charge.billingType,
-                externalReference: `tenant:${tenantId}:order:${order.id}`,
+                externalReference,
                 providerRawStatus: charge.status,
-                pixQrCode:
-                  (charge as unknown as Record<string, unknown>).pixQrCode as string | undefined,
+                pixQrCode: chargeRecord.pixQrCode as string | undefined,
                 pixCopyPaste:
-                  ((charge as unknown as Record<string, unknown>).pixCopyAndPaste as string | undefined) ??
-                  ((charge as unknown as Record<string, unknown>).brCodeBase64 as string | undefined),
+                  (chargeRecord.pixCopyAndPaste as string | undefined) ??
+                  (chargeRecord.brCodeBase64 as string | undefined),
                 provider: "asaas",
                 paymentDate: null,
               },
               update: {
                 financialAccountId: settlementContext.financialAccountId,
                 transactionId: charge.id,
-                providerCustomerId: asaasCustomer.id,
+                providerCustomerId,
+                payerName: payerProfile.name,
+                payerPhoneNumber: payerProfile.phoneNumber,
+                payerEmail: payerProfile.email,
+                payerDocument: payerProfile.document,
                 providerPaymentId: charge.id,
                 status: OrderPaymentStatus.pending,
                 method: PaymentMethod.pix,
                 amount,
                 grossAmount: amount,
+                netAmount: expectedNetAmount,
+                platformFeeAmount,
                 billingType: charge.billingType,
-                externalReference: `tenant:${tenantId}:order:${order.id}`,
+                externalReference,
                 providerRawStatus: charge.status,
-                pixQrCode:
-                  (charge as unknown as Record<string, unknown>).pixQrCode as string | undefined,
+                pixQrCode: chargeRecord.pixQrCode as string | undefined,
                 pixCopyPaste:
-                  ((charge as unknown as Record<string, unknown>).pixCopyAndPaste as string | undefined) ??
-                  ((charge as unknown as Record<string, unknown>).brCodeBase64 as string | undefined),
+                  (chargeRecord.pixCopyAndPaste as string | undefined) ??
+                  (chargeRecord.brCodeBase64 as string | undefined),
                 provider: "asaas",
                 paymentDate: null,
+              },
+            });
+
+            await this.upsertLedgerEntry(tx, {
+              tenantId,
+              restaurantId: order.restaurant.id,
+              financialAccountId: settlementContext.financialAccountId,
+              customerOrderId: order.id,
+              paymentDetailId: paymentDetail.id,
+              providerReference: `payment:${charge.id}:charge_created`,
+              entryType: FinancialLedgerEntryType.charge_created,
+              direction: FinancialEntryDirection.credit,
+              grossAmount: amount,
+              netAmount: expectedNetAmount,
+              feeAmount: platformFeeAmount,
+              occurredAt: new Date(),
+              metadata: {
+                settlementRuleId: settlementContext.id,
+                payerName: payerProfile.name,
+                externalReference,
               },
             });
 
@@ -1473,11 +1483,7 @@ export class OrderHubService {
       );
 
       return okOutput(
-        buildAsaasChargeOutput(
-          charge as unknown as Record<string, unknown>,
-          amount,
-          `Pedido ${order.orderNumber} - Mesa ${order.tableNumber}`
-        ),
+        buildAsaasChargeOutput(chargeRecord, amount, description, platformFeeAmount),
         ["Payment Pix generated successfully"]
       );
     } catch (error) {
@@ -1558,3 +1564,18 @@ export class OrderHubService {
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -9,6 +9,7 @@ import { AsaasClient, type AsaasSubaccountPayload, type AsaasWebhookConfigPayloa
 import { prisma as defaultPrisma, withPrismaRetry } from "@/server/infra/prisma";
 import { encryptSecret } from "@/server/shared/secrets";
 import { failOutput, okOutput, type Output } from "@/server/shared/output";
+import { getMissingProvisioningFields, normalizeDigits } from "@/server/domain/financial";
 import { scheduleInitialRestaurantFinancialSync } from "./initialDocumentSyncScheduler";
 import type { RestaurantFinancialAccountOutput } from "./types";
 
@@ -53,8 +54,6 @@ type InitialSyncEligibleAccount = Pick<
   FinancialAccountRecord,
   "asaasAccountId" | "asaasApiKeyEncrypted"
 >;
-
-const normalizeDigits = (value: string | null | undefined): string => (value ?? "").replace(/\D/g, "");
 
 const toIsoDate = (value: Date): string => {
   const year = value.getUTCFullYear();
@@ -105,29 +104,6 @@ const buildWebhookConfigs = (): AsaasWebhookConfigPayload[] => {
       events,
     },
   ];
-};
-
-const getMissingFieldsForProvisioning = (restaurant: RestaurantProvisioningRecord): string[] => {
-  const missing: string[] = [];
-  const documentDigits = normalizeDigits(restaurant.document);
-  const isCompany = documentDigits.length === 14;
-
-  if (!restaurant.name.trim()) missing.push("name");
-  if (!restaurant.email?.trim()) missing.push("email");
-  if (![11, 14].includes(documentDigits.length)) missing.push("document");
-  if (!restaurant.phoneNumber?.trim()) missing.push("phoneNumber");
-  if (!restaurant.address?.trim()) missing.push("address");
-  if (!restaurant.addressNumber?.trim()) missing.push("addressNumber");
-  if (!restaurant.province?.trim()) missing.push("province");
-  if (!restaurant.postalCode?.trim()) missing.push("postalCode");
-
-  if (isCompany) {
-    if (!restaurant.companyType?.trim()) missing.push("companyType");
-  } else if (!restaurant.birthDate) {
-    missing.push("birthDate");
-  }
-
-  return missing;
 };
 
 const mapOutput = (
@@ -313,7 +289,7 @@ export class RestaurantFinancialAccountService {
       }
 
       return okOutput(mapOutput(account, {
-        missingFields: getMissingFieldsForProvisioning(restaurant),
+        missingFields: getMissingProvisioningFields(restaurant),
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unexpected error";
@@ -351,7 +327,7 @@ export class RestaurantFinancialAccountService {
         return okOutput(mapOutput(existing), messages);
       }
 
-      const missingFields = getMissingFieldsForProvisioning(restaurant);
+      const missingFields = getMissingProvisioningFields(restaurant);
       if (missingFields.length > 0) {
         const message = `Missing required restaurant fields for Asaas provisioning: ${missingFields.join(", ")}`;
         const updated = await withPrismaRetry(
@@ -475,3 +451,6 @@ export class RestaurantFinancialAccountService {
     }
   }
 }
+
+
+

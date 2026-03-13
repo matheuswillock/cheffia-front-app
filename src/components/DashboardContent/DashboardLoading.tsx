@@ -1,14 +1,36 @@
-import { Loader2 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardLoading() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background-default">
-      <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <div className="flex flex-1 flex-col gap-8 p-4 md:p-4 lg:px-6 lg:py-8">
+      <div className="flex items-center justify-between gap-4">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-10 w-28 rounded-md" />
       </div>
-      <h2 className="mb-2 text-2xl font-semibold text-foreground-default">Carregando informações</h2>
-      <p className="text-center text-muted-foreground">Estamos preparando seu dashboard, aguarde um momento...</p>
-    </div>
-  )
-}
 
+      <div className="mx-auto w-full max-w-7xl space-y-8">
+        <section className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="rounded-xl border border-border-default bg-card p-6 shadow-md">
+                <Skeleton className="h-4 w-28" />
+                <div className="mt-6 flex items-center justify-between">
+                  <Skeleton className="h-8 w-36" />
+                  <Skeleton className="h-5 w-12" />
+                </div>
+                <Skeleton className="mt-4 h-3 w-40" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <Skeleton className="h-8 w-56" />
+          <div className="rounded-xl border border-border-default bg-card p-6 shadow-md">
+            <Skeleton className="h-32 w-full rounded-lg" />
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}

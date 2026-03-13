@@ -73,11 +73,30 @@ describe("Runtime migration E2E", () => {
     const response = await request("/api/v1/cheffia/Payment/intent/create", {
       method: "POST",
       headers: jsonHeaders,
-      body: JSON.stringify({ amount: 1099, currency: "brl" }),
+      body: JSON.stringify({
+        customerOrderId: randomUUID(),
+        payTip: false,
+        payer: { name: "Cliente PIX", phoneNumber: "11999999999" },
+      }),
     });
     const payload = await parseMaybeJson(response);
 
     expect(response.status).toBe(400);
+    expect(payload.isValid).toBe(false);
+    expect(Array.isArray(payload.errorMessages)).toBe(true);
+  });
+
+  test("POST /Payment/product/create returns 410 deprecated output", async () => {
+    if (!E2E_ENABLED) return;
+
+    const response = await request("/api/v1/cheffia/Payment/product/create", {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({}),
+    });
+    const payload = await parseMaybeJson(response);
+
+    expect(response.status).toBe(410);
     expect(payload.isValid).toBe(false);
     expect(Array.isArray(payload.errorMessages)).toBe(true);
   });

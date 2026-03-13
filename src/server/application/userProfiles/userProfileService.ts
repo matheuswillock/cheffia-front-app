@@ -133,13 +133,6 @@ export class UserProfileService {
   }
 
   public async resolvePostAuthDestination(supabaseUserId: string): Promise<string> {
-    const profile = await this.prisma.userProfile.findUnique({
-      where: { supabaseUserId },
-      select: { id: true },
-    });
-
-    if (!profile) return "/register/profile";
-
     const restaurant = await this.prisma.restaurant.findFirst({
       where: { supabaseUserId },
       select: { id: true },

@@ -1,6 +1,4 @@
 import { z } from "zod";
-import AskAQuestion from '../components/AskAQuestion';
-import JoinWaitlist from '@/components/JoinWaitlist';
 
 const profileNameRegex = /^[\p{L}\s'-]+$/u;
 
@@ -60,7 +58,7 @@ const validateUserProfileData = (
 
 export const userProfileFormSchema = userProfileFormBaseSchema.superRefine(validateUserProfileData);
 
-export const signUpFormSchema = userProfileFormBaseSchema.extend({
+export const signUpFormSchema = z.object({
   email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
   password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres")
     .regex(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula")
@@ -69,8 +67,6 @@ export const signUpFormSchema = userProfileFormBaseSchema.extend({
     .regex(/[^A-Za-z0-9]/, "A senha deve conter pelo menos um caracter especial"),
   confirmPassword: z.string()
 }).superRefine((data, ctx) => {
-  validateUserProfileData(data, ctx);
-
   if (data.password !== data.confirmPassword) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -90,7 +86,7 @@ export const RegisterRestaurantFormSchema = z.object({
   phoneNumber: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Insira um número de telefone válido"),
   providerAvatarUrl: z.string().optional(),
   email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
-  emailVerified: z.boolean().default(false),
+  emailVerified: z.boolean(),
   supabaseId: z.string().uuid("O ID do usuário é obrigatório"),
   ownerFullName: z.string().min(3, "O nome do proprietário deve ter no mínimo 2 caracteres")
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome deve conter apenas letras"),

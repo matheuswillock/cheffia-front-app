@@ -9,6 +9,9 @@ import type {
 } from "./types";
 import { isCorporateBackofficeEmail } from "./auth";
 
+const BOOTSTRAP_ADMIN_EMAIL = "matheuswillock@cheffia-tech.com";
+const BOOTSTRAP_ADMIN_FULL_NAME = "Matheus Willock";
+
 const createInternalUserSchema = z.object({
   email: z.string().trim().email("Invalid corporate email"),
   fullName: z.string().trim().min(3, "Full name is required").max(120),
@@ -149,8 +152,18 @@ export class InternalUsersService {
       return failOutput("Bootstrap is no longer available");
     }
 
+    if (normalizeEmail(input.email) !== BOOTSTRAP_ADMIN_EMAIL) {
+      return failOutput("Bootstrap is restricted to the CEO account");
+    }
+
+    if (input.fullName.trim() !== BOOTSTRAP_ADMIN_FULL_NAME) {
+      return failOutput("Bootstrap is restricted to the CEO account");
+    }
+
     return this.create({
-      ...input,
+      email: BOOTSTRAP_ADMIN_EMAIL,
+      fullName: BOOTSTRAP_ADMIN_FULL_NAME,
+      password: input.password,
       role: "admin",
     });
   }

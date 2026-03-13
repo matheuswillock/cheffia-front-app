@@ -1,19 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { 
-  AddMenuItemSchema, 
-  AskAQuestionSchema, 
-  JoinWaitlistSchema, 
-  RegisterRestaurantFormSchema, 
+import {
+  AddMenuItemSchema,
+  AskAQuestionSchema,
+  JoinWaitlistSchema,
+  RegisterRestaurantFormSchema,
   signUpFormSchema,
   userProfileFormSchema,
 } from "@/utils/validation";
-import { 
-  AddMenuItemData, 
-  RegisterRestaurantFormData, 
-  SignUpFormData, 
+import {
+  AddMenuItemData,
+  RegisterRestaurantFormData,
+  SignUpFormData,
   UserProfileFormData,
-  AskAQuestionData, 
+  AskAQuestionData,
   JoinWaitlistData
 } from "@/types/formTypes";
 
@@ -29,7 +29,7 @@ interface UseAddMenuItemFormProps {
   restaurantId: string;
 }
 
-export function UseRegisterRestaurantForm({ 
+export function UseRegisterRestaurantForm({
   ownerFullName, email, id, avatarUrl, emailVerified
 }: UseRegisterRestaurantFormProps) {
   return useForm<RegisterRestaurantFormData>({
@@ -44,7 +44,7 @@ export function UseRegisterRestaurantForm({
       phoneNumber: "",
       email: email || "",
       supabaseId: id || "",
-      ownerFullName: ownerFullName ||"",
+      ownerFullName: ownerFullName || "",
       emailVerified: emailVerified,
       providerAvatarUrl: avatarUrl || "",
       document: "",
@@ -58,12 +58,6 @@ export function UseSignUpForm() {
   return useForm<SignUpFormData>({
     resolver: zodResolver(signUpFormSchema),
     defaultValues: {
-      fullName: "",
-      birthDate: "",
-      document: "",
-      role: "",
-      jobTitle: "",
-      department: "",
       email: "",
       password: "",
       confirmPassword: "",

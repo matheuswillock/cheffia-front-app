@@ -1,6 +1,15 @@
-import { handleGetRestaurantById } from "@/business/restaurant/restaurantBusiness";
-import type { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
+import {
+  handleGetRestaurantById,
+  handleGetRestaurantFinancialSummary,
+} from "@/business/restaurant/restaurantBusiness";
+import type { DashboardFeatureData } from "@/app/dashboard/[slug]/features/types/dashboard-feature.types";
 
-export const loadDashboardRestaurant = async (supabaseId: string): Promise<OutputGetRestaurantById> => {
-  return handleGetRestaurantById(supabaseId);
+export const loadDashboardData = async (supabaseId: string): Promise<DashboardFeatureData> => {
+  const restaurant = await handleGetRestaurantById(supabaseId);
+  const financialSummary = await handleGetRestaurantFinancialSummary(restaurant.id);
+
+  return {
+    restaurant,
+    financialSummary,
+  };
 };

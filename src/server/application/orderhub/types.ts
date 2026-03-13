@@ -13,9 +13,17 @@ export interface InputRequestOrder {
   orderItems: InputRequestOrderItem[];
 }
 
+export interface InputPaymentPayer {
+  name: string;
+  phoneNumber: string;
+  email?: string | null;
+  document?: string | null;
+}
+
 export interface InputPaymentOrder {
   customerOrderId: string;
   payTip: boolean;
+  payer: InputPaymentPayer;
 }
 
 export interface InputConfirmPayment {

@@ -101,6 +101,14 @@ const routes: ApiRoute[] = [
   },
   {
     method: "GET",
+    path: "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/summary",
+    tag: "Restaurant",
+    summary: "Consultar resumo financeiro Asaas do restaurante",
+    tenant: "required",
+    parameters: [{ name: "restaurantId", in: "path", required: true, example: UUID }],
+  },
+  {
+    method: "GET",
     path: "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/documents",
     tag: "Restaurant",
     summary: "Listar documentos financeiros sincronizados do restaurante",
@@ -272,7 +280,7 @@ const routes: ApiRoute[] = [
     idempotency: true,
     requestBody: {
       contentType: "application/json",
-      example: { customerOrderId: UUID, payTip: false },
+      example: { customerOrderId: UUID, payTip: false, payer: { name: "Cliente PIX", phoneNumber: "11999999999", email: "cliente@cheffia.com", document: "12345678901" } },
     },
   },
   {
@@ -303,24 +311,24 @@ const routes: ApiRoute[] = [
     method: "POST",
     path: "/api/v1/cheffia/Payment/intent/create",
     tag: "Payment",
-    summary: "Criar payment intent (Stripe)",
+    summary: "Criar cobrança PIX compatível com o legado Payment/intent/create",
     tenant: "optional",
     idempotency: true,
     requestBody: {
       contentType: "application/json",
-      example: { amount: 1099, currency: "brl", restaurantId: UUID },
+      example: { customerOrderId: UUID, payTip: false, payer: { name: "Cliente PIX", phoneNumber: "11999999999", email: "cliente@cheffia.com", document: "12345678901" } },
     },
   },
   {
     method: "POST",
     path: "/api/v1/cheffia/Payment/product/create",
     tag: "Payment",
-    summary: "Criar produto + preco (Stripe)",
+    summary: "Endpoint legado descontinuado após remoção do Stripe",
     tenant: "optional",
     idempotency: true,
     requestBody: {
       contentType: "application/json",
-      example: { productName: "Plano Pro", productDescription: "Plano mensal", price: 4990, currency: "brl" },
+      example: {},
     },
   },
 ];
@@ -549,3 +557,4 @@ const main = async (): Promise<void> => {
 };
 
 void main();
+

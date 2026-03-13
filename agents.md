@@ -118,6 +118,9 @@ Expected structure for a new route under `src/app/**`:
   - follow shadcn-style accessibility and composition patterns;
   - include explicit technical justification in the PR.
 
+- Transient user feedback for success/error/info **MUST** use `sonner` (`toast`) and **MUST NOT** use custom alert/toast implementations.
+- Loading placeholders for page/data fetch states **MUST** use `Skeleton` from `src/components/ui/skeleton` and **MUST NOT** use custom pulse/spinner placeholders for those states.
+
 ## Design System and Theme Policy (Critical, FOR NEW FEATURES)
 
 - Canonical global style source **MUST** be `src/app/globals.css`.
@@ -332,4 +335,6 @@ Optional migration E2E variables:
 - Asaas webhook route: `src/app/api/v1/cheffia/OrderHub/webhook/asaas/route.ts`
 - OpenAPI docs: `src/server/openapi/README.md`
 - Migration tests: `tests/migration/README.md`
+
+
 

@@ -9,8 +9,9 @@
     "governance:sync": "bun scripts/ai-governance.ts sync-adapters",
     "governance:check": "bun scripts/ai-governance.ts check",
     "governance:warn-allowlist": "bun scripts/ai-governance.ts warn-allowlist",
-    "lint": "next lint && bun run landing:check",
+    "lint": "next lint && bun run landing:check && bun run ui:check",
     "landing:check": "bun scripts/check-landing-regression.ts",
+    "ui:check": "bun scripts/check-ui-feedback-regression.ts",
     "typecheck": "tsc --noEmit",
     "test:migration": "bun test tests/migration",
     "test:migration:strict": "cross-env MIGRATION_E2E_REQUIRED=1 bun test tests/migration",
@@ -22,8 +23,8 @@
     "ngrok:webhook:url": "node scripts/print-ngrok-webhook-url.mjs",
     "ngrok:webhook:check": "node scripts/validate-ngrok-webhook.mjs",
     "webhook:local:url": "node scripts/print-ngrok-webhook-url.mjs --path /api/v1/cheffia/OrderHub/webhook/asaas",
-    "openapi:generate": "bun run scripts/generate-openapi.ts",
-    "collections:generate": "bun run scripts/generate-openapi.ts",
+    "openapi:generate": "bun scripts/generate-openapi.ts",
+    "collections:generate": "bun scripts/generate-openapi.ts",
     "artifacts:check": "bun run openapi:generate && git diff --exit-code -- src/server/openapi/openapi.json postman insomnia",
     "prisma:env:check": "node scripts/check-prisma-env.mjs",
     "prisma:gate": "bun run prisma:env:check && bun run prisma:validate",
@@ -36,12 +37,7 @@
     "prisma:studio": "bunx prisma@6.16.3 studio",
     "prisma:erd": "bunx prisma@6.16.3 generate --generator erd"
   },
-  "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
-    "@hookform/resolvers": "^5.2.1",
-    "@mui/material": "^6.4.11",
-    "@next/env": "^15.3.1",
+  "dependencies": {    "@hookform/resolvers": "^5.2.1",    "@next/env": "^15.3.1",
     "@nextui-org/react": "^2.6.11",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^6.16.3",
@@ -89,8 +85,6 @@
     "@tailwindcss/postcss": "^4.1.13",
     "@next/eslint-plugin-next": "^16.1.6",
     "@eslint/eslintrc": "^3.3.1",
-    "@stripe/react-stripe-js": "^3.6.0",
-    "@stripe/stripe-js": "^7.2.0",
     "@types/jszip": "^3.4.1",
     "@types/node": "^25.4.0",
     "@types/react": "^19.1.2",
@@ -109,4 +103,8 @@
     "typescript-eslint": "^8.43.0"
   }
 }
+
+
+
+
 
