@@ -43,8 +43,8 @@ export function RestaurantShell({ children, restaurantId, user }: RestaurantShel
   return (
     <SidebarProvider>
       <RestaurantSidebar restaurantId={restaurantId} user={user} />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/50 px-4">
+      <SidebarInset className="min-h-svh max-h-svh overflow-hidden">
+        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b border-border/50 bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <SidebarTrigger className="-ml-1 h-7 w-7" aria-label="Alternar sidebar" title="Alternar sidebar" />
           <Separator orientation="vertical" className="mr-2 h-4" />
 
@@ -65,8 +65,9 @@ export function RestaurantShell({ children, restaurantId, user }: RestaurantShel
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
 }
+
