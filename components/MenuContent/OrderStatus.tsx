@@ -64,7 +64,7 @@ export default function OrderStatus() {
 
             {/* Steps */}
             <div className="relative z-10 space-y-8">
-              {steps.map((step, index) => (
+              {steps.map((step) => (
                 <div key={step.id} className="flex items-center gap-3">
                   <div
                     className={cn(
@@ -112,4 +112,5 @@ function getStepStatus(step: string, currentStatus: OrderStatusType): "completed
   if (stepIndex === currentIndex) return "current"
   return "upcoming"
 }
+
 

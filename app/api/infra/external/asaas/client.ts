@@ -67,13 +67,13 @@ const redact = (value: unknown): unknown => {
   return value;
 };
 
-const logAsaas = (level: "info" | "error", message: string, data: Record<string, unknown>): void => {
+const logAsaas = (level: "warn" | "error", message: string, data: Record<string, unknown>): void => {
   const payload = redact(data);
   if (level === "error") {
     console.error("asaas.client", message, payload);
     return;
   }
-  console.info("asaas.client", message, payload);
+  console.warn("asaas.client", message, payload);
 };
 
 export class AsaasClient {
@@ -200,7 +200,7 @@ export class AsaasClient {
     payload: AsaasCustomerPayload,
     context?: AsaasRequestContext
   ): Promise<AsaasCustomerResponse> {
-    logAsaas("info", "create_customer", {
+    logAsaas("warn", "create_customer", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
     });
@@ -217,7 +217,7 @@ export class AsaasClient {
     payload: AsaasSubaccountPayload,
     context?: AsaasRequestContext
   ): Promise<AsaasSubaccountResponse> {
-    logAsaas("info", "create_subaccount", {
+    logAsaas("warn", "create_subaccount", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
       hasWebhooks: Boolean(payload.webhooks?.length),
@@ -235,7 +235,7 @@ export class AsaasClient {
     payload: AsaasChargePayload,
     context?: AsaasRequestContext
   ): Promise<AsaasChargeResponse> {
-    logAsaas("info", "create_charge", {
+    logAsaas("warn", "create_charge", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
       billingType: payload.billingType,
@@ -254,7 +254,7 @@ export class AsaasClient {
     payload: AsaasSubscriptionPayload,
     context?: AsaasRequestContext
   ): Promise<AsaasSubscriptionResponse> {
-    logAsaas("info", "create_subscription", {
+    logAsaas("warn", "create_subscription", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
       cycle: payload.cycle,
@@ -273,7 +273,7 @@ export class AsaasClient {
     paymentId: string,
     context?: AsaasRequestContext
   ): Promise<AsaasPaymentResponse> {
-    logAsaas("info", "get_payment", {
+    logAsaas("warn", "get_payment", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
       paymentId,
@@ -289,7 +289,7 @@ export class AsaasClient {
   public async getMyAccountDocuments(
     context?: AsaasRequestContext
   ): Promise<AsaasMyAccountDocumentsResponse> {
-    logAsaas("info", "get_my_account_documents", {
+    logAsaas("warn", "get_my_account_documents", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
     });
@@ -304,7 +304,7 @@ export class AsaasClient {
   public async getMyAccountStatus(
     context?: AsaasRequestContext
   ): Promise<AsaasMyAccountStatusResponse> {
-    logAsaas("info", "get_my_account_status", {
+    logAsaas("warn", "get_my_account_status", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
     });
@@ -321,7 +321,7 @@ export class AsaasClient {
     payload: AsaasDocumentUploadPayload,
     context?: AsaasRequestContext
   ): Promise<AsaasDocumentUploadResponse> {
-    logAsaas("info", "upload_my_account_document", {
+    logAsaas("warn", "upload_my_account_document", {
       requestId: context?.requestId ?? null,
       tenantId: context?.tenantId ?? null,
       documentGroupId,
@@ -343,3 +343,4 @@ export class AsaasClient {
     });
   }
 }
+

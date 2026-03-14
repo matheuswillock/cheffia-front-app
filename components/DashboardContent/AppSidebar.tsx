@@ -4,15 +4,22 @@ import * as React from "react";
 import NavUser from "@/components/sidebarContent/NavUser";
 import SquareMenu from "@/assets/square-menu.svg";
 import ClipBoardPenLine from "@/assets/clipboard-pen-line.svg";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarTrigger } from "../ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+} from "../ui/sidebar";
 import NavMain from "../sidebarContent/NavMain";
 
 interface AppSidebarProps {
-    Name: string;
-    Email: string;
-    Avatar: string;
-    Id: string;
-    RestaurantId: string;
+  Name: string;
+  Email: string;
+  Avatar: string;
+  Id: string;
+  RestaurantId: string;
 }
 
 // TODO: Criar um interface para popular as informações do usuário;
@@ -21,8 +28,9 @@ export default function AppSidebar({
   Email,
   Avatar,
   Id,
-  RestaurantId, 
-} : AppSidebarProps) {
+  RestaurantId,
+}: AppSidebarProps) {
+  void Id;
 
   const navMainContent = [
     {
@@ -63,22 +71,20 @@ export default function AppSidebar({
           url: "#",
         },
       ],
-    }
+    },
   ];
 
   const user = {
     name: Name,
     email: Email,
     avatar: Avatar,
-  }
+  };
 
   return (
     <Sidebar className="py-4">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-2xl mb-2">
-            Cheffia
-          </SidebarGroupLabel>
+          <SidebarGroupLabel className="text-2xl mb-2">Cheffia</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <NavMain item={navMainContent} />

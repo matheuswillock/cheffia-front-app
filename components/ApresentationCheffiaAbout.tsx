@@ -320,7 +320,7 @@ export default function ApresentationCheffiaAbout({
                   alt="icone de check"
                   className="relative z-10"
                 />
-                <p className="relative z-10">
+                <p className="relative z-10 leading-6">
                   Redução de erros operacionais que geram insatisfação do
                   consumidor e desperdício.
                 </p>
@@ -332,7 +332,7 @@ export default function ApresentationCheffiaAbout({
                   alt="icone de check"
                   className="relative z-10"
                 />
-                <p className="relative z-10">
+                <p className="relative z-10 leading-6">
                   Aumento da eficiência no fluxo de trabalho.
                 </p>
               </div>
@@ -343,7 +343,7 @@ export default function ApresentationCheffiaAbout({
                   alt="icone de check"
                   className="relative z-10"
                 />
-                <p className="relative z-10">
+                <p className="relative z-10 leading-6">
                   Melhor controle financeiro e tomada de decisões estratégicas.
                 </p>
               </div>
@@ -400,7 +400,7 @@ export default function ApresentationCheffiaAbout({
                   alt="icone de check"
                   className="relative z-10"
                 />
-                <p className="relative z-10">
+                <p className="relative z-10 leading-6">
                   Satisfação em ter o controle de sua comanda através de uma
                   experiência rápida, intuitiva e sem complicações.
                 </p>
@@ -412,7 +412,7 @@ export default function ApresentationCheffiaAbout({
                   alt="icone de check"
                   className="relative z-10"
                 />
-                <p className="relative z-10">
+                <p className="relative z-10 leading-6">
                   Agilidade em chegar no local e poder se auto servir, sem
                   esperar um contato visual para chamar o garçom, pedir o
                   cardápio, escolher e depois chamar o garçom novamente para
@@ -426,7 +426,7 @@ export default function ApresentationCheffiaAbout({
                   alt="icone de check"
                   className="relative z-10"
                 />
-                <p className="relative z-10">
+                <p className="relative z-10 leading-6">
                   Maior conveniência no pagamento e personalização do
                   atendimento.
                 </p>

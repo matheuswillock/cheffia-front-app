@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import Frame488 from "../public/assets/Icons/Frame-488.svg";
 import Frame489 from "../public/assets/Icons/Frame-489.svg";

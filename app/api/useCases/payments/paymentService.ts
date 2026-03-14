@@ -25,8 +25,9 @@ export class PaymentService {
   }
 
   public async createProduct(
-    _input: CreateProductInput
+    input: CreateProductInput
   ): Promise<Output<PaymentProductOutput | null>> {
+    void input;
     return failOutput(PRODUCT_REMOVED_MESSAGE, {
       code: "stripe_removed",
       message: PRODUCT_REMOVED_MESSAGE,

@@ -50,7 +50,7 @@ const runInitialSync = async ({ tenantId, restaurantId }: ScheduleInitialSyncInp
       return;
     }
 
-    console.info("asaas.initial_document_sync.completed", {
+    console.warn("asaas.initial_document_sync.completed", {
       tenantId,
       restaurantId,
       documents: synced.result?.length ?? 0,
@@ -102,3 +102,4 @@ export const scheduleInitialRestaurantFinancialSync = (
     delayMs,
   };
 };
+

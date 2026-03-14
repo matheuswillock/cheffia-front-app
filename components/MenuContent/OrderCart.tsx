@@ -23,7 +23,7 @@ export default function OrderCart() {
         description: "Please add items to your order",
         action: {
           label: "Fechar",
-          onClick: () => console.log("Fechar"),
+          onClick: () => undefined,
         },
       })
       return
@@ -36,16 +36,16 @@ export default function OrderCart() {
         description: `Your order #${result.orderId} has been sent to the kitchen.`,
         action: {
           label: "Fechar",
-          onClick: () => console.log("Fechar"),
+          onClick: () => undefined,
         },
       })
       clearItems()
-    } catch (error) {
+    } catch {
       toast("Failed to submit order", {
         description: "Please try again later",
         action: {
           label: "Fechar",
-          onClick: () => console.log("Fechar"),
+          onClick: () => undefined,
         },
       })
     } finally {
@@ -159,4 +159,5 @@ function OrderItemCard({ item, onRemove }: { item: OrderItem; onRemove: () => vo
     </div>
   )
 }
+
 

@@ -1,12 +1,8 @@
 import { Output } from "@/models/Output";
 import { cheffiaDiscordConfig } from "./config/cheffiaDiscord";
 import { InputAskCheffia } from "@/models/dtos/input/InputAskCheffia";
-import axios from "axios";
 import { InputJoinWaitlist } from "@/models/dtos/input/InputJoinWaitlist";
 import { CheffiaDiscordRoutes } from "./routes/routesConfig";
-
-const sendAskUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_ASK as string;
-const waitlistUrl = process.env.NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_WAITLIST as string;
 
 export const SendAskToCheffia = async (input: InputAskCheffia): Promise<Output> => {
   try {
@@ -32,10 +28,6 @@ export const SendAskToCheffia = async (input: InputAskCheffia): Promise<Output> 
 
 export const insertClientOnWaitlist = async (input: InputJoinWaitlist): Promise<Output> => {
   try {
-
-        console.log('Data to insert on waitlist:', input);
-    console.log('Data to insert on waitlist:', JSON.stringify(input.toDiscordWaitlistChannelPayload(), null, 2));
-
     const response = await cheffiaDiscordConfig.post(
       CheffiaDiscordRoutes.insertClientOnWaitlist,
       input.toDiscordWaitlistChannelPayload()

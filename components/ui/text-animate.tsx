@@ -106,7 +106,7 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, y: 20 },
-      show: (delay: number) => ({
+      show: () => ({
         opacity: 1,
         y: 0,
         transition: {
@@ -144,7 +144,7 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, filter: "blur(10px)", y: 20 },
-      show: (delay: number) => ({
+      show: () => ({
         opacity: 1,
         filter: "blur(0px)",
         y: 0,
@@ -170,7 +170,7 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, filter: "blur(10px)", y: -20 },
-      show: (delay: number) => ({
+      show: () => ({
         opacity: 1,
         filter: "blur(0px)",
         y: 0,
@@ -339,6 +339,8 @@ export function TextAnimate({
       }
     : { container: defaultContainerVariants, item: defaultItemVariants };
 
+  const itemVariants = variants ?? finalVariants.item;
+
   let segments: string[] = [];
   switch (by) {
     case "word":
@@ -362,6 +364,7 @@ export function TextAnimate({
         variants={finalVariants.container}
         initial="hidden"
         whileInView={startOnView ? "show" : undefined}
+        viewport={startOnView ? { once } : undefined}
         animate={startOnView ? undefined : "show"}
         exit="exit"
         className={cn("whitespace-pre-wrap", className)}
@@ -370,8 +373,9 @@ export function TextAnimate({
         {segments.map((segment, i) => (
           <motion.span
             key={`${by}-${segment}-${i}`}
-            variants={finalVariants.item}
-            custom={i * staggerTimings[by]}
+            variants={itemVariants}
+            custom={delay + i * staggerTimings[by]}
+            transition={{ duration }}
             className={cn(
               by === "line" ? "block" : "inline-block whitespace-pre",
               segmentClassName,
@@ -384,3 +388,4 @@ export function TextAnimate({
     </AnimatePresence>
   );
 }
+

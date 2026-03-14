@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PaymentService } from "@/app/api/useCases/payments";
 import { failOutput, fromThrowable } from "@/lib/server/output";
 
 export const runtime = "nodejs";
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   const service = new PaymentService();
 
   try {
@@ -23,3 +23,4 @@ export async function POST(_request: NextRequest) {
     );
   }
 }
+
