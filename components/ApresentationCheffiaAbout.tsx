@@ -260,10 +260,10 @@ export default function ApresentationCheffiaAbout({
             text-foreground-aboutBlack
             relative
             z-10
-            mb-3
-            lg:mb-4
-            xl:mb-6
-            2xl:mb-8
+            mb-4
+            lg:mb-6
+            xl:mb-8
+            2xl:mb-10
           "
         >
           Impacto esperado
@@ -301,17 +301,16 @@ export default function ApresentationCheffiaAbout({
               className="
                 flex
                 flex-col
-                gap-4
+                gap-3
                 font-inter
                 font-medium
                 text-sm
                 md:text-base
                 lg:text-lg
                 xl:text-xl
-                leading-5
-                md:leading-6
-                lg:leading-6
-                xl:leading-7
+                leading-4
+                md:leading-4
+                lg:leading-4
                 text-foreground-black
               "
             >
@@ -382,17 +381,16 @@ export default function ApresentationCheffiaAbout({
               className="
                 flex
                 flex-col
-                gap-4
+                gap-3
                 font-inter
                 font-medium
                 text-sm
                 md:text-base
                 lg:text-lg
                 xl:text-xl
-                leading-5
-                md:leading-6
-                lg:leading-6
-                xl:leading-7
+                leading-4
+                md:leading-4
+                lg:leading-4
                 text-foreground-black
               "
             >
@@ -441,11 +439,11 @@ export default function ApresentationCheffiaAbout({
       <div className="flex flex-col items-center justify-center gap-1 md:mx-auto md:w-full">
         <p
           className="
-            max-w-[270px]
-            sm:max-w-[360px]
-            md:max-w-[628px]
-            lg:max-w-[650px]
-            xl:max-w-[1000px]
+            max-w-67.5
+            sm:max-w-90
+            md:max-w-157
+            lg:max-w-162.5
+            xl:max-w-250
             mt-2
             font-inter
             font-medium
