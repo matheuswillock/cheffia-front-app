@@ -104,7 +104,7 @@ export function SignUpForm({
                 <Button
                   onClick={googleSignUp}
                   variant="outline"
-                  className="w-full rounded-xl font-semibold"
+                  className="w-full rounded-xl font-semibold text-foreground-default"
                 >
                   <Image
                     src={Google}
@@ -122,7 +122,7 @@ export function SignUpForm({
             <Image
               src={Cover}
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         </CardContent>

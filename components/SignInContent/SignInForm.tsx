@@ -56,7 +56,7 @@ export function SignInForm({
                 <div className="grid gap-2">
                   <div className="flex items-center">
                     <Label htmlFor="password">Senha</Label>
-                    <div className="ml-auto flex items-center gap-3 text-xs text-foreground-white">
+                    <div className="ml-auto flex items-center gap-3 text-sm text-foreground-white">
                       <a
                         href="/forgot-password"
                         className="underline-offset-4 hover:underline hover:text-primary"
@@ -82,7 +82,7 @@ export function SignInForm({
 
                 <Button
                   type="submit"
-                  className="w-full rounded-xl text-lg font-semibold bg-button text-foreground-black hover:bg-button-dark transition-colors duration-300"
+                  className="w-full rounded-xl text-lg font-semibold bg-button text-foreground-black hover:bg-button-dark hover:text-foreground-default "
                 >
                   Login
                 </Button>
@@ -100,7 +100,7 @@ export function SignInForm({
                 <Button
                   onClick={googleSignIn}
                   variant="outline"
-                  className="w-full transition-colors duration-300 hover:text-foreground-black rounded-xl font-semibold"
+                  className="w-full rounded-xl font-semibold text-foreground-default"
                 >
                   <Image
                     src={Google}
@@ -128,7 +128,7 @@ export function SignInForm({
             <Image
               src={Cover}
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         </CardContent>
