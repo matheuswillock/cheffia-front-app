@@ -146,6 +146,47 @@ export const AskAQuestionSchema = z.object({
     .max(500, "A mensagem deve ter no máximo 500 caracteres"),
 });
 
+const brazilStates = [
+  "",
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
+] as const;
+
+const restaurantSizes = [
+  "",
+  "Microempreendedor Individual (MEI)",
+  "Microempresa (ME)",
+  "Empresa de pequeno porte (EPP)",
+  "Empresa de médio porte",
+  "Empresa de grande porte",
+  "Não se aplica",
+] as const;
+
 export const JoinWaitlistSchema = z.object({
   restaurantName: z.string().min(3, "O nome do restaurante deve ter no mínimo 3 caracteres")
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O nome deve conter apenas letras"),
@@ -154,48 +195,32 @@ export const JoinWaitlistSchema = z.object({
   email: z.string().email("Digite um email válido").min(1, "O email é obrigatório"),
   countryCode: z.string().regex(/^\+\d{1,3}$/, "Insira um código de país válido"),
   restaurantContact: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/, "Insira um número de telefone válido"),
+  postalCode: z.string().regex(/^\d{5}-\d{3}$/, "Insira um CEP válido"),
+  street: z.string().min(3, "A rua deve conter no mínimo 3 caracteres"),
+  addressNumber: z.string().min(1, "O número do endereço é obrigatório"),
   city: z.string().min(3, "O nome da cidade deve conter no mínimo 3 caracteres")
     .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "A cidade deve conter apenas letras"),
-  state: z.enum([
-    "",
-    "AC",
-    "AL",
-    "AP",
-    "AM",
-    "BA",
-    "CE",
-    "DF",
-    "ES",
-    "GO",
-    "MA",
-    "MT",
-    "MS",
-    "MG",
-    "PA",
-    "PB",
-    "PR",
-    "PE",
-    "PI",
-    "RJ",
-    "RN",
-    "RS",
-    "RO",
-    "RR",
-    "SC",
-    "SP",
-    "SE",
-    "TO",
-  ]),
-  restaurantSize: z.enum([
-    "",
-    "Microempreendedor Individual (MEI)",
-    "Microempresa (ME)",
-    "Empresa de pequeno porte (EPP)",
-    "Empresa de médio porte",
-    "Empresa de grande porte",
-    "Não se aplica"
-  ]),
+  state: z.enum(brazilStates),
+  country: z.string().min(2, "O país deve conter no mínimo 2 caracteres")
+    .regex(/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/, "O país deve conter apenas letras"),
+  restaurantSize: z.enum(restaurantSizes),
   ticketAverage: z.string().optional(),
   platformName: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (!data.state) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["state"],
+      message: "Selecione um estado válido",
+    });
+  }
+
+  if (!data.restaurantSize) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["restaurantSize"],
+      message: "Selecione o porte do restaurante",
+    });
+  }
 });
 

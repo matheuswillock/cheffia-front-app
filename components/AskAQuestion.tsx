@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import closeIcon from "../public/assets/Icons/close.svg"
-import Image from 'next/image';
+import { X } from "@/components/animate-ui/icons/x";
 import { UseAskAQuestionForm } from "@/hooks/UseForms";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { sendAskToCheffia } from "@/lib/api/discordClient";
@@ -86,16 +85,30 @@ export default function AskAQuestion({ isOpen, onClose }: AskAQuestionProps) {
         "
       >
         <Button
+          type="button"
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="absolute top-5 right-5 transition-transform duration-300 hover:scale-110"
+          className="
+            absolute
+            right-5
+            top-5
+            rounded-md
+            bg-button
+            text-foreground-aboutBlack
+            shadow-none
+            transition-transform
+            duration-200
+            hover:scale-105
+            hover:bg-button
+            hover:text-foreground-aboutBlack
+            focus-visible:ring-0
+            focus-visible:ring-offset-0
+            [&_svg]:pointer-events-auto
+          "
         >
-          <Image
-            src={closeIcon}
-            alt="Fechar"
-            width={24}
-            height={24}
-            className="w-4 h-4 filter grayscale hover:filter-none"
-          />
+          <X aria-hidden="true" size={16} animateOnHover />
+          <span className="sr-only">Fechar</span>
         </Button>
 
         <div className="flex flex-col items-center justify-center gap-2 md:gap-[9px]">

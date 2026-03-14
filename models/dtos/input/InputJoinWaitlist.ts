@@ -6,8 +6,12 @@ export class InputJoinWaitlist {
   color: string = "0x01fba1";
   name: string;
   email: string;
+  postalCode: string;
+  street: string;
+  addressNumber: string;
   city: string;
   state: string;
+  country: string;
   restaurantName: string;
   restaurantContact: string;
   restaurantSize: string;
@@ -18,8 +22,12 @@ export class InputJoinWaitlist {
     name: string,
     email: string,
     countryCode: string,
+    postalCode: string,
+    street: string,
+    addressNumber: string,
     city: string,
     state: string,
+    country: string,
     restaurantName: string,
     restaurantContact: string,
     restaurantSize: string,
@@ -28,8 +36,12 @@ export class InputJoinWaitlist {
   ) {
     this.name = name;
     this.email = email;
+    this.postalCode = postalCode;
+    this.street = street;
+    this.addressNumber = addressNumber;
     this.city = city;
     this.state = state;
+    this.country = country;
     this.restaurantName = restaurantName;
     this.restaurantContact = `${countryCode} ${restaurantContact}`;
     this.restaurantSize = restaurantSize;
@@ -42,8 +54,12 @@ export class InputJoinWaitlist {
       data.name,
       data.email,
       data.countryCode,
+      data.postalCode,
+      data.street,
+      data.addressNumber,
       data.city,
       data.state,
+      data.country,
       data.restaurantName,
       data.restaurantContact,
       data.restaurantSize,
@@ -77,6 +93,21 @@ export class InputJoinWaitlist {
               inline: false,
             },
             {
+              name: "Postal Code",
+              value: this.postalCode || "No Postal Code Provided",
+              inline: false,
+            },
+            {
+              name: "Street",
+              value: this.street || "No Street Provided",
+              inline: false,
+            },
+            {
+              name: "Address Number",
+              value: this.addressNumber || "No Address Number Provided",
+              inline: false,
+            },
+            {
               name: "City",
               value: this.city || "No City Provided",
               inline: false,
@@ -84,6 +115,11 @@ export class InputJoinWaitlist {
             {
               name: "State",
               value: this.state || "No State Provided",
+              inline: false,
+            },
+            {
+              name: "Country",
+              value: this.country || "No Country Provided",
               inline: false,
             },
             {

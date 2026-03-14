@@ -38,7 +38,9 @@
     "prisma:studio": "bunx prisma@6.16.3 studio",
     "prisma:erd": "bunx prisma@6.16.3 generate --generator erd"
   },
-  "dependencies": {    "@hookform/resolvers": "^5.2.1",    "@next/env": "^15.3.1",
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
+    "@next/env": "^15.3.1",
     "@nextui-org/react": "^2.6.11",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^6.16.3",
@@ -67,7 +69,7 @@
     "framer-motion": "^12.23.12",
     "jszip": "^3.10.1",
     "lucide-react": "^0.577.0",
-    "motion": "^12.34.3",
+    "motion": "^12.36.0",
     "next": "15.5.9",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
@@ -85,9 +87,9 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.13",
-    "@next/eslint-plugin-next": "^16.1.6",
     "@eslint/eslintrc": "^3.3.1",
+    "@next/eslint-plugin-next": "^16.1.6",
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/jszip": "^3.4.1",
     "@types/node": "^25.4.0",
     "@types/react": "^19.1.2",
@@ -100,17 +102,9 @@
     "prettier": "^3.6.2",
     "prisma": "^6.16.3",
     "prisma-erd-generator": "^2.0.4",
-    "shadcn": "^4.0.2",
+    "shadcn": "^4.0.7",
     "tailwindcss": "^4.1.13",
     "typescript": "^5",
     "typescript-eslint": "^8.43.0"
   }
 }
-
-
-
-
-
-
-
-
