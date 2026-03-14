@@ -187,6 +187,14 @@ operator operator
     
 
 
+        user_profile_role {
+            master master
+admin admin
+operator operator
+        }
+    
+
+
         restaurant_lifecycle_status {
             active active
 inactive inactive
@@ -210,7 +218,7 @@ cancelled cancelled
     String full_name 
     DateTime birth_date 
     String document 
-    String role 
+    UserProfileRole role 
     String job_title 
     String department 
     String cheffia_id 
@@ -625,6 +633,7 @@ cancelled cancelled
     DateTime updated_at 
     }
   
+    "user_profiles" |o--|| "UserProfileRole" : "enum:role"
     "internal_users" |o--|| "BackofficeUserRole" : "enum:role"
     "restaurants" |o--|| "RestaurantLifecycleStatus" : "enum:lifecycle_status"
     "restaurants" }o--|| tenants : "tenant"

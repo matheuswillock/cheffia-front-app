@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { USER_PROFILE_ROLES } from "@/lib/userProfileRole";
 
 const profileNameRegex = /^[\p{L}\s'-]+$/u;
 
@@ -11,8 +12,7 @@ const userProfileFormBaseSchema = z.object({
   document: z.string()
     .min(14, "O documento deve ter 11 dígitos (CPF)")
     .max(14, "O documento deve ter 11 dígitos (CPF)"),
-  role: z.string().min(2, "A role deve ter no mínimo 2 caracteres")
-    .max(80, "A role deve ter no máximo 80 caracteres"),
+  role: z.enum(USER_PROFILE_ROLES),
   jobTitle: z.string().min(2, "O cargo deve ter no mínimo 2 caracteres")
     .max(120, "O cargo deve ter no máximo 120 caracteres"),
   department: z.string().min(2, "O setor deve ter no mínimo 2 caracteres")

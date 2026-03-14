@@ -72,7 +72,7 @@ export function UseUserProfileForm(initialValues?: Partial<UserProfileFormData>)
       fullName: initialValues?.fullName ?? "",
       birthDate: initialValues?.birthDate ?? "",
       document: initialValues?.document ?? "",
-      role: initialValues?.role ?? "",
+      role: initialValues?.role ?? "master",
       jobTitle: initialValues?.jobTitle ?? "",
       department: initialValues?.department ?? "",
     },

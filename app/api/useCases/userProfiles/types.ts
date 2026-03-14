@@ -1,10 +1,12 @@
+import type { UserProfileRole } from "@/lib/userProfileRole";
+
 export interface UpsertUserProfileInput {
   supabaseUserId: string;
   email: string;
   fullName: string;
   birthDate: string;
   document: string;
-  role: string;
+  role: UserProfileRole;
   jobTitle: string;
   department: string;
   avatarUrl?: string | null;
@@ -17,7 +19,7 @@ export interface UserProfileOutput {
   fullName: string;
   birthDate: string;
   document: string;
-  role: string;
+  role: UserProfileRole;
   jobTitle: string;
   department: string;
   cheffiaId: string;

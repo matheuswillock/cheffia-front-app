@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/app/api/infra/prisma/client";
 import { getSupabaseAdminClient } from "@/app/api/infra/supabase/adminClient";
 import { failOutput, okOutput, type Output } from "@/lib/server/output";
+import { USER_PROFILE_ROLES, type UserProfileRole } from "@/lib/userProfileRole";
 import type { UpsertUserProfileInput, UserProfileOutput } from "./types";
 
 const PROFILE_NAME_REGEX = /^[\p{L}\s'-]+$/u;
@@ -30,7 +31,7 @@ const userProfileInputSchema = z.object({
     .regex(PROFILE_NAME_REGEX, "O nome completo deve conter apenas letras"),
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "A data de nascimento deve estar no formato AAAA-MM-DD"),
   document: z.string().min(11, "O documento deve conter 11 digitos").max(14, "O documento deve conter 11 digitos"),
-  role: z.string().trim().min(2, "A role deve ter no minimo 2 caracteres").max(80, "A role deve ter no maximo 80 caracteres"),
+  role: z.enum(USER_PROFILE_ROLES),
   jobTitle: z.string().trim().min(2, "O cargo deve ter no minimo 2 caracteres").max(120, "O cargo deve ter no maximo 120 caracteres"),
   department: z.string().trim().min(2, "O setor deve ter no minimo 2 caracteres").max(120, "O setor deve ter no maximo 120 caracteres"),
   avatarUrl: z.string().trim().url("Avatar URL invalida").optional().nullable().or(z.literal("")),
@@ -74,7 +75,7 @@ const mapProfile = (profile: {
   fullName: string;
   birthDate: Date;
   document: string;
-  role: string;
+  role: UserProfileRole;
   jobTitle: string;
   department: string;
   cheffiaId: string;
@@ -154,7 +155,7 @@ export class UserProfileService {
       fullName: normalizeText(parsed.data.fullName),
       birthDate: parsed.data.birthDate,
       document: normalizeDigits(parsed.data.document),
-      role: normalizeText(parsed.data.role),
+      role: parsed.data.role,
       jobTitle: normalizeText(parsed.data.jobTitle),
       department: normalizeText(parsed.data.department),
       avatarUrl: parsed.data.avatarUrl ? parsed.data.avatarUrl.trim() : null,

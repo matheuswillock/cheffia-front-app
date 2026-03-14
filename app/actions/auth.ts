@@ -65,7 +65,7 @@ const buildUserProfileInputFromForm = (
   fullName: readStringFormField(formData, "fullName"),
   birthDate: readStringFormField(formData, "birthDate"),
   document: readStringFormField(formData, "document"),
-  role: readStringFormField(formData, "role"),
+  role: "master",
   jobTitle: readStringFormField(formData, "jobTitle"),
   department: readStringFormField(formData, "department"),
   avatarUrl:

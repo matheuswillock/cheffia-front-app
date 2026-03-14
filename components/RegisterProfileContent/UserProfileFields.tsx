@@ -63,19 +63,11 @@ export default function UserProfileFields<T extends UserProfileFieldValues>({
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <SignUpFormField
-          control={form.control}
-          name={"role" as Path<T>}
-          label="Role"
-          type="text"
-          placeholder="admin"
-          errorMessage={getFieldErrorMessage(form.formState.errors.role?.message)}
-          blurEvent={async () => {
-            await form.trigger("role" as Path<T>);
-          }}
-        />
+      <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground-default/80">
+        O perfil inicial sera salvo como <span className="font-semibold">master</span> (dono da conta).
+      </p>
 
+      <div className="grid gap-4 md:grid-cols-2">
         <SignUpFormField
           control={form.control}
           name={"jobTitle" as Path<T>}
