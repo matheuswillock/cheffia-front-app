@@ -455,6 +455,24 @@ async function validateFrontendFeatureStructure(
   }
 }
 
+async function validateFeatureServicesNaming(issues: string[]): Promise<void> {
+  const appRoot = path.join(ROOT, "app");
+  const legacyServiceFiles = await collectFilesRecursively(
+    appRoot,
+    (filename, absolutePath) =>
+      filename.endsWith(".service.ts") &&
+      absolutePath.includes(
+        `${path.sep}features${path.sep}services${path.sep}`,
+      ),
+  );
+
+  for (const legacyFile of legacyServiceFiles) {
+    const relative = normalizeRelativePath(legacyFile);
+    issues.push(
+      `Invalid features/services naming: ${relative}. Use PascalCase with suffix Service.ts (for example: CheckoutPixService.ts).`,
+    );
+  }
+}
 async function validateNonTypeScriptFiles(
   config: GovernanceConfig,
   issues: string[],
@@ -608,6 +626,7 @@ async function checkGovernance(
   await validateAdapters(config, canonicalText, canonicalAbsolutePath, issues);
   await validateDirectInfraInV1Routes(config, issues, warnings);
   await validateFrontendFeatureStructure(config, issues, warnings);
+  await validateFeatureServicesNaming(issues);
   await validateNonTypeScriptFiles(config, issues, warnings);
 
   if (warnings.length > 0) {

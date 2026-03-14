@@ -8,7 +8,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import RestaurantFormField from "./RestaurantFormField";
-import { registerRestaurantFromForm } from "@/api/restaurantClient";
+import { registerRestaurantFromForm } from "@/lib/api/restaurantClient";
 import { useRouter } from "next/navigation";
 import type { RegisterRestaurantFormData } from "@/types/formTypes";
 

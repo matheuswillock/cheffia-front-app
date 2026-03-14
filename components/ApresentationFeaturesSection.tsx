@@ -85,10 +85,10 @@ export default function ApresentationFeaturesSection({
               xl:top-[-30%]
               xl:left-[70%]
               left-[50%]
-              h-[390px]
-              xl:h-[520px]
-              w-[390px]
-              xl:w-[520px]
+              h-97.5
+              xl:h-130
+              w-97.5
+              xl:w-130
               opacity-55
               blur-3xl
               bg-neon-radial
@@ -176,7 +176,7 @@ export default function ApresentationFeaturesSection({
               {selectedCard === index ? (
                 <div className="h-full flex flex-row items-center justify-start gap-4">
                   <div className="flex justify-between items-center w-full">
-                    <p className="text-foreground-black font-inter text-lg md:text-xl leading-[18px] md:leading-[24px] font-medium text-start">
+                    <p className="text-foreground-black font-inter text-lg md:text-xl leading-5 md:leading-7 font-medium text-start">
                       {card.description}
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export default function ApresentationFeaturesSection({
               ) : (
                 <div className="h-full flex flex-col items-start justify-start gap-6 md:gap-10">
                   <div className="flex justify-between items-center w-full">
-                    <h2 className="text-foreground-pureWhite font-inter font-light leading-5 text-lg md:text-xl xl:text-2xl w-32 xl:w-36 h-9">
+                    <h2 className="text-foreground-pureWhite font-inter font-light leading-7 text-lg md:text-xl xl:text-2xl w-32 xl:w-36 h-9">
                       {card.title}
                     </h2>
 

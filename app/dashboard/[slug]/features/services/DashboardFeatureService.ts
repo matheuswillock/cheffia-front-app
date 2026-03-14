@@ -1,7 +1,7 @@
 import {
   getRestaurantBySupabaseIdOrRedirect,
   getRestaurantFinancialSummaryOrThrow,
-} from "@/api/restaurantClient";
+} from "@/lib/api/restaurantClient";
 import type { DashboardFeatureData } from "@/app/dashboard/[slug]/features/types/dashboard-feature.types";
 
 export const loadDashboardData = async (supabaseId: string): Promise<DashboardFeatureData> => {

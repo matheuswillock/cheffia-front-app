@@ -13,7 +13,7 @@ import {
   loadRestaurantAccountView,
   syncRestaurantAccountDocuments,
   uploadRestaurantAccountDocument,
-} from "@/app/restaurant/account/features/services/account-feature.service";
+} from "@/app/restaurant/account/features/services/AccountFeatureService";
 import type { RestaurantAccountFeatureState } from "@/app/restaurant/account/features/types/account-feature.types";
 import type { OutputRestaurantFinancialOnboardingDocument } from "@/models/dtos/output/OutputRestaurantFinancialOnboardingDocument";
 

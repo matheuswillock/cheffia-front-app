@@ -1,4 +1,4 @@
-import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/api/menu";
+import { AddMenuItemToMenu, DeleteMenuItem, GetAllMenuItems } from "@/lib/api/menu";
 import { InputToAddMenuItem } from "@/models/dtos/input/InputToAddMenuItem";
 import type { Output } from "@/models/Output";
 import type { MenuItem } from "@/models/menuModels/MenuItem";

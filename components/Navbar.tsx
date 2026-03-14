@@ -127,8 +127,8 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* <Link href="/sign-in">
-            <button
+          <Link href="/sign-in">
+            <Button
               className="
                 h-8
                 text-center
@@ -150,8 +150,8 @@ export function Navbar() {
               "
             >
               Área do cliente
-            </button>
-          </Link> */}
+            </Button>
+          </Link>
         </div>
 
         {/* Botão de menu para mobile */}

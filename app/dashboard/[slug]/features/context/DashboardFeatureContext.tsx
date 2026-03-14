@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { loadDashboardData } from "@/app/dashboard/[slug]/features/services/dashboard-feature.service";
+import { loadDashboardData } from "@/app/dashboard/[slug]/features/services/DashboardFeatureService";
 import type { DashboardFeatureState } from "@/app/dashboard/[slug]/features/types/dashboard-feature.types";
 
 interface DashboardFeatureContextValue extends DashboardFeatureState {

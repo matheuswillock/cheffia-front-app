@@ -7,7 +7,7 @@ import type { OrderHubEventView } from "@/components/OrderHubContent/types";
 import MoreDetails from "@/components/OrderHubContent/MoreDetails";
 import OrderList from "@/components/OrderHubContent/OrderList";
 import { useOrderHubPrintAutomation } from "@/app/restaurant/order-hub/[slug]/features/context/useOrderHubPrintAutomation";
-import { checkLocalPrintAgentHealth } from "@/app/restaurant/order-hub/[slug]/features/services/order-hub-print.service";
+import { checkLocalPrintAgentHealth } from "@/app/restaurant/order-hub/[slug]/features/services/OrderHubPrintService";
 import {
   readOrderHubPrintEnabledPreference,
   resolveOrderHubPrinterGateState,

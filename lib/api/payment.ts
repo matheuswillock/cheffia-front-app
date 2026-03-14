@@ -1,5 +1,5 @@
-import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
-import { paymentRoutes } from "@/api/routes/routesConfig";
+import { cheffiaApiConfig } from "@/lib/api/config/cheffiaApiConfig";
+import { paymentRoutes } from "@/lib/api/routes/routesConfig";
 import { Output } from "@/models/Output";
 
 export interface PaymentPayerInput {

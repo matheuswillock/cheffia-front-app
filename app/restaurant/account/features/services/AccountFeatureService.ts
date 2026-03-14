@@ -4,7 +4,7 @@ import {
   getRestaurantFinancialDocumentsOrThrow,
   syncRestaurantFinancialDocumentsOrThrow,
   uploadRestaurantFinancialDocumentOrThrow,
-} from "@/api/restaurantClient";
+} from "@/lib/api/restaurantClient";
 import type { OutputGetRestaurantById } from "@/models/dtos/output/OutputGetRestaurantById";
 import type { OutputRestaurantFinancialAccount } from "@/models/dtos/output/OutputRestaurantFinancialAccount";
 import type { OutputRestaurantFinancialOnboardingDocument } from "@/models/dtos/output/OutputRestaurantFinancialOnboardingDocument";

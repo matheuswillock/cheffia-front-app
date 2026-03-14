@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import CircleX from "@/assets/circle-x.svg";
-import { deleteMenuItem as deleteMenuItemRequest, getMenuItems } from "@/api/menuClient";
+import { deleteMenuItem as deleteMenuItemRequest, getMenuItems } from "@/lib/api/menuClient";
 import { MenuItem } from "@/models/menuModels/MenuItem";
 import { useParams } from "next/navigation";
 import MenuListToEdit from "@/components/MenuContent/Edit/MenuListToEdit";

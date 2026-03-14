@@ -1,6 +1,6 @@
-import { cheffiaApiConfig } from '@/api/config/cheffiaApiConfig';
+import { cheffiaApiConfig } from '@/lib/api/config/cheffiaApiConfig';
 import { Output } from '@/models/Output';
-import { restaurantRoutes } from '@/api/routes/routesConfig';
+import { restaurantRoutes } from '@/lib/api/routes/routesConfig';
 import { InputToRegisterRestaurant } from '@/models/dtos/input/InputToRegisterRestaurant';
 
 export const registerRestaurant = async (data: InputToRegisterRestaurant): Promise<Output> => {

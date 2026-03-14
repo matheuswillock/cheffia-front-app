@@ -1,5 +1,5 @@
-import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
-import { orderHubPrintRoutes } from "@/api/routes/routesConfig";
+import { cheffiaApiConfig } from "@/lib/api/config/cheffiaApiConfig";
+import { orderHubPrintRoutes } from "@/lib/api/routes/routesConfig";
 import type {
   ClaimOrderPrintJobInput,
   ClaimOrderPrintJobOutput,

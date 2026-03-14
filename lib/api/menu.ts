@@ -1,6 +1,6 @@
-import { cheffiaApiConfig } from "@/api/config/cheffiaApiConfig";
+import { cheffiaApiConfig } from "@/lib/api/config/cheffiaApiConfig";
 import { Output } from "@/models/Output";
-import { MenuRoutes } from '@/api/routes/routesConfig';
+import { MenuRoutes } from '@/lib/api/routes/routesConfig';
 import { InputItem } from "@/models/dtos/input/InputToAddMenuItem";
 
 export const AddMenuItemToMenu = async (input: InputItem, media: File , restaurantId: string) => {

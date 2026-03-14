@@ -8,7 +8,7 @@ import closeIcon from "../public/assets/Icons/close.svg"
 import Image from 'next/image';
 import { UseAskAQuestionForm } from "@/hooks/UseForms";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
-import { sendAskToCheffia } from "@/api/discordClient";
+import { sendAskToCheffia } from "@/lib/api/discordClient";
 
 interface AskAQuestionProps {
   isOpen: boolean;

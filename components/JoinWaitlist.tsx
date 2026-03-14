@@ -7,7 +7,7 @@ import closeIcon from "../public/assets/Icons/close.svg";
 import Image from "next/image";
 import { UseJoinWaitlistForm } from "@/hooks/UseForms";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
-import { joinCheffiaWaitlist } from "@/api/discordClient";
+import { joinCheffiaWaitlist } from "@/lib/api/discordClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "@radix-ui/react-label";

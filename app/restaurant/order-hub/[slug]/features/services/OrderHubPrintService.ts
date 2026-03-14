@@ -3,7 +3,7 @@ import {
   completeOrderPrintJob,
   reprintOrderPrintJob,
   type OutputEnvelope,
-} from "@/api/orderPrint";
+} from "@/lib/api/orderPrint";
 import type { OrderPrintTicketPayload } from "@/lib/printing/contracts";
 import type {
   ClaimOrderPrintJobInput,

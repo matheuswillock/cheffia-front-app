@@ -92,7 +92,7 @@ Target flow:
 
 Target flow:
 
-`page -> feature/container -> feature/context -> feature/services -> api client -> /api/v1/cheffia`
+`page -> feature/container -> feature/context -> feature/services -> lib/api client -> /api/v1/cheffia`
 
 Expected structure for a new route under `app/**`:
 
@@ -113,10 +113,15 @@ Expected structure for a new route under `app/**`:
 - `features/container` **MUST** focus on visual composition and **MUST NOT** call backend APIs directly.
 - `features/context` **MUST** centralize feature state/actions and orchestrate services.
 - `features/services` **MUST** encapsulate technical API integration for that feature.
-- HTTP integration **MUST** stay in `api/**`.
+- `app/api/**` **MUST** remain exclusive to backend route handlers/useCases/services/infra.
+- Shared frontend HTTP wrappers **MUST** live in `lib/api/**`.
+- Root `api/**` is legacy and **MUST NOT** receive new files.
+- Files under `app/**/features/services/**` **MUST** use `PascalCase` with suffix `Service.ts`.
+- Interfaces in `features/services` **SHOULD** follow `I*Service.ts` when applicable.
+- `*.service.ts` under `features/services` **MUST NOT** be used for new code.
 - A dedicated `business/**` layer **MUST NOT** be introduced for new frontend HTTP flows.
 - Reusable visual components **MUST** be promoted to `components/**`.
-- Reusable non-visual client helpers **SHOULD** be promoted to `api/**`, `lib/**`, or `hooks/**`.
+- Reusable non-visual client helpers **SHOULD** be promoted to `lib/**` or `hooks/**`.
 
 ### Visual Components (FOR NEW FEATURES)
 

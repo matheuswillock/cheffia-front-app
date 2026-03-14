@@ -2,8 +2,8 @@ import {
   confirmCheckoutPixCharge as confirmCheckoutPixChargeRequest,
   createCheckoutPixCharge as createCheckoutPixChargeRequest,
   type PixPaymentConfirmationOutput,
-} from "@/api/paymentClient";
-import type { CreatePixIntentInput } from "@/api/payment";
+} from "@/lib/api/paymentClient";
+import type { CreatePixIntentInput } from "@/lib/api/payment";
 import type { OutputCreateIntent } from "@/models/dtos/output/OutputCreateIntent";
 
 export const createCheckoutPixCharge = async (

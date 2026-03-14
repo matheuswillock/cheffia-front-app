@@ -1,10 +1,12 @@
+import { Button } from "./ui/button";
+
 interface ButtonCtaProps {
   setIsModalOpen: () => void;
 }
 
 export default function ButtonCta({ setIsModalOpen }: ButtonCtaProps) {
   return (
-    <button
+    <Button
       aria-label="Entrar na lista de espera"
       onClick={setIsModalOpen}
       type="button"
@@ -36,6 +38,6 @@ export default function ButtonCta({ setIsModalOpen }: ButtonCtaProps) {
       "
     >
       Entrar na lista de espera
-    </button>
+    </Button>
   );
 }

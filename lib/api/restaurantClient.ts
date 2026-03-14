@@ -8,7 +8,7 @@ import {
   registerRestaurant,
   syncRestaurantFinancialDocuments,
   uploadRestaurantFinancialDocument,
-} from "@/api/restaurant";
+} from "@/lib/api/restaurant";
 import type { RegisterRestaurantFormData } from "@/types/formTypes";
 import { verifySessionClient } from "@/utils/supabase/client";
 import { InputToRegisterRestaurant } from "@/models/dtos/input/InputToRegisterRestaurant";

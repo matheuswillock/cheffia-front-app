@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import {
   confirmCheckoutPixCharge,
   createCheckoutPixCharge,
-} from "@/app/order/checkout/features/services/checkout-pix.service";
+} from "@/app/order/checkout/features/services/CheckoutPixService";
 import type {
   CheckoutPixFormValue,
   CheckoutPixState,

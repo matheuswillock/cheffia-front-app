@@ -10,7 +10,7 @@ import {
   completeOrderPrintJobRequest,
   reprintOrderPrintJobRequest,
   sendTicketToLocalPrintAgent,
-} from "@/app/restaurant/order-hub/[slug]/features/services/order-hub-print.service";
+} from "@/app/restaurant/order-hub/[slug]/features/services/OrderHubPrintService";
 import { collectAutoPrintableRealtimeOrderSentEventIds } from "@/app/restaurant/order-hub/[slug]/features/services/order-hub-print-automation";
 
 interface UseOrderHubPrintAutomationParams {

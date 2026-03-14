@@ -29,7 +29,7 @@ export default function ApresentationMobileMockup() {
         >
           <p>Experiência única</p>
         </div>
-        <p className="font-medium text-lg leading-4 text-foreground-card sm:w-44 ">
+        <p className="font-medium text-lg leading-4.5 text-foreground-card sm:w-44 ">
           A revolução na palma da sua mão.
         </p>
       </div>
@@ -61,7 +61,7 @@ export default function ApresentationMobileMockup() {
       </div>
 
       <div className="flex flex-col justify-between items-center h-full">
-        <p className="font-inter text-end font-light text-sm md:text-base leading-4 md:leading-4 text-foreground-card max-w-44 md:max-w-52 self-end mr-10">
+        <p className="font-inter text-end font-light text-sm md:text-base leading-4 md:leading-4.5 text-foreground-card max-w-44 md:max-w-52 self-end mr-10">
           Explore o futuro da tecnologia. Experimente inovação, praticidade e
           eficiência em um só lugar.
         </p>

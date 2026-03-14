@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { AddMenuItemData } from "@/types/formTypes";
 import { FaEdit, FaPlus } from "react-icons/fa";
 import BadgeItems from "./BadgeItems";
-import { addMenuItem } from "@/api/menuClient";
+import { addMenuItem } from "@/lib/api/menuClient";
 import { Output } from "@/models/Output";
 import LoadingSpin from "@/assets/loading-spin.svg";
 import Image from "next/image";

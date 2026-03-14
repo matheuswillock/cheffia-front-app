@@ -1,4 +1,4 @@
-import { insertClientOnWaitlist, SendAskToCheffia } from "@/api/cheffiaDiscord";
+import { insertClientOnWaitlist, SendAskToCheffia } from "@/lib/api/cheffiaDiscord";
 import { InputAskCheffia } from "@/models/dtos/input/InputAskCheffia";
 import { InputJoinWaitlist } from "@/models/dtos/input/InputJoinWaitlist";
 import type { Output } from "@/models/Output";

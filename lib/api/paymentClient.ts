@@ -1,4 +1,4 @@
-import { confirmPixPayment, createIntent, type CreatePixIntentInput } from "@/api/payment";
+import { confirmPixPayment, createIntent, type CreatePixIntentInput } from "@/lib/api/payment";
 import { OutputCreateIntent } from "@/models/dtos/output/OutputCreateIntent";
 
 export interface PixPaymentConfirmationOutput {

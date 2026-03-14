@@ -3,6 +3,7 @@
 import Image from "next/image";
 import OpenCardIcon from "../public/assets/Icons/icon-open-card.svg"
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 interface ApresentationQuestionsAndAsnwersProps {
   setIsModalOpen: () => void;
@@ -95,7 +96,7 @@ export default function ApresentationQuestionsAndAsnwers({
         </p>
       </div>
 
-      <button
+      <Button
         aria-label="Entrar na lista de espera"
         onClick={setIsModalOpen}
         type="button"
@@ -129,7 +130,7 @@ export default function ApresentationQuestionsAndAsnwers({
           "
       >
         Faça uma pergunta
-      </button>
+      </Button>
 
       <div className="flex items-center justify-center flex-col gap-4 w-full mb-6">
         {itemsQA.map((item, index) => {
