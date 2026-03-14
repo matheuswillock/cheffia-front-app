@@ -85,7 +85,7 @@ export default function AskAQuestion({ isOpen, onClose }: AskAQuestionProps) {
           gap-8
         "
       >
-        <button
+        <Button
           onClick={onClose}
           className="absolute top-5 right-5 transition-transform duration-300 hover:scale-110"
         >
@@ -96,7 +96,7 @@ export default function AskAQuestion({ isOpen, onClose }: AskAQuestionProps) {
             height={24}
             className="w-4 h-4 filter grayscale hover:filter-none"
           />
-        </button>
+        </Button>
 
         <div className="flex flex-col items-center justify-center gap-2 md:gap-[9px]">
           <div className="text-4xl md:text-5xl font-medium xl:text-6xl flex flex-col items-center justify-center">

@@ -8,6 +8,7 @@ import Close from "../public/assets/Icons/close.svg";
 import Menu from "../public/assets/Icons/menu.svg";
 import InstagramNavIcon from "../public/assets/Icons/instagram-nav-icon.svg";
 import WhatsNavIcon from "../public/assets/Icons/whats-nav-icon.svg"
+import { Button } from "./ui/button";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -154,12 +155,12 @@ export function Navbar() {
         </div>
 
         {/* Botão de menu para mobile */}
-        <button
+        <Button
           className="block md:hidden text-foreground-default p-2"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {!menuOpen && <Image src={Menu} alt="Open menu" width={33} />}
-        </button>
+        </Button>
       </nav>
 
       {/* Menu mobile */}
@@ -173,7 +174,7 @@ export function Navbar() {
                 className="w-44 ml-[-14px]"
                 priority={true}
               />
-              <button
+              <Button
                 className="text-primary"
                 onClick={() => setMenuOpen(false)}
               >
@@ -184,7 +185,7 @@ export function Navbar() {
                   height={14}
                   className="sm:w-4"
                 />
-              </button>
+              </Button>
             </li>
             {items.map((item) => (
               <li key={item.label}>

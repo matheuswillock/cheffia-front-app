@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Button } from "./ui/button";
 
 interface PropsPlanAndprices {
   planTitle: string;
@@ -34,7 +35,7 @@ export function PlanAndPrices({
   `;
 
   return (
-    <button
+    <Button
       className={cardClasses}
       type="button"
       role="radio"
@@ -57,7 +58,7 @@ export function PlanAndPrices({
           </div>
         ))}
       </div>
-    </button>
+    </Button>
   );
   
 }

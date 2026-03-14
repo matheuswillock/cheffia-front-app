@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { BackofficeRestaurantDetail } from "@/app/api/useCases/backoffice";
+import { Select } from "../ui/select";
 
 interface BackofficeRestaurantEditorProps {
   restaurant: BackofficeRestaurantDetail;
@@ -89,7 +90,7 @@ export function BackofficeRestaurantEditor({ restaurant }: BackofficeRestaurantE
           defaultValue={restaurant.postalCode}
           className="bg-slate-950"
         />
-        <select
+        <Select
           name="lifecycleStatus"
           defaultValue={restaurant.lifecycleStatus}
           className="h-10 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm"
@@ -97,7 +98,7 @@ export function BackofficeRestaurantEditor({ restaurant }: BackofficeRestaurantE
           <option value="active">Ativo</option>
           <option value="inactive">Inativo</option>
           <option value="cancelled">Cancelado</option>
-        </select>
+        </Select>
 
         <div className="md:col-span-2">
           <Button type="submit" disabled={pending}>
