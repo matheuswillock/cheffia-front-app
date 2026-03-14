@@ -26,6 +26,14 @@ failed failed
     
 
 
+        order_print_job_status {
+            claimed claimed
+printed printed
+failed failed
+        }
+    
+
+
         order_status {
             pending pending
 in_progress in_progress
@@ -564,6 +572,23 @@ cancelled cancelled
     }
   
 
+  "order_print_jobs" {
+    String id "🗝️"
+    String tenant_id 
+    String outbox_event_id 
+    String restaurant_id 
+    String printer_id 
+    OrderPrintJobStatus status 
+    Int attempt_count 
+    String last_error "❓"
+    Json payload_snapshot "❓"
+    DateTime claimed_at "❓"
+    DateTime printed_at "❓"
+    DateTime created_at 
+    DateTime updated_at 
+    }
+  
+
   "asaas_webhook_events" {
     String id "🗝️"
     String tenant_id 
@@ -676,6 +701,9 @@ cancelled cancelled
     "financial_reconciliation_items" }o--|o customer_order_payment_details : "paymentDetail"
     "idempotency_keys" |o--|| "IdempotencyStatus" : "enum:status"
     "idempotency_keys" }o--|| tenants : "tenant"
+    "order_print_jobs" |o--|| "OrderPrintJobStatus" : "enum:status"
+    "order_print_jobs" }o--|| tenants : "tenant"
+    "order_print_jobs" }o--|| outbox_events : "outboxEvent"
     "asaas_webhook_events" |o--|| "AsaasWebhookStatus" : "enum:status"
     "asaas_webhook_events" }o--|| tenants : "tenant"
     "outbox_events" |o--|| "OutboxStatus" : "enum:status"
