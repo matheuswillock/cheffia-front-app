@@ -1,13 +1,25 @@
-import type { OrderHubEventView } from "./types";
+import { Button } from "@/components/ui/button";
+import type { OrderHubEventView, OrderPrintUiState } from "./types";
 
 interface MoreDetailsProps {
   event: OrderHubEventView | null;
+  printState: OrderPrintUiState | null;
+  onManualReprint: (eventId: string) => void;
 }
 
-const formatPayload = (payload: Record<string, unknown>): string =>
-  JSON.stringify(payload, null, 2);
+const formatPayload = (payload: Record<string, unknown>): string => JSON.stringify(payload, null, 2);
 
-export default function MoreDetails({ event }: MoreDetailsProps) {
+const printStatusLabel = (status: OrderPrintUiState["status"]): string => {
+  if (status === "queued") return "Na fila";
+  if (status === "claiming") return "Executando claim";
+  if (status === "printing") return "Imprimindo";
+  if (status === "printed") return "Impresso";
+  if (status === "failed") return "Falhou";
+  if (status === "skipped") return "Ignorado";
+  return "Aguardando";
+};
+
+export default function MoreDetails({ event, printState, onManualReprint }: MoreDetailsProps) {
   if (!event) {
     return (
       <div className="border-2 bg-gray-700 border-muted-foreground/40 rounded-xl ml-4 min-h-[90%] max-h-[90%] max-w-[96%] overflow-y-auto flex items-center justify-center">
@@ -17,6 +29,8 @@ export default function MoreDetails({ event }: MoreDetailsProps) {
   }
 
   const eventDate = new Date(event.createdAt).toLocaleString("pt-BR");
+  const canReprint = event.eventType === "order.sent";
+  const isBusy = printState?.status === "claiming" || printState?.status === "printing";
 
   return (
     <div className="border-2 bg-gray-700 border-muted-foreground/40 rounded-xl ml-4 min-h-[90%] max-h-[90%] max-w-[96%] overflow-y-auto flex flex-col gap-3 px-4 py-6 justify-between">
@@ -35,6 +49,31 @@ export default function MoreDetails({ event }: MoreDetailsProps) {
           ) : null}
           {event.transactionId ? (
             <p className="text-xs text-muted-foreground/70">Transacao: {event.transactionId}</p>
+          ) : null}
+
+          {printState ? (
+            <>
+              <p className="text-sm text-blue-300">
+                Status impressao: {printStatusLabel(printState.status)} (tentativas: {printState.attempts})
+              </p>
+              {printState.lastError ? (
+                <p className="text-xs text-red-300">Ultimo erro: {printState.lastError}</p>
+              ) : null}
+            </>
+          ) : null}
+
+          {canReprint ? (
+            <div className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl"
+                onClick={() => onManualReprint(event.id)}
+                disabled={isBusy}
+              >
+                {isBusy ? "Processando..." : "Reimprimir cupom"}
+              </Button>
+            </div>
           ) : null}
         </div>
       </div>

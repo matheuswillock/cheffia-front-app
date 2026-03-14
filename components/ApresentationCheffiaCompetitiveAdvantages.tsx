@@ -44,7 +44,7 @@ export default function ApresentationCheffiaCompetitiveAdvantages({
           flex-col
           items-center
           gap-6
-          lg:gap-10
+          lg:gap-8
           justify-center
           relative
           overflow-hidden
@@ -68,10 +68,7 @@ export default function ApresentationCheffiaCompetitiveAdvantages({
             md:text-4xl
             lg:text-5xl
             xl:text-6xl
-            leading-8
-            md:leading-10
-            lg:leading-[48px]
-            xl:leading-[60px]
+            leading-12
             text-foreground-pureWhite
             font-clash
           "
@@ -115,12 +112,12 @@ export default function ApresentationCheffiaCompetitiveAdvantages({
               priority={true}
             />
 
-            <div className="flex flex-col items-start justify-start gap-2 text-start w-full">
+            <div className="flex flex-col items-start justify-start gap-3 text-start w-full">
               <h3 className="font-inter text-base lg:text-lg xl:text-2xl font-normal lg:font-medium leading-6 xl:leading-8">
                 {item.title}
               </h3>
 
-              <p className="font-inter text-sm lg:text-base xl:text-lg font-light leading-4 lg:leading-4 text-foreground-card">
+              <p className="font-inter text-sm lg:text-base xl:text-lg font-light leading-5 lg:leading-6 xl:leading-7 text-foreground-card">
                 {item.description}
               </p>
             </div>

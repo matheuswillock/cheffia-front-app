@@ -127,7 +127,7 @@ const eventToModel = (
 const sortByNewest = (events: OrderHubRealtimeEvent[]): OrderHubRealtimeEvent[] =>
   [...events].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-export const useOrderHubRealtime = (restaurantId: string) => {
+export const useOrderHubRealtime = (restaurantId: string, enabled = true) => {
   const [events, setEvents] = useState<OrderHubRealtimeEvent[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("CONNECTING");
   const [error, setError] = useState<string | null>(null);
@@ -135,6 +135,13 @@ export const useOrderHubRealtime = (restaurantId: string) => {
   const clientRef = useRef<SupabaseClient | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setEvents([]);
+      setConnectionStatus("CLOSED");
+      setError(null);
+      return () => undefined;
+    }
+
     if (!restaurantId) {
       setEvents([]);
       setConnectionStatus("CLOSED");
@@ -241,7 +248,7 @@ export const useOrderHubRealtime = (restaurantId: string) => {
         void client.removeChannel(channel);
       }
     };
-  }, [restaurantId]);
+  }, [enabled, restaurantId]);
 
   const realtimeEvents = useMemo(() => sortByNewest(events), [events]);
 

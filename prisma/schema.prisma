@@ -44,6 +44,14 @@ enum OutboxStatus {
   @@map("outbox_status")
 }
 
+enum OrderPrintJobStatus {
+  claimed
+  printed
+  failed
+
+  @@map("order_print_job_status")
+}
+
 enum OrderStatus {
   pending
   in_progress
@@ -232,6 +240,7 @@ model Tenant {
   idempotencyKeys                        IdempotencyKey[]
   asaasWebhookEvents                     AsaasWebhookEvent[]
   outboxEvents                           OutboxEvent[]
+  orderPrintJobs                         OrderPrintJob[]
 
   @@map("tenants")
 }
@@ -799,13 +808,37 @@ model IdempotencyKey {
   createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, method, endpoint, idempotencyKey], map: "idempotency_tenant_method_endpoint_key_uk")
   @@index([tenantId, createdAt], map: "idempotency_tenant_created_at_idx")
   @@map("idempotency_keys")
 }
 
+
+model OrderPrintJob {
+  id              String              @id @default(uuid()) @db.Uuid
+  tenantId        String              @map("tenant_id") @db.Uuid
+  outboxEventId   String              @map("outbox_event_id") @db.Uuid
+  restaurantId    String              @map("restaurant_id") @db.Uuid
+  printerId       String              @map("printer_id") @db.Text
+  status          OrderPrintJobStatus @default(claimed)
+  attemptCount    Int                 @default(0) @map("attempt_count")
+  lastError       String?             @map("last_error") @db.Text
+  payloadSnapshot Json?               @map("payload_snapshot")
+  claimedAt       DateTime?           @map("claimed_at") @db.Timestamptz(6)
+  printedAt       DateTime?           @map("printed_at") @db.Timestamptz(6)
+  createdAt       DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  outboxEvent OutboxEvent @relation(fields: [outboxEventId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, outboxEventId, printerId], map: "order_print_jobs_tenant_event_printer_uk")
+  @@index([tenantId, restaurantId, status], map: "order_print_jobs_tenant_restaurant_status_idx")
+  @@index([tenantId, createdAt], map: "order_print_jobs_tenant_created_at_idx")
+  @@map("order_print_jobs")
+}
 model AsaasWebhookEvent {
   id                 String             @id @default(uuid()) @db.Uuid
   tenantId           String             @map("tenant_id") @db.Uuid
@@ -824,7 +857,7 @@ model AsaasWebhookEvent {
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, provider, providerEventId], map: "asaas_webhook_tenant_provider_event_uk")
   @@index([tenantId, status, firstReceivedAt], map: "asaas_webhook_tenant_status_received_idx")
@@ -846,12 +879,16 @@ model OutboxEvent {
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  printJobs OrderPrintJob[]
 
   @@index([tenantId, status, availableAt], map: "outbox_tenant_status_available_idx")
   @@index([tenantId, aggregateType, aggregateId], map: "outbox_tenant_aggregate_idx")
   @@map("outbox_events")
 }
+
+
+
 
 
 

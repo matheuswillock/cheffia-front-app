@@ -24,6 +24,12 @@ export const paymentRoutes = {
   confirmPixPayment: "/OrderHub/payment/confirmation",
 };
 
+export const orderHubPrintRoutes = {
+  claim: "/OrderHub/print/jobs/claim",
+  complete: "/OrderHub/print/jobs/complete",
+  reprint: "/OrderHub/print/jobs/reprint",
+};
+
 export const MenuRoutes = {
   add: "/Menu/items/add",
   allMenuItems: "/Menu/get",

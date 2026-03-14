@@ -8,10 +8,12 @@ export default function ApresentationInitialSection({
   setIsModalOpen,
 }: ApresentationInitialSectionProps) {
   return (
-    <section className="hero w-full max-w-full flex flex-col items-center gap-8 py-12 text-center md:py-14 lg:py-20">
-      <div className="flex flex-col items-center gap-4 sm:gap-5 xl:gap-6">
+    <section className="hero relative isolate w-full max-w-full flex flex-col items-center gap-8 py-12 text-center md:py-14 lg:py-20">
+      <div className="relative z-20 flex flex-col items-center gap-4 sm:gap-5 xl:gap-6">
         <h1
           className="
+            relative
+            z-20
             w-72
             sm:w-80
             md:w-[480px]

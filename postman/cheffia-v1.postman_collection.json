@@ -891,6 +891,135 @@
           }
         },
         {
+          "name": "Claim de impressao de novo pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/print/jobs/claim",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "print",
+                "jobs",
+                "claim"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000000\",\n  \"eventId\": \"00000000-0000-0000-0000-000000000000\",\n  \"printerId\": \"kitchen-default\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Confirmar resultado da impressao de pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/print/jobs/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "print",
+                "jobs",
+                "complete"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000000\",\n  \"jobId\": \"00000000-0000-0000-0000-000000000000\",\n  \"status\": \"printed\",\n  \"errorMessage\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Solicitar reimpressao manual de pedido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-tenant-id",
+                "value": "{{tenantId}}",
+                "disabled": true
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cheffia/OrderHub/print/jobs/reprint",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cheffia",
+                "OrderHub",
+                "print",
+                "jobs",
+                "reprint"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000000\",\n  \"eventId\": \"00000000-0000-0000-0000-000000000000\",\n  \"printerId\": \"kitchen-default\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
           "name": "Receber webhook Asaas",
           "request": {
             "method": "POST",

@@ -68,10 +68,10 @@ export default function ApresentationFeaturesSection({
       className="w-full max-w-full flex flex-col items-center justify-center gap-10 py-16 bg-background-black rounded-3xl relative overflow-hidden"
     >
       <div className="flex flex-col items-center justify-center gap-1 md:gap-2 xl:gap-4">
-        <p className="ty-subtitle-2 md:ty-subtitle-1 text-sm md:text-lg xl:text-2xl 2xl:text-3xl text-foreground-pureWhite">
+        <p className="font-light text-sm md:text-lg xl:text-2xl 2xl:text-3xl font-inter text-foreground-pureWhite">
           Conheça as nossas
         </p>
-        <h2 className="ty-title-h2 text-[32px] md:text-4xl xl:text-6xl 2xl:text-7xl leading-8 text-foreground-green">
+        <h2 className="font-clash font-medium text-[32px] md:text-4xl xl:text-6xl 2xl:text-7xl leading-8 text-foreground-green">
           Funcionalidades
         </h2>
       </div>
@@ -176,7 +176,7 @@ export default function ApresentationFeaturesSection({
               {selectedCard === index ? (
                 <div className="h-full flex flex-row items-center justify-start gap-4">
                   <div className="flex justify-between items-center w-full">
-                    <p className="ty-body-1 text-foreground-black text-lg md:text-xl leading-[18px] md:leading-[24px] text-start">
+                    <p className="text-foreground-black font-inter text-lg md:text-xl leading-[18px] md:leading-[24px] font-medium text-start">
                       {card.description}
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export default function ApresentationFeaturesSection({
               ) : (
                 <div className="h-full flex flex-col items-start justify-start gap-6 md:gap-10">
                   <div className="flex justify-between items-center w-full">
-                    <h2 className="ty-head-h2 text-foreground-pureWhite leading-5 text-lg md:text-xl xl:text-2xl w-32 xl:w-36 h-9">
+                    <h2 className="text-foreground-pureWhite font-inter font-light leading-5 text-lg md:text-xl xl:text-2xl w-32 xl:w-36 h-9">
                       {card.title}
                     </h2>
 
@@ -197,7 +197,7 @@ export default function ApresentationFeaturesSection({
                     />
                   </div>
 
-                  <p className="ty-body-1 text-foreground-card text-sm md:text-base leading-4 text-start">
+                  <p className="text-foreground-card font-inter text-sm md:text-base lg:text-lg leading-4 lg:leading-5 font-light text-start">
                     {card.description.length > 100
                       ? `${card.description.slice(0, 98)}...`
                       : card.description}

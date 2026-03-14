@@ -299,6 +299,39 @@ const routes: ApiRoute[] = [
   },
   {
     method: "POST",
+    path: "/api/v1/cheffia/OrderHub/print/jobs/claim",
+    tag: "OrderHub",
+    summary: "Claim de impressao de novo pedido",
+    tenant: "optional",
+    requestBody: {
+      contentType: "application/json",
+      example: { restaurantId: UUID, eventId: UUID, printerId: "kitchen-default" },
+    },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/cheffia/OrderHub/print/jobs/complete",
+    tag: "OrderHub",
+    summary: "Confirmar resultado da impressao de pedido",
+    tenant: "optional",
+    requestBody: {
+      contentType: "application/json",
+      example: { restaurantId: UUID, jobId: UUID, status: "printed", errorMessage: null },
+    },
+  },
+  {
+    method: "POST",
+    path: "/api/v1/cheffia/OrderHub/print/jobs/reprint",
+    tag: "OrderHub",
+    summary: "Solicitar reimpressao manual de pedido",
+    tenant: "optional",
+    requestBody: {
+      contentType: "application/json",
+      example: { restaurantId: UUID, eventId: UUID, printerId: "kitchen-default" },
+    },
+  },
+  {
+    method: "POST",
     path: "/api/v1/cheffia/OrderHub/webhook/asaas",
     tag: "OrderHub",
     summary: "Receber webhook Asaas",
@@ -559,4 +592,5 @@ const main = async (): Promise<void> => {
 };
 
 void main();
+
 

@@ -132,7 +132,7 @@ export default function ApresentationCheffiaAbout({
           gap-10
         "
       >
-        <p className="text-start font-inter font-normal text-base xl:text-2xl leading-5 text-foreground-aboutBlack relative z-10">
+        <p className="text-start font-inter font-normal text-base xl:text-2xl leading-8 text-foreground-aboutBlack relative z-10">
           Projetada para modernizar e simplificar operações, oferecemos uma
           experiência fluida e eficiente tanto para os clientes quanto para os
           donos de restaurantes.
@@ -250,6 +250,7 @@ export default function ApresentationCheffiaAbout({
 
         <h3
           className="
+            font-clash
             font-medium
             text-2xl
             md:text-3xl
@@ -259,10 +260,10 @@ export default function ApresentationCheffiaAbout({
             text-foreground-aboutBlack
             relative
             z-10
-            mb-4
-            lg:mb-6
-            xl:mb-8
-            2xl:mb-10
+            mb-3
+            lg:mb-4
+            xl:mb-6
+            2xl:mb-8
           "
         >
           Impacto esperado
@@ -286,9 +287,10 @@ export default function ApresentationCheffiaAbout({
               flex
               flex-col
               items-center
-              justify-between
+              justify-start
               mx-auto
-              gap-2
+              gap-6
+              lg:gap-8
             "
           >
             <h3 className="font-inter font-semibold text-lg md:text-xl xl:text-2xl leading-6 text-foreground-black relative z-10">
@@ -299,23 +301,24 @@ export default function ApresentationCheffiaAbout({
               className="
                 flex
                 flex-col
-                gap-3
+                gap-4
                 font-inter
                 font-medium
                 text-sm
                 md:text-base
                 lg:text-lg
                 xl:text-xl
-                leading-4
-                md:leading-4
-                lg:leading-4
+                leading-5
+                md:leading-6
+                lg:leading-6
+                xl:leading-7
                 text-foreground-black
               "
             >
               <div className="flex flex-row items-center gap-3">
                 <Image
                   src={CheckIcon}
-                  alt="Mockup no Iphone 16 Pro"
+                  alt="icone de check"
                   className="relative z-10"
                 />
                 <p className="relative z-10">
@@ -327,7 +330,7 @@ export default function ApresentationCheffiaAbout({
               <div className="flex flex-row items-center gap-3">
                 <Image
                   src={CheckIcon}
-                  alt="Mockup no Iphone 16 Pro"
+                  alt="icone de check"
                   className="relative z-10"
                 />
                 <p className="relative z-10">
@@ -338,7 +341,7 @@ export default function ApresentationCheffiaAbout({
               <div className="flex flex-row items-center gap-3">
                 <Image
                   src={CheckIcon}
-                  alt="Mockup no Iphone 16 Pro"
+                  alt="icone de check"
                   className="relative z-10"
                 />
                 <p className="relative z-10">
@@ -352,11 +355,11 @@ export default function ApresentationCheffiaAbout({
             className="
               w-80
               md:w-96
-              lg:w-[420px]
-              xl:w-[580px]
-              md:h-[280px]
-              xl:h-[342px]
-              border-[1px]
+              lg:w-105
+              xl:w-145
+              md:h-70
+              xl:h-85.5
+              border
               border-border-black
               rounded-xl
               px-6
@@ -365,9 +368,10 @@ export default function ApresentationCheffiaAbout({
               flex
               flex-col
               items-center
-              justify-between
+              justify-start
               mx-auto
-              gap-2
+              gap-6
+              lg:gap-8
             "
           >
             <h3 className="font-inter font-semibold text-lg md:text-xl xl:text-2xl leading-6 text-foreground-black relative z-10">
@@ -378,23 +382,24 @@ export default function ApresentationCheffiaAbout({
               className="
                 flex
                 flex-col
-                gap-3
+                gap-4
                 font-inter
                 font-medium
                 text-sm
                 md:text-base
                 lg:text-lg
                 xl:text-xl
-                leading-4
-                md:leading-4
-                lg:leading-4
+                leading-5
+                md:leading-6
+                lg:leading-6
+                xl:leading-7
                 text-foreground-black
               "
             >
               <div className="flex flex-row items-center gap-3">
                 <Image
                   src={CheckIcon}
-                  alt="Mockup no Iphone 16 Pro"
+                  alt="icone de check"
                   className="relative z-10"
                 />
                 <p className="relative z-10">
@@ -406,7 +411,7 @@ export default function ApresentationCheffiaAbout({
               <div className="flex flex-row items-center gap-3">
                 <Image
                   src={CheckIcon}
-                  alt="Mockup no Iphone 16 Pro"
+                  alt="icone de check"
                   className="relative z-10"
                 />
                 <p className="relative z-10">
@@ -420,7 +425,7 @@ export default function ApresentationCheffiaAbout({
               <div className="flex flex-row items-center gap-3">
                 <Image
                   src={CheckIcon}
-                  alt="Mockup no Iphone 16 Pro"
+                  alt="icone de check"
                   className="relative z-10"
                 />
                 <p className="relative z-10">
@@ -449,7 +454,7 @@ export default function ApresentationCheffiaAbout({
             md:text-lg
             lg:text-xl
             xl:text-2xl
-            leading-5
+            leading-8
             text-foreground-aboutBlack
             relative
             z-10

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../public/assets/Icons/logo-horizontal.svg"
@@ -12,17 +12,57 @@ import WhatsNavIcon from "../public/assets/Icons/whats-nav-icon.svg"
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const scrollToSection = (targetId: string) => {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    target.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+
+    const nextHash = `#${targetId}`;
+    if (window.location.hash !== nextHash) {
+      window.history.pushState(null, "", nextHash);
+    }
+  };
+
+  const handleMenuItemClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    targetId: string,
+    shouldCloseMobileMenu = false,
+  ) => {
+    event.preventDefault();
+
+    if (shouldCloseMobileMenu) {
+      setMenuOpen(false);
+      requestAnimationFrame(() => {
+        scrollToSection(targetId);
+      });
+      return;
+    }
+
+    scrollToSection(targetId);
+  };
+
   const items = [
     {
       href: "#about",
+      targetId: "about",
       label: "Sobre a Cheffia",
     },
     {
       href: "#features",
+      targetId: "features",
       label: "Funcionalidades",
     },
     {
       href: "#faq",
+      targetId: "faq",
       label: "Contate-nos",
     }
   ];
@@ -49,6 +89,7 @@ export function Navbar() {
               <Link
                 href={item.href}
                 className="ty-subtitle-2 sm:text-base lg:text-lg leading-[18px] text-foreground-default hover:text-primary hover:cursor-pointer hover:underline"
+                onClick={(event) => handleMenuItemClick(event, item.targetId)}
               >
                 {item.label}
               </Link>
@@ -150,7 +191,7 @@ export function Navbar() {
                 <Link
                   href={item.href}
                   className="text-foreground-default ty-subtitle-2 text-lg leading-[18px] hover:text-primary hover:cursor-pointer hover:underline"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(event) => handleMenuItemClick(event, item.targetId, true)}
                 >
                   {item.label}
                 </Link>

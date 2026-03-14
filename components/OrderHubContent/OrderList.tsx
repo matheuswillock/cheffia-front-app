@@ -1,13 +1,19 @@
 import { NewOrder } from "./NewOrder";
-import type { OrderHubEventView } from "./types";
+import type { OrderHubEventView, OrderPrintUiState } from "./types";
 
 interface OrderListProps {
   events: OrderHubEventView[];
   selectedEventId: string | null;
   onSelectEvent: (eventId: string) => void;
+  printStatesByEventId: Record<string, OrderPrintUiState>;
 }
 
-export default function OrderList({ events, selectedEventId, onSelectEvent }: OrderListProps) {
+export default function OrderList({
+  events,
+  selectedEventId,
+  onSelectEvent,
+  printStatesByEventId,
+}: OrderListProps) {
   return (
     <div className="overflow-y-auto max-h-[72vh] mx-3">
       <div className="flex flex-col gap-3 px-2 py-6">
@@ -23,6 +29,7 @@ export default function OrderList({ events, selectedEventId, onSelectEvent }: Or
             event={event}
             selected={event.id === selectedEventId}
             onSelect={onSelectEvent}
+            printState={printStatesByEventId[event.id]}
           />
         ))}
       </div>

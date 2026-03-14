@@ -35,15 +35,15 @@ export default function ApresentationMobileMockup() {
       </div>
 
       <div>
-        <div className="flex items-center justify-center w-full h-full">
-          <div className="h-96 w-full md:w-[90%] absolute left-0 right-0 mx-auto -z-10">
+        <div className="relative flex items-center justify-center w-full h-full">
+          <div className="pointer-events-none h-96 w-full md:w-[90%] absolute left-0 right-0 mx-auto z-0">
             <div
               className="
                 h-full
                 w-full
                 rounded-full
                 bg-neon-radial
-                opacity-45
+                opacity-55
                 blur-3xl
               "
             />
@@ -55,7 +55,7 @@ export default function ApresentationMobileMockup() {
             width={330}
             height={490}
             priority
-            className="w-[250px] md:w-[280px] lg:w-[330px] h-[250px] sm:h-[280px] md:h-[320px] lg:h-[490px] sm:w-[250px] object-contain"
+            className="relative z-10 w-[250px] md:w-[280px] lg:w-[330px] h-[250px] sm:h-[280px] md:h-[320px] lg:h-[490px] sm:w-[250px] object-contain"
           />
         </div>
       </div>

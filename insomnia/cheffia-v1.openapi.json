@@ -3251,6 +3251,451 @@
         }
       }
     },
+    "/api/v1/cheffia/OrderHub/print/jobs/claim": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Claim de impressao de novo pedido",
+        "operationId": "orderhubClaimdeimpressaodenovopedido",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "restaurantId": "00000000-0000-0000-0000-000000000000",
+                "eventId": "00000000-0000-0000-0000-000000000000",
+                "printerId": "kitchen-default"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/print/jobs/complete": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Confirmar resultado da impressao de pedido",
+        "operationId": "orderhubConfirmarresultadodaimpressaodepedido",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "restaurantId": "00000000-0000-0000-0000-000000000000",
+                "jobId": "00000000-0000-0000-0000-000000000000",
+                "status": "printed",
+                "errorMessage": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/print/jobs/reprint": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Solicitar reimpressao manual de pedido",
+        "operationId": "orderhubSolicitarreimpressaomanualdepedido",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "restaurantId": "00000000-0000-0000-0000-000000000000",
+                "eventId": "00000000-0000-0000-0000-000000000000",
+                "printerId": "kitchen-default"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cheffia/OrderHub/webhook/asaas": {
       "post": {
         "tags": [

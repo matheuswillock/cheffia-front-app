@@ -1,9 +1,10 @@
-import type { OrderHubEventView } from "./types";
+import type { OrderHubEventView, OrderPrintUiState } from "./types";
 
 interface NewOrderProps {
   event: OrderHubEventView;
   selected: boolean;
   onSelect: (eventId: string) => void;
+  printState?: OrderPrintUiState;
 }
 
 const eventLabel = (eventType: string): string => {
@@ -13,7 +14,17 @@ const eventLabel = (eventType: string): string => {
   return eventType;
 };
 
-export function NewOrder({ event, selected, onSelect }: NewOrderProps) {
+const printStatusLabel = (status: OrderPrintUiState["status"]): string => {
+  if (status === "queued") return "na fila";
+  if (status === "claiming") return "claim";
+  if (status === "printing") return "imprimindo";
+  if (status === "printed") return "impresso";
+  if (status === "failed") return "falhou";
+  if (status === "skipped") return "ignorado";
+  return "aguardando";
+};
+
+export function NewOrder({ event, selected, onSelect, printState }: NewOrderProps) {
   const eventTime = new Date(event.createdAt).toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -38,6 +49,11 @@ export function NewOrder({ event, selected, onSelect }: NewOrderProps) {
       </p>
       {event.paymentStatus ? (
         <p className="text-xs text-emerald-300 mt-1">Status pagamento: {event.paymentStatus}</p>
+      ) : null}
+      {printState ? (
+        <p className="text-xs text-blue-300 mt-1">
+          Impressao: {printStatusLabel(printState.status)} | tentativas {printState.attempts}
+        </p>
       ) : null}
     </button>
   );
