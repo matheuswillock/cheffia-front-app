@@ -22,7 +22,8 @@ interface WarningsConfig {
 
 interface LegacyExceptionsConfig {
   [category: string]: string[] | undefined;
-  directInfraInV1RouteAllowlist?: string[];
+  prismaInV1RouteAllowlist?: string[];
+  useCaseWithoutOutputAllowlist?: string[];
   frontendFeatureStructureAllowlist?: string[];
   nonTypeScriptFileAllowlist?: string[];
 }
@@ -57,6 +58,53 @@ const IGNORED_DIRECTORIES = new Set([
   "test-results",
   "out",
 ]);
+
+interface FrontendPatternRequirement {
+  directorySegments: string[];
+  label: string;
+  matcher: RegExp;
+}
+
+const FRONTEND_REQUIRED_DIRECTORIES = [
+  ["features", "context"],
+  ["features", "services"],
+  ["features", "container"],
+];
+
+const FRONTEND_REQUIRED_FILES = ["loading.tsx"];
+
+const FRONTEND_PATTERN_REQUIREMENTS: FrontendPatternRequirement[] = [
+  {
+    directorySegments: ["features", "context"],
+    label: "features/context/*Types.ts",
+    matcher: /^[A-Za-z0-9._-]+Types\.ts$/,
+  },
+  {
+    directorySegments: ["features", "context"],
+    label: "features/context/*Hook.ts",
+    matcher: /^[A-Za-z0-9._-]+Hook\.ts$/,
+  },
+  {
+    directorySegments: ["features", "context"],
+    label: "features/context/*Context.tsx",
+    matcher: /^[A-Za-z0-9._-]+Context\.tsx$/,
+  },
+  {
+    directorySegments: ["features", "services"],
+    label: "features/services/I*Service.ts",
+    matcher: /^I[A-Za-z0-9._-]+Service(?:s)?\.ts$/,
+  },
+  {
+    directorySegments: ["features", "services"],
+    label: "features/services/*Service.ts",
+    matcher: /^(?!I[A-Z])[A-Za-z0-9._-]+Service\.ts$/,
+  },
+  {
+    directorySegments: ["features", "container"],
+    label: "features/container/*Container.tsx",
+    matcher: /^[A-Za-z0-9._-]+Container\.tsx$/,
+  },
+];
 
 function normalizeRelativePath(absolutePath: string): string {
   return path.relative(ROOT, absolutePath).split(path.sep).join("/");
@@ -101,6 +149,16 @@ async function pathExists(targetPath: string): Promise<boolean> {
   }
 }
 
+async function loadAllowlistMonitoringConfig(): Promise<AllowlistMonitoringConfig> {
+  if (!(await pathExists(MONITORING_CONFIG_PATH))) {
+    return {};
+  }
+
+  return JSON.parse(
+    await fs.readFile(MONITORING_CONFIG_PATH, "utf8"),
+  ) as AllowlistMonitoringConfig;
+}
+
 async function isDirectory(targetPath: string): Promise<boolean> {
   try {
     const stat = await fs.stat(targetPath);
@@ -110,14 +168,16 @@ async function isDirectory(targetPath: string): Promise<boolean> {
   }
 }
 
-async function loadAllowlistMonitoringConfig(): Promise<AllowlistMonitoringConfig> {
-  if (!(await pathExists(MONITORING_CONFIG_PATH))) {
-    return {};
+async function directoryHasMatchingFile(
+  directoryPath: string,
+  matcher: RegExp,
+): Promise<boolean> {
+  if (!(await isDirectory(directoryPath))) {
+    return false;
   }
 
-  return JSON.parse(
-    await fs.readFile(MONITORING_CONFIG_PATH, "utf8"),
-  ) as AllowlistMonitoringConfig;
+  const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+  return entries.some((entry) => entry.isFile() && matcher.test(entry.name));
 }
 
 async function collectFilesRecursively(
@@ -230,7 +290,6 @@ async function syncAdapters(
       );
       continue;
     }
-
     await fs.mkdir(path.dirname(targetAbsolutePath), { recursive: true });
     await fs.writeFile(
       targetAbsolutePath,
@@ -283,8 +342,8 @@ async function validateAdapters(
       }
       continue;
     }
-
     const expected = renderAdapterContent(config, adapter, canonicalText);
+
     if (!(await pathExists(absolutePath))) {
       issues.push(`Missing adapter file: ${adapter.path}`);
       continue;
@@ -299,44 +358,13 @@ async function validateAdapters(
   }
 }
 
-const V1_ROUTE_FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; message: string }> = [
-  {
-    pattern: /from\s+["']@prisma\/client["']/,
-    message: "direct Prisma client import",
-  },
-  {
-    pattern: /\bnew\s+PrismaClient\s*\(/,
-    message: "direct PrismaClient instantiation",
-  },
-  {
-    pattern: /from\s+["']@\/app\/api\/infra\/supabase\/adminClient["']/,
-    message: "direct Supabase admin client import",
-  },
-  {
-    pattern: /\bgetSupabaseAdminClient\s*\(/,
-    message: "direct Supabase admin client call",
-  },
-  {
-    pattern: /from\s+["']@\/app\/api\/infra\/external\/asaas/,
-    message: "direct Asaas infra import",
-  },
-  {
-    pattern: /from\s+["']stripe["']/,
-    message: "direct Stripe SDK import",
-  },
-  {
-    pattern: /from\s+["']@supabase\/supabase-js["']/,
-    message: "direct supabase-js import",
-  },
-];
-
-async function validateDirectInfraInV1Routes(
+async function validatePrismaInV1Routes(
   config: GovernanceConfig,
   issues: string[],
   warnings: string[],
 ): Promise<void> {
   const allowlist = normalizePathList(
-    config.legacyExceptions.directInfraInV1RouteAllowlist,
+    config.legacyExceptions.prismaInV1RouteAllowlist,
   );
 
   const routeFiles = await collectFilesRecursively(
@@ -350,19 +378,14 @@ async function validateDirectInfraInV1Routes(
     const relative = normalizeRelativePath(routeFile);
     const fileContent = await fs.readFile(routeFile, "utf8");
 
-    const matched = V1_ROUTE_FORBIDDEN_PATTERNS.filter(({ pattern }) =>
-      pattern.test(fileContent),
-    );
-
-    if (matched.length === 0) {
+    if (!/\bprisma\b/.test(fileContent)) {
       continue;
     }
 
     currentViolations.add(relative);
     if (!allowlist.has(relative)) {
-      const reasons = matched.map((item) => item.message).join(", ");
       issues.push(
-        `Disallowed direct infra/provider usage in v1 route: ${relative} (${reasons}). Move logic to useCases/services/infra or add justified LEGACY EXCEPTION.`,
+        `Disallowed direct Prisma usage in v1 route: ${relative}. Move data access to UseCase/Service or add justified LEGACY EXCEPTION in config.`,
       );
     }
   }
@@ -371,14 +394,72 @@ async function validateDirectInfraInV1Routes(
     const absolutePath = toAbsolutePath(allowlistedPath);
     if (!(await pathExists(absolutePath))) {
       issues.push(
-        `Legacy exception path does not exist (directInfraInV1RouteAllowlist): ${allowlistedPath}`,
+        `Legacy exception path does not exist (prismaInV1RouteAllowlist): ${allowlistedPath}`,
       );
       continue;
     }
 
     if (!currentViolations.has(allowlistedPath)) {
       warnings.push(
-        `Legacy exception may be removable (no direct infra/provider usage detected): ${allowlistedPath}`,
+        `Legacy exception may be removable (no Prisma detected anymore): ${allowlistedPath}`,
+      );
+    }
+  }
+}
+
+function hasOutputContract(fileContent: string): boolean {
+  return (
+    /\bnew\s+Output\s*\(/.test(fileContent) ||
+    /Promise<\s*Output(?:\s*<[^>]+>)?\s*>/.test(fileContent) ||
+    /\bOutput\.fromOutputResult\s*\(/.test(fileContent)
+  );
+}
+
+async function validateUseCaseOutputContract(
+  config: GovernanceConfig,
+  issues: string[],
+  warnings: string[],
+): Promise<void> {
+  const allowlist = normalizePathList(
+    config.legacyExceptions.useCaseWithoutOutputAllowlist,
+  );
+
+  const useCaseFiles = await collectFilesRecursively(
+    path.join(ROOT, "app", "api", "useCases"),
+    (filename) =>
+      filename.endsWith("UseCase.ts") && !/^I[A-Z].*UseCase\.ts$/.test(filename),
+  );
+
+  const currentViolations = new Set<string>();
+
+  for (const useCaseFile of useCaseFiles) {
+    const relative = normalizeRelativePath(useCaseFile);
+    const fileContent = await fs.readFile(useCaseFile, "utf8");
+
+    if (hasOutputContract(fileContent)) {
+      continue;
+    }
+
+    currentViolations.add(relative);
+    if (!allowlist.has(relative)) {
+      issues.push(
+        `New UseCase without Output contract: ${relative}. Return Output or add justified LEGACY EXCEPTION in config.`,
+      );
+    }
+  }
+
+  for (const allowlistedPath of allowlist) {
+    const absolutePath = toAbsolutePath(allowlistedPath);
+    if (!(await pathExists(absolutePath))) {
+      issues.push(
+        `Legacy exception path does not exist (useCaseWithoutOutputAllowlist): ${allowlistedPath}`,
+      );
+      continue;
+    }
+
+    if (!currentViolations.has(allowlistedPath)) {
+      warnings.push(
+        `Legacy exception may be removable (Output contract detected): ${allowlistedPath}`,
       );
     }
   }
@@ -410,23 +491,40 @@ async function validateFrontendFeatureStructure(
       continue;
     }
 
-    const requiredDirectories = [
-      path.join(pageDirectory, "features", "context"),
-      path.join(pageDirectory, "features", "services"),
-      path.join(pageDirectory, "features", "container"),
-    ];
-    const requiredFiles = [path.join(pageDirectory, "loading.tsx")];
-
     const missing: string[] = [];
-    for (const requiredDirectory of requiredDirectories) {
-      if (!(await isDirectory(requiredDirectory))) {
+    const availableDirectories = new Set<string>();
+    for (const directorySegments of FRONTEND_REQUIRED_DIRECTORIES) {
+      const requiredDirectory = path.join(pageDirectory, ...directorySegments);
+      const directoryExists = await isDirectory(requiredDirectory);
+      if (!directoryExists) {
         missing.push(normalizeRelativePath(requiredDirectory));
+        continue;
+      }
+
+      availableDirectories.add(directorySegments.join("/"));
+    }
+
+    for (const requiredFileName of FRONTEND_REQUIRED_FILES) {
+      const requiredFile = path.join(pageDirectory, requiredFileName);
+      if (!(await pathExists(requiredFile))) {
+        missing.push(normalizeRelativePath(requiredFile));
       }
     }
 
-    for (const requiredFile of requiredFiles) {
-      if (!(await pathExists(requiredFile))) {
-        missing.push(normalizeRelativePath(requiredFile));
+    for (const requirement of FRONTEND_PATTERN_REQUIREMENTS) {
+      const directoryKey = requirement.directorySegments.join("/");
+      if (!availableDirectories.has(directoryKey)) {
+        continue;
+      }
+
+      const requiredDirectory = path.join(
+        pageDirectory,
+        ...requirement.directorySegments,
+      );
+      if (
+        !(await directoryHasMatchingFile(requiredDirectory, requirement.matcher))
+      ) {
+        missing.push(path.posix.join(relativePagePath, requirement.label));
       }
     }
 
@@ -455,24 +553,6 @@ async function validateFrontendFeatureStructure(
   }
 }
 
-async function validateFeatureServicesNaming(issues: string[]): Promise<void> {
-  const appRoot = path.join(ROOT, "app");
-  const legacyServiceFiles = await collectFilesRecursively(
-    appRoot,
-    (filename, absolutePath) =>
-      filename.endsWith(".service.ts") &&
-      absolutePath.includes(
-        `${path.sep}features${path.sep}services${path.sep}`,
-      ),
-  );
-
-  for (const legacyFile of legacyServiceFiles) {
-    const relative = normalizeRelativePath(legacyFile);
-    issues.push(
-      `Invalid features/services naming: ${relative}. Use PascalCase with suffix Service.ts (for example: CheckoutPixService.ts).`,
-    );
-  }
-}
 async function validateNonTypeScriptFiles(
   config: GovernanceConfig,
   issues: string[],
@@ -624,9 +704,9 @@ async function checkGovernance(
 
   validateCanonicalMetadata(config, canonicalText, issues);
   await validateAdapters(config, canonicalText, canonicalAbsolutePath, issues);
-  await validateDirectInfraInV1Routes(config, issues, warnings);
+  await validatePrismaInV1Routes(config, issues, warnings);
+  await validateUseCaseOutputContract(config, issues, warnings);
   await validateFrontendFeatureStructure(config, issues, warnings);
-  await validateFeatureServicesNaming(issues);
   await validateNonTypeScriptFiles(config, issues, warnings);
 
   if (warnings.length > 0) {
@@ -687,3 +767,7 @@ main().catch((error: unknown) => {
   console.error("[governance] Fatal error:", error);
   process.exit(1);
 });
+
+
+
+

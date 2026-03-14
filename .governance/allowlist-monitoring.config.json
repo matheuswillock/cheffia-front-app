@@ -1,7 +1,8 @@
 {
   "excludeFromWarnAllowlist": {
-    "directInfraInV1RouteAllowlist": [],
-    "frontendFeatureStructureAllowlist": [],
-    "nonTypeScriptFileAllowlist": []
+    "nonTypeScriptFileAllowlist": [
+      "eslint.config.mjs",
+      "postcss.config.mjs"
+    ]
   }
 }

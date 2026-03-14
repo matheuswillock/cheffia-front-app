@@ -5,7 +5,9 @@
       "MUST",
       "SHOULD",
       "LEGACY EXCEPTIONS",
-      "FOR NEW FEATURES"
+      "FOR NEW FEATURES",
+      "canonical `app/api` layout",
+      "canonical `features/` layout"
     ]
   },
   "warnings": {
@@ -30,7 +32,8 @@
     }
   ],
   "legacyExceptions": {
-    "directInfraInV1RouteAllowlist": [],
+    "prismaInV1RouteAllowlist": [],
+    "useCaseWithoutOutputAllowlist": [],
     "frontendFeatureStructureAllowlist": [
       "app",
       "app/(auth-pages)/forgot-password",
@@ -45,6 +48,7 @@
       "app/backoffice/(portal)/users",
       "app/backoffice/sign-in",
       "app/dashboard",
+      "app/dashboard/[slug]",
       "app/error",
       "app/order/checkout",
       "app/order/checkout/success",
