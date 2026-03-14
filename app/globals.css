@@ -278,6 +278,26 @@
   }
 }
 
+@keyframes feature-card-shake {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate3d(-1.5px, 0, 0) rotate(-0.35deg);
+  }
+  40% {
+    transform: translate3d(1.5px, 0, 0) rotate(0.35deg);
+  }
+  60% {
+    transform: translate3d(-1px, 0, 0) rotate(-0.2deg);
+  }
+  80% {
+    transform: translate3d(1px, 0, 0) rotate(0.2deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -303,6 +323,23 @@
 }
 
 @layer utilities {
+  .feature-card-interactive {
+    will-change: transform;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .feature-card-interactive:hover {
+      animation: feature-card-shake 220ms ease-in-out 1 both;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-card-interactive,
+    .feature-card-interactive:hover {
+      animation: none !important;
+    }
+  }
+
   .ty-title-h1 {
     font-family: var(--font-clash-display), "Clash Display", sans-serif;
     font-size: 52px;

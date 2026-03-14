@@ -166,7 +166,7 @@ export default function ApresentationFeaturesSection({
           {cards.map((card, index) => (
             <div
               key={index}
-              className={`relative z-10 ${
+              className={`relative z-10 feature-card-interactive cursor-pointer ${
                 selectedCard === index
                   ? "bg-primary min-h-40"
                   : "bg-background-cardFeature h-40"
