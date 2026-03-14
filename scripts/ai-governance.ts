@@ -309,7 +309,7 @@ const V1_ROUTE_FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; message: string }> =
     message: "direct PrismaClient instantiation",
   },
   {
-    pattern: /from\s+["']@\/server\/infra\/supabase\/adminClient["']/,
+    pattern: /from\s+["']@\/app\/api\/infra\/supabase\/adminClient["']/,
     message: "direct Supabase admin client import",
   },
   {
@@ -317,7 +317,7 @@ const V1_ROUTE_FORBIDDEN_PATTERNS: Array<{ pattern: RegExp; message: string }> =
     message: "direct Supabase admin client call",
   },
   {
-    pattern: /from\s+["']@\/server\/infra\/external\/asaas/,
+    pattern: /from\s+["']@\/app\/api\/infra\/external\/asaas/,
     message: "direct Asaas infra import",
   },
   {
@@ -340,7 +340,7 @@ async function validateDirectInfraInV1Routes(
   );
 
   const routeFiles = await collectFilesRecursively(
-    path.join(ROOT, "src", "app", "api", "v1"),
+    path.join(ROOT, "app", "api", "v1"),
     (filename) => filename === "route.ts",
   );
 
@@ -362,7 +362,7 @@ async function validateDirectInfraInV1Routes(
     if (!allowlist.has(relative)) {
       const reasons = matched.map((item) => item.message).join(", ");
       issues.push(
-        `Disallowed direct infra/provider usage in v1 route: ${relative} (${reasons}). Move logic to application/infra adapters or add justified LEGACY EXCEPTION.`,
+        `Disallowed direct infra/provider usage in v1 route: ${relative} (${reasons}). Move logic to useCases/services/infra or add justified LEGACY EXCEPTION.`,
       );
     }
   }
@@ -389,7 +389,7 @@ async function validateFrontendFeatureStructure(
   issues: string[],
   warnings: string[],
 ): Promise<void> {
-  const appRoot = path.join(ROOT, "src", "app");
+  const appRoot = path.join(ROOT, "app");
   const allowlist = normalizePathList(
     config.legacyExceptions.frontendFeatureStructureAllowlist,
   );
@@ -668,4 +668,3 @@ main().catch((error: unknown) => {
   console.error("[governance] Fatal error:", error);
   process.exit(1);
 });
-

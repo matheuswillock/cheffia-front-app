@@ -25,7 +25,7 @@
     "webhook:local:url": "node scripts/print-ngrok-webhook-url.mjs --path /api/v1/cheffia/OrderHub/webhook/asaas",
     "openapi:generate": "bun scripts/generate-openapi.ts",
     "collections:generate": "bun scripts/generate-openapi.ts",
-    "artifacts:check": "bun run openapi:generate && git diff --exit-code -- src/server/openapi/openapi.json postman insomnia",
+    "artifacts:check": "bun run openapi:generate && git diff --exit-code -- app/api/openapi/openapi.json postman insomnia",
     "prisma:env:check": "node scripts/check-prisma-env.mjs",
     "prisma:gate": "bun run prisma:env:check && bun run prisma:validate",
     "prisma:validate": "bunx prisma@6.16.3 validate",

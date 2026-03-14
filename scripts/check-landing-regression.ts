@@ -2,20 +2,20 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
-const componentsDir = path.join(repoRoot, "src", "components");
-const canonicalGlobalsFile = path.join(repoRoot, "src", "app", "globals.css");
+const componentsDir = path.join(repoRoot, "components");
+const canonicalGlobalsFile = path.join(repoRoot, "app", "globals.css");
 
 const staticTargetFiles = [
-  "src/app/page.tsx",
-  "src/app/layout.tsx",
-  "src/components/Navbar.tsx",
-  "src/components/FooterSection.tsx",
-  "src/components/NeonEffects.tsx",
+  "app/page.tsx",
+  "app/layout.tsx",
+  "components/Navbar.tsx",
+  "components/FooterSection.tsx",
+  "components/NeonEffects.tsx",
 ];
 
 const componentFiles = readdirSync(componentsDir)
   .filter((name) => name.startsWith("Apresentation") && name.endsWith(".tsx"))
-  .map((name) => path.join("src", "components", name));
+  .map((name) => path.join("components", name));
 
 const targetFiles = [...staticTargetFiles, ...componentFiles]
   .map((filePath) => path.join(repoRoot, filePath))

@@ -5,7 +5,7 @@ import {
   computeProviderFeeAmount,
   getMissingProvisioningFields,
   reconcilePaymentState,
-} from "../../src/server/domain/financial/index";
+} from "../../app/api/services/domain/financial/index";
 
 describe("Financial domain", () => {
   test("detects missing provisioning fields for Asaas", () => {
@@ -61,7 +61,11 @@ describe("Financial domain", () => {
       scheduledFor,
     });
 
-    expect(transition.ledgerEntries.some((entry) => entry.entryType === "payout_scheduled")).toBe(true);
+    expect(
+      transition.ledgerEntries.some(
+        (entry: { entryType: string }) => entry.entryType === "payout_scheduled"
+      )
+    ).toBe(true);
     expect(transition.payoutTransfer?.scheduledFor.toISOString()).toBe(scheduledFor.toISOString());
   });
 

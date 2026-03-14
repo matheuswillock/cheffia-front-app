@@ -10,8 +10,8 @@ alwaysApply: true
 <!-- CANONICAL AI GOVERNANCE FILE: agents.md -->
 # Cheffia Front App - AI Implementation Governance
 
-**Version:** 2.0.0  
-**Last Updated:** 2026-03-09  
+**Version:** 2.1.0  
+**Last Updated:** 2026-03-13  
 **Canonical Source:** `agents.md` (single source of truth)  
 **Adapter Files:** generated with `bun run governance:sync`
 
@@ -49,51 +49,52 @@ bun run governance:check
 
 Target direction:
 
-`Interface Layer (route/ui) -> Application -> Domain`  
-`Infra adapters -> (implement dependencies inward)`
+`route/ui -> useCases -> services -> infra`
 
-- `src/server/domain/**` **MUST** remain framework-agnostic and **MUST NOT** import from `application`, `infra`, `next`, or `react`.
-- `src/server/application/**` **MUST** hold use-case orchestration and **MUST NOT** import from `src/app/**` or `src/components/**`.
-- `src/server/infra/**` **MUST** encapsulate external integrations/persistence and **MUST NOT** become a place for domain business rules.
-- `src/app/api/**/route.ts` **MUST** be an HTTP adapter and **MUST NOT** directly access provider clients (Prisma/Supabase admin/Stripe/Asaas), except explicit cross-cutting technical adapters.
-- Shared contracts (`Output`, tenant context, idempotency, shared errors) **MUST** live in `src/server/shared/**`.
+- `app/api/useCases/**` **MUST** hold use-case orchestration and **MUST NOT** import from page/UI layers.
+- `app/api/services/**` **MUST** hold reusable business/domain logic and **MUST NOT** become an HTTP layer.
+- `app/api/services/domain/**` **MUST** remain framework-agnostic and **MUST NOT** import from `infra`, `next`, or `react`.
+- `app/api/infra/**` **MUST** encapsulate persistence/providers and **MUST NOT** become a place for route logic.
+- `app/api/**/route.ts` **MUST** be an HTTP adapter and **MUST NOT** directly access provider clients (Prisma/Supabase admin/Stripe/Asaas), except explicit cross-cutting technical adapters.
+- Shared contracts (`Output`, tenant context, idempotency, shared errors, secrets) **MUST** live in `lib/server/**`.
 
 Allowed dependency direction:
 
-- `route -> application/shared/(cross-cutting infra adapter when justified)`
-- `application -> domain/shared/(ports/adapters as needed)`
-- `infra -> shared/domain`
-- `domain -> shared`
+- `route -> useCases/lib`
+- `useCases -> services/lib`
+- `services -> infra/lib`
+- `infra -> lib`
 
 Forbidden dependency direction:
 
-- `domain -> application/infra/route/ui`
-- `application -> page/UI components`
+- `services/domain -> route/ui`
+- `useCases -> page/UI components`
 - `route -> dense business logic`
 
 ### Backend Route Architecture (FOR NEW FEATURES)
 
 Target flow:
 
-`Route Handler -> Application Service -> Infra Adapter -> Provider/DB`
+`Route Handler -> UseCase -> Service -> Infra -> Provider/DB`
 
-- Route handlers (`src/app/api/**/route.ts`) **MUST** handle HTTP concerns only:
+- Route handlers (`app/api/**/route.ts`) **MUST** handle HTTP concerns only:
   - request parsing/validation;
   - tenant resolution;
   - idempotency handling;
   - HTTP status mapping.
 - Route handlers **MUST NOT** contain dense business logic.
-- Business rules **MUST** live in `src/server/application/**`.
-- External integration/persistence logic **MUST** live in `src/server/infra/**`.
-- Service responses **MUST** follow the `Output` contract from `src/server/shared/output.ts`.
+- Use-case orchestration **MUST** live in `app/api/useCases/**`.
+- Reusable business/domain logic **MUST** live in `app/api/services/**`.
+- External integration/persistence logic **MUST** live in `app/api/infra/**`.
+- Service responses **MUST** follow the `Output` contract from `lib/server/output.ts`.
 
 ### Frontend Feature Architecture (Critical, FOR NEW FEATURES)
 
 Target flow:
 
-`page -> feature/container -> feature/context -> feature/services -> business -> api client -> /api/v1/cheffia`
+`page -> feature/container -> feature/context -> feature/services -> api client -> /api/v1/cheffia`
 
-Expected structure for a new route under `src/app/**`:
+Expected structure for a new route under `app/**`:
 
 ```txt
 <route>/
@@ -112,14 +113,15 @@ Expected structure for a new route under `src/app/**`:
 - `features/container` **MUST** focus on visual composition and **MUST NOT** call backend APIs directly.
 - `features/context` **MUST** centralize feature state/actions and orchestrate services.
 - `features/services` **MUST** encapsulate technical API integration for that feature.
-- HTTP integration **MUST** stay in `src/api/**` (or be abstracted through `src/business/**` where appropriate).
-- Reusable visual components **MUST** be promoted to `src/components/**`.
-- Reusable route logic **SHOULD** be promoted to `src/business/**` / `src/api/**`.
+- HTTP integration **MUST** stay in `api/**`.
+- A dedicated `business/**` layer **MUST NOT** be introduced for new frontend HTTP flows.
+- Reusable visual components **MUST** be promoted to `components/**`.
+- Reusable non-visual client helpers **SHOULD** be promoted to `api/**`, `lib/**`, or `hooks/**`.
 
 ### Visual Components (FOR NEW FEATURES)
 
 - This project uses `components.json` and `shadcn/ui`; new visual components **MUST** follow a `shadcn-first` workflow.
-- Agents **MUST** prefer existing `src/components/ui/**` components and compose them before creating custom markup.
+- Agents **MUST** prefer existing `components/ui/**` components and compose them before creating custom markup.
 - When adding components via CLI, agents **MUST** use Bun commands (for example `bunx --bun shadcn@latest add <component>`).
 - A fully custom visual component **MUST NOT** be created if an equivalent `shadcn/ui` component exists.
 - If no viable `shadcn/ui` equivalent exists, a new component may be built, but it **MUST**:
@@ -128,12 +130,12 @@ Expected structure for a new route under `src/app/**`:
   - include explicit technical justification in the PR.
 
 - Transient user feedback for success/error/info **MUST** use `sonner` (`toast`) and **MUST NOT** use custom alert/toast implementations.
-- Loading placeholders for page/data fetch states **MUST** use `Skeleton` from `src/components/ui/skeleton` and **MUST NOT** use custom pulse/spinner placeholders for those states.
+- Loading placeholders for page/data fetch states **MUST** use `Skeleton` from `components/ui/skeleton` and **MUST NOT** use custom pulse/spinner placeholders for those states.
 
 ## Design System and Theme Policy (Critical, FOR NEW FEATURES)
 
-- Canonical global style source **MUST** be `src/app/globals.css`.
-- `src/styles/globals.css` **MUST NOT** become a second source of truth for tokens.
+- Canonical global style source **MUST** be `app/globals.css`.
+- `styles/globals.css` **MUST NOT** become a second source of truth for tokens.
 - New UI code **MUST** use semantic design tokens (`bg-*`, `text-*`, `border-*`) mapped in globals and **MUST NOT** hardcode HEX values directly in components.
 - Brand typography **MUST** use official families (`Clash Display` and `Inter Tight`) through project utilities/tokens (`font-clash`, `font-inter`, `ty-*` utilities).
 - Theme mode **MUST** default to dark and **MUST** support light toggle through the shared theme provider.
@@ -160,7 +162,7 @@ Expected structure for a new route under `src/app/**`:
 
 - Mutating endpoints (`POST`, `PUT`, `PATCH`, `DELETE`) **SHOULD** support `idempotency-key`.
 - When idempotency is implemented, code **MUST** use:
-  - `executeWithIdempotency` (`src/server/shared/idempotency`);
+  - `executeWithIdempotency` (`lib/server/idempotency`);
   - `SupabaseIdempotencyRepository`.
 - Expected uniqueness key:
   - `tenant_id + method + endpoint + idempotency_key`.
@@ -213,7 +215,7 @@ bun run openapi:generate
 ```
 
 - Generated artifacts that **MUST** stay in sync:
-  - `src/server/openapi/openapi.json`
+  - `app/api/openapi/openapi.json`
   - `postman/cheffia-v1.postman_collection.json`
   - `postman/cheffia-v1.environment.json`
   - `insomnia/cheffia-v1.openapi.json`
@@ -297,8 +299,8 @@ Validation includes:
 
 1. Canonical metadata and required keywords.
 2. Adapter file sync with `agents.md`.
-3. Direct infra/provider usage in `src/app/api/v1/**/route.ts` (blocked except explicit allowlist).
-4. Frontend feature structure checks for `src/app/**` pages (blocked except explicit allowlist).
+3. Direct infra/provider usage in `app/api/v1/**/route.ts` (blocked except explicit allowlist).
+4. Frontend feature structure checks for `app/**` pages (blocked except explicit allowlist).
 5. Non-TypeScript files in repository (blocked unless explicit legacy allowlist).
 
 CI **MUST** fail when governance checks fail.
@@ -338,9 +340,9 @@ Optional migration E2E variables:
 
 ## References
 
-- Tenant context: `src/server/shared/tenant/context.ts`
-- Idempotency: `src/server/shared/idempotency/executeWithIdempotency.ts`
-- Output contract: `src/server/shared/output.ts`
-- Asaas webhook route: `src/app/api/v1/cheffia/OrderHub/webhook/asaas/route.ts`
-- OpenAPI docs: `src/server/openapi/README.md`
+- Tenant context: `lib/server/tenant/context.ts`
+- Idempotency: `lib/server/idempotency/executeWithIdempotency.ts`
+- Output contract: `lib/server/output.ts`
+- Asaas webhook route: `app/api/v1/cheffia/OrderHub/webhook/asaas/route.ts`
+- OpenAPI docs: `app/api/openapi/README.md`
 - Migration tests: `tests/migration/README.md`

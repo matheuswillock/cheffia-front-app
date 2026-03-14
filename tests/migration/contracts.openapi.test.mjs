@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(TEST_DIR, "..", "..");
-const OPENAPI_FILE = path.join(ROOT_DIR, "src", "server", "openapi", "openapi.json");
+const OPENAPI_FILE = path.join(ROOT_DIR, "app", "api", "openapi", "openapi.json");
 
 const expectedRoutes = [
   { method: "post", path: "/api/v1/auth/forgot-password" },

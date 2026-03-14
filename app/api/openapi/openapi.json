@@ -1,0 +1,3731 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cheffia API v1 (Migration)",
+    "version": "1.0.0-migration",
+    "description": "Gerado a partir das rotas reais em app/api/v1/**."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local"
+    }
+  ],
+  "paths": {
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Solicitar redefinicao de senha",
+        "operationId": "authSolicitarredefinicaodesenha",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "email": "contato@restaurante.com",
+                "nextPath": "/set-password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-confirmation": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Reenviar confirmacao de email",
+        "operationId": "authReenviarconfirmacaodeemail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "email": "contato@restaurante.com",
+                "nextPath": "/register/restaurant"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/register": {
+      "post": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Registrar restaurante",
+        "operationId": "restaurantRegistrarrestaurante",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "name": "Restaurante Exemplo",
+                "address": "Rua das Flores",
+                "addressNumber": "123",
+                "complement": "Sala 4",
+                "province": "Centro",
+                "postalCode": "01310100",
+                "phoneNumber": "11999999999",
+                "email": "contato@restaurante.com",
+                "emailVerified": false,
+                "supabaseId": "00000000-0000-0000-0000-000000000000",
+                "ownerFullName": "Maria Silva",
+                "document": "12345678901",
+                "birthDate": "1990-05-16",
+                "providerAvatarUrl": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account": {
+      "get": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Consultar status financeiro Asaas do restaurante",
+        "operationId": "restaurantConsultarstatusfinanceiroAsaasdorestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/summary": {
+      "get": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Consultar resumo financeiro Asaas do restaurante",
+        "operationId": "restaurantConsultarresumofinanceiroAsaasdorestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/documents": {
+      "get": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Listar documentos financeiros sincronizados do restaurante",
+        "operationId": "restaurantListardocumentosfinanceirossincronizadosdorestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/documents/sync": {
+      "post": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Sincronizar documentos financeiros no Asaas",
+        "operationId": "restaurantSincronizardocumentosfinanceirosnoAsaas",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/documents/{documentId}/upload": {
+      "post": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Enviar documento financeiro do restaurante",
+        "operationId": "restaurantEnviardocumentofinanceirodorestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentFile": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/financial-account/provision": {
+      "post": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Provisionar subconta Asaas do restaurante",
+        "operationId": "restaurantProvisionarsubcontaAsaasdorestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{supabaseId}": {
+      "get": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Buscar restaurante por supabaseId",
+        "operationId": "restaurantBuscarrestauranteporsupabaseId",
+        "parameters": [
+          {
+            "name": "supabaseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/confirm-email": {
+      "get": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Confirmar e-mail de restaurante",
+        "operationId": "restaurantConfirmaremailderestaurante",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12345"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "example": "Email confirmed successfully"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "example": ""
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "text/plain": {
+                "example": "Internal error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Restaurant/{restaurantId}/delete": {
+      "delete": {
+        "tags": [
+          "Restaurant"
+        ],
+        "summary": "Excluir restaurante",
+        "operationId": "restaurantExcluirrestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Menu/items/add": {
+      "post": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Adicionar item ao menu (multipart)",
+        "operationId": "menuAdicionaritemaomenumultipart",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "RestaurantId": {
+                    "type": "string"
+                  },
+                  "Item.Name": {
+                    "type": "string"
+                  },
+                  "Item.Description": {
+                    "type": "string"
+                  },
+                  "Item.Price": {
+                    "type": "string"
+                  },
+                  "Item.Ingredients": {
+                    "type": "string"
+                  },
+                  "Item.CategoryId": {
+                    "type": "string"
+                  },
+                  "Item.ItemMedia": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Menu/items/delete": {
+      "delete": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Excluir item do menu (query legado)",
+        "operationId": "menuExcluiritemdomenuquerylegado",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Menu/items/delete/{itemId}": {
+      "delete": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Excluir item do menu (path param)",
+        "operationId": "menuExcluiritemdomenupathparam",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Menu/get": {
+      "get": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Buscar menu por restaurante",
+        "operationId": "menuBuscarmenuporrestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Menu"
+        ],
+        "summary": "Buscar menu por restaurante (contrato legado POST)",
+        "operationId": "menuBuscarmenuporrestaurantecontratolegadoPOST",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "params": {
+                  "restaurantId": "00000000-0000-0000-0000-000000000000"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/MenuLive": {
+      "get": {
+        "tags": [
+          "MenuLive"
+        ],
+        "summary": "Buscar MenuLive por restaurante",
+        "operationId": "menuliveBuscarMenuLiveporrestaurante",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "table",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "12"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/send": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Enviar pedido",
+        "operationId": "orderhubEnviarpedido",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "customerOrderId": null,
+                "restaurantId": "00000000-0000-0000-0000-000000000000",
+                "tableNumber": "12",
+                "orderItems": [
+                  {
+                    "menuItemId": "00000000-0000-0000-0000-000000000000",
+                    "quantity": 2,
+                    "comments": "sem cebola",
+                    "tableNumber": "12"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/order": {
+      "get": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Buscar pedido por restaurantId + customerOrderId",
+        "operationId": "orderhubBuscarpedidoporrestaurantIdcustomerOrderId",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "customerOrderId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/payment": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Criar cobranca PIX para pedido",
+        "operationId": "orderhubCriarcobrancaPIXparapedido",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "customerOrderId": "00000000-0000-0000-0000-000000000000",
+                "payTip": false,
+                "payer": {
+                  "name": "Cliente PIX",
+                  "phoneNumber": "11999999999",
+                  "email": "cliente@cheffia.com",
+                  "document": "12345678901"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/payment/confirmation": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Confirmar status de pagamento PIX",
+        "operationId": "orderhubConfirmarstatusdepagamentoPIX",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "paymentPixId": "pay_1234567890"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/OrderHub/webhook/asaas": {
+      "post": {
+        "tags": [
+          "OrderHub"
+        ],
+        "summary": "Receber webhook Asaas",
+        "operationId": "orderhubReceberwebhookAsaas",
+        "parameters": [
+          {
+            "name": "asaas-access-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "replace_me"
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "event": "PAYMENT_RECEIVED",
+                "payment": {
+                  "id": "pay_1234567890",
+                  "status": "RECEIVED"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Payment/intent/create": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "summary": "Criar cobrança PIX compatível com o legado Payment/intent/create",
+        "operationId": "paymentCriarcobranaPIXcompatvelcomolegadoPaymentintentcreate",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "customerOrderId": "00000000-0000-0000-0000-000000000000",
+                "payTip": false,
+                "payer": {
+                  "name": "Cliente PIX",
+                  "phoneNumber": "11999999999",
+                  "email": "cliente@cheffia.com",
+                  "document": "12345678901"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cheffia/Payment/product/create": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "summary": "Endpoint legado descontinuado após remoção do Stripe",
+        "operationId": "paymentEndpointlegadodescontinuadoapsremoodoStripe",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": false,
+            "description": "Tenant context (opcional quando resolvido por restaurantId/supabaseId).",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+            "name": "idempotency-key",
+            "in": "header",
+            "required": false,
+            "description": "Reutilize a mesma chave em retries do mesmo payload.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "idem-example-001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "isValid",
+                    "successMessages",
+                    "errorMessages",
+                    "result"
+                  ],
+                  "properties": {
+                    "isValid": {
+                      "type": "boolean"
+                    },
+                    "successMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "result": {
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -58,19 +58,30 @@ shadcn add dialog
 
 ## 📦 Estrutura do Projeto
 
-O projeto segue a estrutura padrão do Next.js 15 com App Router, organizado da seguinte forma:
+O projeto usa App Router sem pasta `src/` e segue o fluxo arquitetural:
+
+- Frontend: `page -> features -> container | context | services -> api`
+- Backend: `route -> useCases -> services -> infra`
 
 ```
-src/
-  ├── app/          # Rotas e páginas
-  ├── assets/       # recursos svg    
-  ├── components/    # Componentes reutilizáveis
-  ├── externalServices/    # Serviços com API externas
-  ├── lib/          # Utilitários e configurações
-  ├── models/          # Classes de modelos
-  ├── services/          # Regras de negócios
-  ├── types/          # Esquemas de modelos para formulários da aplicação
-  ├── utils/       # Utilidades para serviços como supabase e validações de formulários
+app/
+  ├── (routes)/                         # páginas e layouts do App Router
+  ├── api/
+  │   ├── v1/**/route.ts                # endpoints HTTP
+  │   ├── useCases/                     # orquestração dos casos de uso
+  │   ├── services/                     # serviços de domínio e regras reutilizáveis
+  │   └── infra/                        # adapters externos, storage, prisma, supabase
+  └── */features/
+      ├── container/                    # composição da feature
+      ├── context/                      # estado e providers locais
+      └── services/                     # integração da feature com api clients
+api/                                    # clients consumidos pelo frontend
+components/                             # componentes reutilizáveis
+lib/                                    # utilitários compartilhados
+models/                                 # contratos e DTOs
+types/                                  # tipos auxiliares
+utils/                                  # integrações utilitárias e validações
+assets/                                 # recursos estáticos locais
 ```
 
 ## 📝 Licença

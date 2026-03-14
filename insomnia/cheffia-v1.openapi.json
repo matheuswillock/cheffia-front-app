@@ -3,7 +3,7 @@
   "info": {
     "title": "Cheffia API v1 (Migration)",
     "version": "1.0.0-migration",
-    "description": "Gerado a partir das rotas reais em src/app/api/v1/**."
+    "description": "Gerado a partir das rotas reais em app/api/v1/**."
   },
   "servers": [
     {

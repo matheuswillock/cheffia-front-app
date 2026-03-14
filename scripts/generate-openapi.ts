@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -34,6 +33,9 @@ interface ApiRoute {
 }
 
 const UUID = "00000000-0000-0000-0000-000000000000";
+const POSTMAN_COLLECTION_ID = "cheffia-v1-collection";
+const POSTMAN_ENVIRONMENT_ID = "cheffia-v1-environment";
+const POSTMAN_EXPORTED_AT = "2026-03-13T00:00:00.000Z";
 
 const routes: ApiRoute[] = [
   {
@@ -446,7 +448,7 @@ const buildOpenApi = (): Record<string, unknown> => {
     info: {
       title: "Cheffia API v1 (Migration)",
       version: "1.0.0-migration",
-      description: "Gerado a partir das rotas reais em src/app/api/v1/**.",
+      description: "Gerado a partir das rotas reais em app/api/v1/**.",
     },
     servers: [{ url: "http://localhost:3000", description: "Local" }],
     paths,
@@ -500,12 +502,12 @@ const buildPostman = (): Record<string, unknown> => {
     });
   }
 
-  return {
-    info: {
-      _postman_id: randomUUID(),
-      name: "Cheffia API v1 (Migration)",
-      schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    },
+    return {
+      info: {
+        _postman_id: POSTMAN_COLLECTION_ID,
+        name: "Cheffia API v1 (Migration)",
+        schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      },
     variable: [
       { key: "baseUrl", value: "http://localhost:3000" },
       { key: "tenantId", value: UUID },
@@ -517,7 +519,7 @@ const buildPostman = (): Record<string, unknown> => {
 };
 
 const postmanEnvironment = {
-  id: randomUUID(),
+  id: POSTMAN_ENVIRONMENT_ID,
   name: "Cheffia Local",
   values: [
     { key: "baseUrl", value: "http://localhost:3000", enabled: true },
@@ -526,7 +528,7 @@ const postmanEnvironment = {
     { key: "asaasWebhookToken", value: "replace_me", enabled: true },
   ],
   _postman_variable_scope: "environment",
-  _postman_exported_at: new Date().toISOString(),
+  _postman_exported_at: POSTMAN_EXPORTED_AT,
   _postman_exported_using: "cheffia-migration-task-14",
 };
 
@@ -540,7 +542,7 @@ const main = async (): Promise<void> => {
   const root = path.resolve(scriptDir, "..");
   const openApi = buildOpenApi();
 
-  const openApiFile = path.join(root, "src", "server", "openapi", "openapi.json");
+  const openApiFile = path.join(root, "app", "api", "openapi", "openapi.json");
   const postmanCollectionFile = path.join(root, "postman", "cheffia-v1.postman_collection.json");
   const postmanEnvFile = path.join(root, "postman", "cheffia-v1.environment.json");
   const insomniaImportFile = path.join(root, "insomnia", "cheffia-v1.openapi.json");

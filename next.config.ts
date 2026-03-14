@@ -1,17 +1,12 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  experimental: {
-    authInterrupts: true,
-  },
-};
-
 const supabaseStorageHost = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID
   ? `${process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID}.supabase.co`
   : "zhtlkgobqilvuzoeugct.supabase.co";
 
-module.exports = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
+  outputFileTracingRoot: process.cwd(),
   experimental: {
     authInterrupts: true,
   },
