@@ -64,6 +64,8 @@ export async function bootstrapBackofficeAdmin(formData: FormData) {
     email: BOOTSTRAP_ADMIN_EMAIL,
     fullName: BOOTSTRAP_ADMIN_FULL_NAME,
     password,
+    jobTitle: "Chief Executive Officer",
+    department: "Executive",
     role: "admin",
   });
 
@@ -74,3 +76,4 @@ export async function bootstrapBackofficeAdmin(formData: FormData) {
   revalidatePath("/backoffice/sign-in");
   redirect("/backoffice/sign-in?error=Primeiro admin criado. Agora faca login.");
 }
+

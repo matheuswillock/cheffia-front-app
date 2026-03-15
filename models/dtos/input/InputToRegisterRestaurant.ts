@@ -4,6 +4,8 @@ export class InputToRegisterRestaurant {
   address: string | null;
   addressNumber: string | null;
   complement: string | null;
+  city: string | null;
+  state: string | null;
   document: string | null;
   email: string | null;
   name: string | null;
@@ -21,6 +23,8 @@ export class InputToRegisterRestaurant {
     address: string | null = null,
     addressNumber: string | null = null,
     complement: string | null = null,
+    city: string | null = null,
+    state: string | null = null,
     document: string | null = null,
     email: string | null = null,
     name: string | null = null,
@@ -37,6 +41,8 @@ export class InputToRegisterRestaurant {
     this.address = address;
     this.addressNumber = addressNumber;
     this.complement = complement;
+    this.city = city;
+    this.state = state;
     this.document = document;
     this.email = email;
     this.name = name;
@@ -56,6 +62,8 @@ export class InputToRegisterRestaurant {
       data.address,
       data.addressNumber,
       data.complement ?? null,
+      data.city ?? null,
+      data.state ?? null,
       data.document,
       data.email,
       data.name,

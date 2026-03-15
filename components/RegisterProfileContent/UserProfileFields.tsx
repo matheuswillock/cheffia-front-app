@@ -8,8 +8,6 @@ type UserProfileFieldValues = {
   birthDate: string;
   document: string;
   role: string;
-  jobTitle: string;
-  department: string;
 };
 
 interface UserProfileFieldsProps<T extends UserProfileFieldValues> {
@@ -66,32 +64,6 @@ export default function UserProfileFields<T extends UserProfileFieldValues>({
       <p className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground-default/80">
         O perfil inicial sera salvo como <span className="font-semibold">master</span> (dono da conta).
       </p>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <SignUpFormField
-          control={form.control}
-          name={"jobTitle" as Path<T>}
-          label="Cargo"
-          type="text"
-          placeholder="Gerente de operacoes"
-          errorMessage={getFieldErrorMessage(form.formState.errors.jobTitle?.message)}
-          blurEvent={async () => {
-            await form.trigger("jobTitle" as Path<T>);
-          }}
-        />
-
-        <SignUpFormField
-          control={form.control}
-          name={"department" as Path<T>}
-          label="Setor"
-          type="text"
-          placeholder="Financeiro"
-          errorMessage={getFieldErrorMessage(form.formState.errors.department?.message)}
-          blurEvent={async () => {
-            await form.trigger("department" as Path<T>);
-          }}
-        />
-      </div>
     </>
   );
 }

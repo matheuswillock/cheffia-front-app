@@ -4,6 +4,8 @@ export interface RegisterRestaurantInput {
   addressNumber: string;
   complement?: string;
   province: string;
+  city?: string;
+  state?: string;
   postalCode: string;
   phoneNumber: string;
   email: string;
@@ -24,6 +26,8 @@ export interface RestaurantOutput {
   addressNumber: string;
   complement: string;
   province: string;
+  city: string;
+  state: string;
   postalCode: string;
   phoneNumber: string;
   document: string;

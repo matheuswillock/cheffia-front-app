@@ -9,6 +9,8 @@ export interface BackofficeUserOutput {
   supabaseUserId: string;
   email: string;
   fullName: string;
+  jobTitle: string | null;
+  department: string | null;
   role: BackofficeRole;
   isActive: boolean;
   lastLoginAt: string | null;
@@ -20,11 +22,15 @@ export interface CreateBackofficeUserInput {
   email: string;
   fullName: string;
   password: string;
+  jobTitle: string;
+  department: string;
   role: BackofficeRole;
 }
 
 export interface UpdateBackofficeUserInput {
   fullName?: string;
+  jobTitle?: string;
+  department?: string;
   role?: BackofficeRole;
   isActive?: boolean;
 }
@@ -96,3 +102,4 @@ export interface BackofficeDashboardMetricsOutput {
   totalOrders: number;
   ordersByRestaurant: BackofficeOrdersByRestaurant[];
 }
+

@@ -32,8 +32,6 @@ const userProfileInputSchema = z.object({
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "A data de nascimento deve estar no formato AAAA-MM-DD"),
   document: z.string().min(11, "O documento deve conter 11 digitos").max(14, "O documento deve conter 11 digitos"),
   role: z.enum(USER_PROFILE_ROLES),
-  jobTitle: z.string().trim().min(2, "O cargo deve ter no minimo 2 caracteres").max(120, "O cargo deve ter no maximo 120 caracteres"),
-  department: z.string().trim().min(2, "O setor deve ter no minimo 2 caracteres").max(120, "O setor deve ter no maximo 120 caracteres"),
   avatarUrl: z.string().trim().url("Avatar URL invalida").optional().nullable().or(z.literal("")),
 }).superRefine((data, ctx) => {
   const documentDigits = normalizeDigits(data.document);
@@ -76,8 +74,6 @@ const mapProfile = (profile: {
   birthDate: Date;
   document: string;
   role: UserProfileRole;
-  jobTitle: string;
-  department: string;
   cheffiaId: string;
   avatarUrl: string | null;
   createdAt: Date;
@@ -90,8 +86,6 @@ const mapProfile = (profile: {
   birthDate: profile.birthDate.toISOString().slice(0, 10),
   document: profile.document,
   role: profile.role,
-  jobTitle: profile.jobTitle,
-  department: profile.department,
   cheffiaId: profile.cheffiaId,
   avatarUrl: profile.avatarUrl,
   createdAt: profile.createdAt.toISOString(),
@@ -156,8 +150,6 @@ export class UserProfileService {
       birthDate: parsed.data.birthDate,
       document: normalizeDigits(parsed.data.document),
       role: parsed.data.role,
-      jobTitle: normalizeText(parsed.data.jobTitle),
-      department: normalizeText(parsed.data.department),
       avatarUrl: parsed.data.avatarUrl ? parsed.data.avatarUrl.trim() : null,
     };
 
@@ -181,8 +173,6 @@ export class UserProfileService {
                 birthDate: new Date(`${normalizedInput.birthDate}T00:00:00.000Z`),
                 document: normalizedInput.document,
                 role: normalizedInput.role,
-                jobTitle: normalizedInput.jobTitle,
-                department: normalizedInput.department,
                 avatarUrl: normalizedInput.avatarUrl,
               },
             })
@@ -194,8 +184,6 @@ export class UserProfileService {
                 birthDate: new Date(`${normalizedInput.birthDate}T00:00:00.000Z`),
                 document: normalizedInput.document,
                 role: normalizedInput.role,
-                jobTitle: normalizedInput.jobTitle,
-                department: normalizedInput.department,
                 cheffiaId,
                 avatarUrl: normalizedInput.avatarUrl,
               },
@@ -273,8 +261,6 @@ export class UserProfileService {
         full_name: profile.fullName,
         cheffia_id: profile.cheffiaId,
         role: profile.role,
-        job_title: profile.jobTitle,
-        department: profile.department,
         profile_completed: true,
       };
 
@@ -297,3 +283,4 @@ export class UserProfileService {
     }
   }
 }
+

@@ -31,6 +31,8 @@ export const registerRestaurantFromForm = async (
     document: data.document.replace(/[^0-9]/g, ""),
     phoneNumber: data.phoneNumber.replace(/[^0-9]/g, ""),
     postalCode: data.postalCode.replace(/[^0-9]/g, ""),
+    city: data.city.trim(),
+    state: data.state.trim().toUpperCase(),
     companyType: data.companyType?.trim().toUpperCase() || undefined,
   };
 
@@ -122,3 +124,5 @@ export const uploadRestaurantFinancialDocumentOrThrow = async (
 
   return mapRestaurantFinancialOnboardingDocumentUpload(response);
 };
+
+

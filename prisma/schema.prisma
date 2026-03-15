@@ -261,8 +261,6 @@ model UserProfile {
   birthDate      DateTime @map("birth_date") @db.Date
   document       String   @unique(map: "user_profiles_document_uk") @db.Text
   role           UserProfileRole
-  jobTitle       String   @map("job_title") @db.Text
-  department     String   @db.Text
   cheffiaId      String   @unique(map: "user_profiles_cheffia_id_uk") @map("cheffia_id") @db.Text
   avatarUrl      String?  @map("avatar_url") @db.Text
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -280,6 +278,8 @@ model InternalUser {
   supabaseUserId String             @unique(map: "internal_users_supabase_user_id_uk") @map("supabase_user_id") @db.Uuid
   email          String             @unique(map: "internal_users_email_uk") @db.Text
   fullName       String             @map("full_name") @db.Text
+  jobTitle       String?            @map("job_title") @db.Text
+  department     String?            @db.Text
   role           BackofficeUserRole
   isActive       Boolean            @default(true) @map("is_active")
   lastLoginAt    DateTime?          @map("last_login_at") @db.Timestamptz(6)
@@ -894,9 +894,4 @@ model OutboxEvent {
   @@index([tenantId, aggregateType, aggregateId], map: "outbox_tenant_aggregate_idx")
   @@map("outbox_events")
 }
-
-
-
-
-
 

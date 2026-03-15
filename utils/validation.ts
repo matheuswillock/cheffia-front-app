@@ -13,10 +13,6 @@ const userProfileFormBaseSchema = z.object({
     .min(14, "O documento deve ter 11 dígitos (CPF)")
     .max(14, "O documento deve ter 11 dígitos (CPF)"),
   role: z.enum(USER_PROFILE_ROLES),
-  jobTitle: z.string().min(2, "O cargo deve ter no mínimo 2 caracteres")
-    .max(120, "O cargo deve ter no máximo 120 caracteres"),
-  department: z.string().min(2, "O setor deve ter no mínimo 2 caracteres")
-    .max(120, "O setor deve ter no máximo 120 caracteres"),
 });
 
 const validateUserProfileData = (
@@ -82,6 +78,8 @@ export const RegisterRestaurantFormSchema = z.object({
   addressNumber: z.string().min(1, "O número do endereço é obrigatório"),
   complement: z.string().optional(),
   province: z.string().min(2, "O bairro deve ter no mínimo 2 caracteres"),
+  city: z.string(),
+  state: z.string(),
   postalCode: z.string().regex(/^\d{5}-\d{3}$/, "Insira um CEP válido"),
   phoneNumber: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Insira um número de telefone válido"),
   providerAvatarUrl: z.string().optional(),
@@ -223,4 +221,8 @@ export const JoinWaitlistSchema = z.object({
     });
   }
 });
+
+
+
+
 

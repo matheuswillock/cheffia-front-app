@@ -7,8 +7,6 @@ export interface UpsertUserProfileInput {
   birthDate: string;
   document: string;
   role: UserProfileRole;
-  jobTitle: string;
-  department: string;
   avatarUrl?: string | null;
 }
 
@@ -20,10 +18,9 @@ export interface UserProfileOutput {
   birthDate: string;
   document: string;
   role: UserProfileRole;
-  jobTitle: string;
-  department: string;
   cheffiaId: string;
   avatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
+

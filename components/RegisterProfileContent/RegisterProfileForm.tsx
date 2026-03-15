@@ -33,8 +33,6 @@ export default function RegisterProfileForm({
       formData.set("birthDate", values.birthDate);
       formData.set("document", values.document);
       formData.set("role", values.role);
-      formData.set("jobTitle", values.jobTitle);
-      formData.set("department", values.department);
 
       const response = await completeUserProfile(formData);
 
@@ -92,6 +90,7 @@ export default function RegisterProfileForm({
     </div>
   );
 }
+
 
 
 

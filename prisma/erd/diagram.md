@@ -219,8 +219,6 @@ cancelled cancelled
     DateTime birth_date 
     String document 
     UserProfileRole role 
-    String job_title 
-    String department 
     String cheffia_id 
     String avatar_url "❓"
     DateTime created_at 
@@ -233,6 +231,8 @@ cancelled cancelled
     String supabase_user_id 
     String email 
     String full_name 
+    String job_title "❓"
+    String department "❓"
     BackofficeUserRole role 
     Boolean is_active 
     DateTime last_login_at "❓"

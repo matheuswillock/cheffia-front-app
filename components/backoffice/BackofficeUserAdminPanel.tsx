@@ -30,6 +30,8 @@ export function BackofficeUserAdminPanel({ users }: BackofficeUserAdminPanelProp
         email: formData.get("email"),
         password: formData.get("password"),
         role: formData.get("role"),
+        jobTitle: formData.get("jobTitle"),
+        department: formData.get("department"),
       }),
     });
 
@@ -57,6 +59,8 @@ export function BackofficeUserAdminPanel({ users }: BackofficeUserAdminPanelProp
       body: JSON.stringify({
         fullName: formData.get("fullName"),
         role: formData.get("role"),
+        jobTitle: formData.get("jobTitle"),
+        department: formData.get("department"),
         isActive: formData.get("isActive") === "on",
       }),
     });
@@ -87,7 +91,7 @@ export function BackofficeUserAdminPanel({ users }: BackofficeUserAdminPanelProp
             event.preventDefault();
             void handleCreate(new FormData(event.currentTarget));
           }}
-          className="mt-4 grid gap-3 md:grid-cols-2"
+          className="mt-4 grid gap-3 md:grid-cols-3"
         >
           <Input name="fullName" placeholder="Nome completo" required className="bg-slate-950" />
           <Input
@@ -101,6 +105,20 @@ export function BackofficeUserAdminPanel({ users }: BackofficeUserAdminPanelProp
             name="password"
             type="password"
             placeholder="Senha temporaria"
+            required
+            className="bg-slate-950"
+          />
+          <Input
+            name="jobTitle"
+            type="text"
+            placeholder="Cargo"
+            required
+            className="bg-slate-950"
+          />
+          <Input
+            name="department"
+            type="text"
+            placeholder="Departamento"
             required
             className="bg-slate-950"
           />
@@ -134,14 +152,22 @@ export function BackofficeUserAdminPanel({ users }: BackofficeUserAdminPanelProp
                 event.preventDefault();
                 void handleUpdate(user.id, new FormData(event.currentTarget));
               }}
-              className="grid gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4 md:grid-cols-[2fr_2fr_1fr_120px_120px]"
+              className="grid gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4 md:grid-cols-[2fr_2fr_1.5fr_1.5fr_1fr_1fr_120px_120px]"
             >
+              <Input name="fullName" defaultValue={user.fullName} className="bg-slate-900" />
+              <Input value={user.email} readOnly className="bg-slate-900 text-slate-400" />
               <Input
-                name="fullName"
-                defaultValue={user.fullName}
+                name="jobTitle"
+                defaultValue={user.jobTitle ?? ""}
+                placeholder="Cargo"
                 className="bg-slate-900"
               />
-              <Input value={user.email} readOnly className="bg-slate-900 text-slate-400" />
+              <Input
+                name="department"
+                defaultValue={user.department ?? ""}
+                placeholder="Departamento"
+                className="bg-slate-900"
+              />
               <select
                 name="role"
                 defaultValue={user.role}
@@ -164,3 +190,4 @@ export function BackofficeUserAdminPanel({ users }: BackofficeUserAdminPanelProp
     </div>
   );
 }
+

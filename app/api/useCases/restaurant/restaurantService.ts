@@ -12,6 +12,8 @@ const registerSchema = z.object({
   addressNumber: z.string().min(1),
   complement: z.string().optional().default(""),
   province: z.string().min(2),
+  city: z.string().optional().default(""),
+  state: z.string().optional().default(""),
   postalCode: z.string().min(8).max(9),
   phoneNumber: z.string().min(8),
   email: z.string().email(),
@@ -60,6 +62,8 @@ interface RestaurantRow {
   address_number: string | null;
   complement: string | null;
   province: string | null;
+  city: string | null;
+  state: string | null;
   postal_code: string | null;
   phone_number: string | null;
   email: string | null;
@@ -92,6 +96,8 @@ const mapRestaurant = (row: RestaurantRow): RestaurantOutput => ({
   addressNumber: row.address_number ?? "",
   complement: row.complement ?? "",
   province: row.province ?? "",
+  city: row.city ?? "",
+  state: row.state ?? "",
   postalCode: row.postal_code ?? "",
   phoneNumber: row.phone_number ?? "",
   document: row.document ?? "",
@@ -291,6 +297,8 @@ export class RestaurantService {
       companyType: parsed.data.companyType?.trim().toUpperCase() || null,
       birthDate: parsed.data.birthDate ?? null,
       complement: parsed.data.complement?.trim() ?? "",
+      city: parsed.data.city?.trim() ?? "",
+      state: parsed.data.state?.trim().toUpperCase() ?? "",
       providerAvatarUrl: parsed.data.providerAvatarUrl ?? "",
     };
 
@@ -332,6 +340,8 @@ export class RestaurantService {
         address_number: data.addressNumber,
         complement: data.complement,
         province: data.province,
+        city: data.city,
+        state: data.state,
         postal_code: data.postalCode,
         phone_number: data.phoneNumber,
         email: data.email,
@@ -476,3 +486,5 @@ export class RestaurantService {
     return okOutput<null>(null, ["Restaurant deleted successfully"]);
   }
 }
+
+

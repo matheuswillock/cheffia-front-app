@@ -106,7 +106,7 @@ const defaultItemAnimationVariants: Record<
     container: defaultContainerVariants,
     item: {
       hidden: { opacity: 0, y: 20 },
-      show: () => ({
+      show: (delay: number) => ({
         opacity: 1,
         y: 0,
         transition: {
@@ -388,4 +388,5 @@ export function TextAnimate({
     </AnimatePresence>
   );
 }
+
 

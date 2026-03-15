@@ -93,7 +93,6 @@ export function BackofficeRestaurantEditor({ restaurant }: BackofficeRestaurantE
         <Select
           name="lifecycleStatus"
           defaultValue={restaurant.lifecycleStatus}
-          className="h-10 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm"
         >
           <option value="active">Ativo</option>
           <option value="inactive">Inativo</option>
@@ -112,3 +111,4 @@ export function BackofficeRestaurantEditor({ restaurant }: BackofficeRestaurantE
     </section>
   );
 }
+

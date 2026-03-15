@@ -16,11 +16,15 @@ const createInternalUserSchema = z.object({
   email: z.string().trim().email("Invalid corporate email"),
   fullName: z.string().trim().min(3, "Full name is required").max(120),
   password: z.string().min(8, "Password must contain at least 8 characters"),
+  jobTitle: z.string().trim().min(2, "Job title is required").max(120),
+  department: z.string().trim().min(2, "Department is required").max(120),
   role: z.enum(["admin", "operator"]),
 });
 
 const updateInternalUserSchema = z.object({
   fullName: z.string().trim().min(3).max(120).optional(),
+  jobTitle: z.string().trim().min(2).max(120).optional(),
+  department: z.string().trim().min(2).max(120).optional(),
   role: z.enum(["admin", "operator"]).optional(),
   isActive: z.boolean().optional(),
 });
@@ -32,6 +36,8 @@ const mapInternalUser = (user: {
   supabaseUserId: string;
   email: string;
   fullName: string;
+  jobTitle: string | null;
+  department: string | null;
   role: "admin" | "operator";
   isActive: boolean;
   lastLoginAt: Date | null;
@@ -42,6 +48,8 @@ const mapInternalUser = (user: {
   supabaseUserId: user.supabaseUserId,
   email: user.email,
   fullName: user.fullName,
+  jobTitle: user.jobTitle ?? null,
+  department: user.department ?? null,
   role: user.role,
   isActive: user.isActive,
   lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
@@ -113,6 +121,8 @@ export class InternalUsersService {
       user_metadata: {
         full_name: parsed.data.fullName,
         portal: "backoffice",
+        job_title: parsed.data.jobTitle.trim(),
+        department: parsed.data.department.trim(),
       },
       app_metadata: {
         backoffice: true,
@@ -132,6 +142,8 @@ export class InternalUsersService {
           supabaseUserId: createdAuthUser.data.user.id,
           email: normalizedEmail,
           fullName: parsed.data.fullName.trim(),
+          jobTitle: parsed.data.jobTitle.trim(),
+          department: parsed.data.department.trim(),
           role: parsed.data.role,
         },
       });
@@ -164,6 +176,8 @@ export class InternalUsersService {
       email: BOOTSTRAP_ADMIN_EMAIL,
       fullName: BOOTSTRAP_ADMIN_FULL_NAME,
       password: input.password,
+      jobTitle: input.jobTitle,
+      department: input.department,
       role: "admin",
     });
   }
@@ -189,6 +203,8 @@ export class InternalUsersService {
       where: { id },
       data: {
         fullName: parsed.data.fullName?.trim() ?? existing.fullName,
+        jobTitle: parsed.data.jobTitle?.trim() ?? existing.jobTitle,
+        department: parsed.data.department?.trim() ?? existing.department,
         role: parsed.data.role ?? existing.role,
         isActive: parsed.data.isActive ?? existing.isActive,
       },
@@ -200,6 +216,8 @@ export class InternalUsersService {
         user_metadata: {
           full_name: updated.fullName,
           portal: "backoffice",
+          job_title: updated.jobTitle,
+          department: updated.department,
         },
         app_metadata: {
           backoffice: true,
@@ -211,3 +229,4 @@ export class InternalUsersService {
     return okOutput(mapInternalUser(updated), ["Backoffice user updated successfully"]);
   }
 }
+

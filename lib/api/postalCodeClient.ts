@@ -1,6 +1,7 @@
 interface ViaCepResponse {
   cep?: string;
   logradouro?: string;
+  bairro?: string;
   localidade?: string;
   uf?: string;
   erro?: boolean;
@@ -9,6 +10,7 @@ interface ViaCepResponse {
 export interface PostalCodeAddress {
   postalCode: string;
   street: string;
+  province: string;
   city: string;
   state: string;
   country: string;
@@ -53,6 +55,7 @@ export async function fetchAddressByPostalCode(
     return {
       postalCode: formatPostalCode(sanitizedPostalCode),
       street: payload.logradouro?.trim() ?? "",
+      province: payload.bairro?.trim() ?? "",
       city: payload.localidade?.trim() ?? "",
       state: payload.uf?.trim().toUpperCase() ?? "",
       country: BRAZIL_COUNTRY,

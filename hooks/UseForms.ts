@@ -40,6 +40,8 @@ export function UseRegisterRestaurantForm({
       addressNumber: "",
       complement: "",
       province: "",
+      city: "",
+      state: "",
       postalCode: "",
       phoneNumber: "",
       email: email || "",
@@ -73,8 +75,6 @@ export function UseUserProfileForm(initialValues?: Partial<UserProfileFormData>)
       birthDate: initialValues?.birthDate ?? "",
       document: initialValues?.document ?? "",
       role: initialValues?.role ?? "master",
-      jobTitle: initialValues?.jobTitle ?? "",
-      department: initialValues?.department ?? "",
     },
   });
 }
@@ -130,3 +130,5 @@ export function UseJoinWaitlistForm() {
     }
   });
 }
+
+
