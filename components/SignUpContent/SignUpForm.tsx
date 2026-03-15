@@ -219,6 +219,25 @@ const normalizeBirthDateForForm = (value: string): string => {
   return formatBirthDateInput(trimmed);
 };
 
+const getBirthDatePreviewMonth = (value: string): Date | null => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length < 4) return null;
+
+  const month = Number(digits.slice(2, 4));
+  if (!month || month < 1 || month > 12) return null;
+
+  let year = new Date().getFullYear();
+  if (digits.length >= 8) {
+    const parsedYear = Number(digits.slice(4, 8));
+    if (!parsedYear || parsedYear < 1900 || parsedYear > 2100) {
+      return null;
+    }
+    year = parsedYear;
+  }
+
+  return new Date(year, month - 1, 1);
+};
+
 const normalizeState = (value: string): string => value.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
 
 interface SignUpFormProps extends ComponentProps<"div"> {
@@ -975,6 +994,7 @@ export function SignUpForm({
                         name="birthDate"
                         render={({ field }) => {
                           const selectedDate = parseBirthDateDisplayToDate(field.value ?? "") ?? undefined;
+                          const previewMonth = getBirthDatePreviewMonth(field.value ?? "") ?? undefined;
                           const currentYear = new Date().getFullYear();
 
                           return (
@@ -1011,10 +1031,11 @@ export function SignUpForm({
                                 </div>
 
                                 {isBirthDateCalendarOpen && (
-                                  <div className="absolute left-0 z-50 mt-2 rounded-xl border border-border bg-background-default p-2 shadow-xl">
+                                  <div className="absolute inset-x-0 top-full z-50 mt-2 w-full">
                                     <Calendar
                                       mode="single"
                                       selected={selectedDate}
+                                      month={previewMonth ?? selectedDate}
                                       onSelect={(date) => {
                                         if (!date) return;
                                         field.onChange(format(date, "dd/MM/yyyy"));
@@ -1025,7 +1046,10 @@ export function SignUpForm({
                                       captionLayout="dropdown"
                                       fromYear={currentYear - 100}
                                       toYear={currentYear}
-                                      className="rounded-lg border [--cell-size:2.5rem]"
+                                      className="w-full rounded-xl border bg-background-default shadow-xl [--cell-size:2.25rem]"
+                                      classNames={{
+                                        root: "w-full",
+                                      }}
                                     />
                                   </div>
                                 )}
