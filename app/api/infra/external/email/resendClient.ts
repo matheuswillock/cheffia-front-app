@@ -10,22 +10,30 @@ import type {
 
 let cachedClient: Resend | null = null;
 
-const normalizeBooleanEnv = (value: string | undefined): boolean =>
-  String(value ?? "")
-    .trim()
-    .toLowerCase() === "true";
+const isEmailTestModeEnabled = (): boolean =>
+  (process.env.EMAIL_TEST_MODE ?? "").trim().toLowerCase() === "true";
+
+const extractEmailAddress = (value: string): string | null => {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const matched = trimmed.match(/<([^>]+)>/);
+  const candidate = (matched?.[1] ?? trimmed).trim();
+  return candidate || null;
+};
 
 export const getEmailProviderConfig = (): EmailProviderConfig & { apiKey: string } => {
   const apiKey = process.env.RESEND_API_KEY?.trim() ?? "";
   const from = process.env.EMAIL_FROM?.trim() ?? "";
   const replyTo = process.env.EMAIL_REPLY_TO?.trim() || null;
-  const ownerEmail = process.env.RESEND_OWNER_EMAIL?.trim() || null;
-  const testMode = normalizeBooleanEnv(process.env.EMAIL_TEST_MODE);
+  const configuredOwnerEmail = process.env.RESEND_OWNER_EMAIL?.trim() || null;
+  const testMode = isEmailTestModeEnabled();
+  const ownerEmail = configuredOwnerEmail || extractEmailAddress(from);
 
   if (!apiKey) throw new Error("Missing RESEND_API_KEY environment variable.");
   if (!from) throw new Error("Missing EMAIL_FROM environment variable.");
   if (testMode && !ownerEmail) {
-    throw new Error("RESEND_OWNER_EMAIL is required when EMAIL_TEST_MODE=true.");
+    throw new Error("RESEND_OWNER_EMAIL is required when EMAIL_TEST_MODE=true and EMAIL_FROM has no valid address.");
   }
 
   return {
