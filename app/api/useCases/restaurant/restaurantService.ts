@@ -27,24 +27,43 @@ const registerSchema = z.object({
 }).superRefine((data, ctx) => {
   const documentDigits = data.document.replace(/\D/g, "");
 
-  if (![11, 14].includes(documentDigits.length)) {
+  const isValidCnpj = (value: string): boolean => {
+    if (value.length !== 14) return false;
+    if (/^(\d)\1{13}$/.test(value)) return false;
+
+    const calculateCheckDigit = (base: string, weights: number[]): number => {
+      const sum = base
+        .split("")
+        .reduce((accumulator, digit, index) => accumulator + Number(digit) * weights[index], 0);
+      const remainder = sum % 11;
+      return remainder < 2 ? 0 : 11 - remainder;
+    };
+
+    const base = value.slice(0, 12);
+    const firstDigit = calculateCheckDigit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+    const secondDigit = calculateCheckDigit(`${base}${firstDigit}`, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+    return value === `${base}${firstDigit}${secondDigit}`;
+  };
+
+  if (documentDigits.length !== 14) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["document"],
-      message: "Invalid document",
+      message: "Invalid CNPJ document",
     });
     return;
   }
 
-  if (documentDigits.length === 11 && !data.birthDate) {
+  if (!isValidCnpj(documentDigits)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      path: ["birthDate"],
-      message: "Birth date is required for CPF accounts",
+      path: ["document"],
+      message: "Invalid CNPJ document",
     });
   }
 
-  if (documentDigits.length === 14 && !data.companyType?.trim()) {
+  if (!data.companyType?.trim()) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["companyType"],
@@ -86,7 +105,22 @@ interface RegisterRestaurantOptions {
 
 const validateDocument = (document: string): boolean => {
   const onlyDigits = document.replace(/\D/g, "");
-  return /^\d{11}$/.test(onlyDigits) || /^\d{14}$/.test(onlyDigits);
+  if (!/^\d{14}$/.test(onlyDigits)) return false;
+  if (/^(\d)\1{13}$/.test(onlyDigits)) return false;
+
+  const calculateCheckDigit = (base: string, weights: number[]): number => {
+    const sum = base
+      .split("")
+      .reduce((accumulator, digit, index) => accumulator + Number(digit) * weights[index], 0);
+    const remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  };
+
+  const base = onlyDigits.slice(0, 12);
+  const firstDigit = calculateCheckDigit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  const secondDigit = calculateCheckDigit(`${base}${firstDigit}`, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+  return onlyDigits === `${base}${firstDigit}${secondDigit}`;
 };
 
 const mapRestaurant = (row: RestaurantRow): RestaurantOutput => ({

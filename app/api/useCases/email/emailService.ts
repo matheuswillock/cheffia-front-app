@@ -74,6 +74,28 @@ export class EmailService {
     try {
       const config = this.getConfig();
       const requestedTo = dedupeRecipients(input.to);
+
+      if (process.env.NODE_ENV === "development") {
+        console.info("email.send.skipped_in_development", {
+          kind: context.kind,
+          tenantId: context.tenantId ?? null,
+          restaurantId: context.restaurantId ?? null,
+          supabaseUserId: context.supabaseUserId ?? null,
+          requestedTo,
+        });
+
+        return {
+          success: true,
+          data: {
+            provider: "resend",
+            messageId: null,
+            requestedTo,
+            deliveredTo: [],
+            testMode: true,
+          },
+        };
+      }
+
       const deliveredTo = config.testMode
         ? dedupeRecipients([config.ownerEmail ?? ""])
         : requestedTo;

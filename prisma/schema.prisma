@@ -254,17 +254,17 @@ model Tenant {
 }
 
 model UserProfile {
-  id             String   @id @default(uuid()) @db.Uuid
-  supabaseUserId String   @unique(map: "user_profiles_supabase_user_id_uk") @map("supabase_user_id") @db.Uuid
-  email          String   @unique(map: "user_profiles_email_uk") @db.Text
-  fullName       String   @map("full_name") @db.Text
-  birthDate      DateTime @map("birth_date") @db.Date
-  document       String   @unique(map: "user_profiles_document_uk") @db.Text
+  id             String          @id @default(uuid()) @db.Uuid
+  supabaseUserId String          @unique(map: "user_profiles_supabase_user_id_uk") @map("supabase_user_id") @db.Uuid
+  email          String          @unique(map: "user_profiles_email_uk") @db.Text
+  fullName       String          @map("full_name") @db.Text
+  birthDate      DateTime        @map("birth_date") @db.Date
+  document       String          @unique(map: "user_profiles_document_uk") @db.Text
   role           UserProfileRole
-  cheffiaId      String   @unique(map: "user_profiles_cheffia_id_uk") @map("cheffia_id") @db.Text
-  avatarUrl      String?  @map("avatar_url") @db.Text
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  cheffiaId      String          @unique(map: "user_profiles_cheffia_id_uk") @map("cheffia_id") @db.Text
+  avatarUrl      String?         @map("avatar_url") @db.Text
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   restaurants Restaurant[] @relation("RestaurantOwnerProfile")
 
@@ -299,7 +299,7 @@ model Restaurant {
   phoneNumber                    String?                   @map("phone_number") @db.Text
   email                          String?                   @db.Text
   ownerFullName                  String?                   @map("owner_full_name") @db.Text
-  document                       String?                   @db.Text
+  document                       String                    @db.Text
   personType                     String?                   @map("person_type") @db.Text
   companyType                    String?                   @map("company_type") @db.Text
   birthDate                      DateTime?                 @map("birth_date") @db.Date
@@ -816,13 +816,12 @@ model IdempotencyKey {
   createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, method, endpoint, idempotencyKey], map: "idempotency_tenant_method_endpoint_key_uk")
   @@index([tenantId, createdAt], map: "idempotency_tenant_created_at_idx")
   @@map("idempotency_keys")
 }
-
 
 model OrderPrintJob {
   id              String              @id @default(uuid()) @db.Uuid
@@ -839,7 +838,7 @@ model OrderPrintJob {
   createdAt       DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   outboxEvent OutboxEvent @relation(fields: [outboxEventId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, outboxEventId, printerId], map: "order_print_jobs_tenant_event_printer_uk")
@@ -847,6 +846,7 @@ model OrderPrintJob {
   @@index([tenantId, createdAt], map: "order_print_jobs_tenant_created_at_idx")
   @@map("order_print_jobs")
 }
+
 model AsaasWebhookEvent {
   id                 String             @id @default(uuid()) @db.Uuid
   tenantId           String             @map("tenant_id") @db.Uuid
@@ -865,7 +865,7 @@ model AsaasWebhookEvent {
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, provider, providerEventId], map: "asaas_webhook_tenant_provider_event_uk")
   @@index([tenantId, status, firstReceivedAt], map: "asaas_webhook_tenant_status_received_idx")
@@ -887,11 +887,10 @@ model OutboxEvent {
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   printJobs OrderPrintJob[]
 
   @@index([tenantId, status, availableAt], map: "outbox_tenant_status_available_idx")
   @@index([tenantId, aggregateType, aggregateId], map: "outbox_tenant_aggregate_idx")
   @@map("outbox_events")
 }
-

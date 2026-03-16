@@ -76,6 +76,7 @@ const signUpOnboardingSchema = z
   .object({
     name: z.string().trim().min(3, "Informe o nome do restaurante"),
     email: z.string().trim().email("Informe um e-mail válido"),
+    restaurantDocument: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, "Informe um CNPJ válido"),
     phoneNumber: z.string().trim().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Informe um telefone válido"),
     postalCode: z.string().trim().regex(/^\d{5}-\d{3}$/, "Informe um CEP válido"),
     address: z.string().trim().min(4, "Informe a rua ou avenida"),
@@ -97,6 +98,22 @@ const signUpOnboardingSchema = z
     confirmPassword: z.string(),
   })
   .superRefine((data, ctx) => {
+    if (data.restaurantDocument.replace(/\D/g, "").length !== 14) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["restaurantDocument"],
+        message: "O CNPJ deve conter 14 dígitos",
+      });
+    }
+
+    if (!isValidCnpj(data.restaurantDocument)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["restaurantDocument"],
+        message: "Informe um CNPJ válido",
+      });
+    }
+
     if (data.password !== data.confirmPassword) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -126,7 +143,7 @@ type SignUpOnboardingValues = z.infer<typeof signUpOnboardingSchema>;
 type StepNumber = 1 | 2 | 3;
 
 const STEP_FIELDS: Record<StepNumber, Array<keyof SignUpOnboardingValues>> = {
-  1: ["name", "email", "phoneNumber", "postalCode", "address", "addressNumber", "province", "city", "state"],
+  1: ["name", "email", "restaurantDocument", "phoneNumber", "postalCode", "address", "addressNumber", "province", "city", "state"],
   2: ["fullName", "birthDate", "document"],
   3: ["password", "confirmPassword"],
 };
@@ -134,6 +151,7 @@ const STEP_FIELDS: Record<StepNumber, Array<keyof SignUpOnboardingValues>> = {
 const DEFAULT_FORM_VALUES: SignUpOnboardingValues = {
   name: "",
   email: "",
+  restaurantDocument: "",
   phoneNumber: "",
   postalCode: "",
   address: "",
@@ -155,6 +173,35 @@ const formatPhoneNumber = (value: string): string => {
   if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
   if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+};
+
+const formatCnpj = (value: string): string => {
+  const digits = value.replace(/\D/g, "").slice(0, 14);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`;
+  if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`;
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`;
+};
+
+const isValidCnpj = (value: string): boolean => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(digits)) return false;
+
+  const calculateCheckDigit = (base: string, weights: number[]): number => {
+    const sum = base
+      .split("")
+      .reduce((accumulator, digit, index) => accumulator + Number(digit) * weights[index], 0);
+    const remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  };
+
+  const base = digits.slice(0, 12);
+  const firstDigit = calculateCheckDigit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  const secondDigit = calculateCheckDigit(`${base}${firstDigit}`, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+  return digits === `${base}${firstDigit}${secondDigit}`;
 };
 
 const formatCpf = (value: string): string => {
@@ -283,6 +330,7 @@ export function SignUpForm({
   const currentPassword = form.watch("password") ?? "";
   const currentConfirmPassword = form.watch("confirmPassword") ?? "";
   const currentEmail = form.watch("email") ?? "";
+  const currentRestaurantDocument = form.watch("restaurantDocument") ?? "";
   const currentName = form.watch("name") ?? "";
   const currentPhoneNumber = form.watch("phoneNumber") ?? "";
   const currentPostalCode = form.watch("postalCode") ?? "";
@@ -321,6 +369,7 @@ export function SignUpForm({
   const hasStepOneRequiredFields =
     currentName.trim().length > 0 &&
     currentEmail.trim().length > 0 &&
+    currentRestaurantDocument.trim().length > 0 &&
     currentPhoneNumber.trim().length > 0 &&
     currentPostalCode.trim().length > 0 &&
     currentAddress.trim().length > 0 &&
@@ -335,6 +384,7 @@ export function SignUpForm({
     !cepLookupError &&
     !form.formState.errors.name &&
     !form.formState.errors.email &&
+    !form.formState.errors.restaurantDocument &&
     !form.formState.errors.phoneNumber &&
     !form.formState.errors.postalCode &&
     !form.formState.errors.address &&
@@ -366,6 +416,7 @@ export function SignUpForm({
       const draft = {
         name: values.name,
         email: values.email,
+        restaurantDocument: values.restaurantDocument,
         phoneNumber: values.phoneNumber,
         postalCode: values.postalCode,
         address: values.address,
@@ -421,6 +472,7 @@ export function SignUpForm({
         restaurant: {
           name: values.name,
           email: values.email,
+          document: values.restaurantDocument,
           phoneNumber: values.phoneNumber,
           postalCode: values.postalCode,
           address: values.address,
@@ -818,6 +870,29 @@ export function SignUpForm({
                           <FormLabel>E-mail do restaurante</FormLabel>
                           <FormControl>
                             <Input {...field} type="email" placeholder="restaurante@email.com" className="rounded-xl" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="restaurantDocument"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CNPJ do restaurante</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="text"
+                              inputMode="numeric"
+                              placeholder="00.000.000/0000-00"
+                              className="rounded-xl"
+                              onChange={(event) => {
+                                field.onChange(formatCnpj(event.target.value));
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1233,12 +1308,13 @@ export function SignUpForm({
                       type="submit"
                       className="flex-1 rounded-xl bg-button font-semibold text-foreground-black hover:bg-button-dark"
                       disabled={!canSubmitSignUp || isSubmitting || isGoogleResumeFlow}
+                      aria-busy={isSubmitting}
                     >
                       {isSubmitting ? (
-                        <>
+                        <span className="inline-flex items-center gap-2">
                           <Spinner data-icon="inline-start" />
                           Cadastrando...
-                        </>
+                        </span>
                       ) : (
                         "Cadastrar"
                       )}

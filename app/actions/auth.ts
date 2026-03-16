@@ -25,12 +25,33 @@ const normalizeRelativePath = (value: string | null | undefined): string | null 
   return normalized;
 };
 
+const isValidCnpj = (value: string): boolean => {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(digits)) return false;
+
+  const calculateCheckDigit = (base: string, weights: number[]): number => {
+    const sum = base
+      .split("")
+      .reduce((accumulator, digit, index) => accumulator + Number(digit) * weights[index], 0);
+    const remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  };
+
+  const base = digits.slice(0, 12);
+  const firstDigit = calculateCheckDigit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  const secondDigit = calculateCheckDigit(`${base}${firstDigit}`, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+  return digits === `${base}${firstDigit}${secondDigit}`;
+};
+
 const onboardingInputSchema = z
   .object({
     authMethod: z.enum(["password", "google"]),
     restaurant: z.object({
       name: z.string().trim().min(3, "Nome do restaurante invalido"),
       email: z.string().trim().email("Email do restaurante invalido"),
+      document: z.string().trim().min(14, "CNPJ do restaurante invalido"),
       phoneNumber: z.string().trim().min(10, "Telefone do restaurante invalido"),
       postalCode: z.string().trim().min(8, "CEP invalido"),
       address: z.string().trim().min(4, "Endereco invalido"),
@@ -59,6 +80,23 @@ const onboardingInputSchema = z
       .optional(),
   })
   .superRefine((data, ctx) => {
+    const restaurantDocumentDigits = data.restaurant.document.replace(/\D/g, "");
+    if (restaurantDocumentDigits.length !== 14) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["restaurant", "document"],
+        message: "O documento do restaurante deve ser um CNPJ com 14 digitos",
+      });
+    }
+
+    if (!isValidCnpj(data.restaurant.document)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["restaurant", "document"],
+        message: "CNPJ do restaurante invalido",
+      });
+    }
+
     const ownerDocumentDigits = data.owner.document.replace(/\D/g, "");
     if (ownerDocumentDigits.length !== 11) {
       ctx.addIssue({
@@ -93,6 +131,7 @@ export interface CompleteRestaurantOnboardingInput {
   restaurant: {
     name: string;
     email: string;
+    document: string;
     phoneNumber: string;
     postalCode: string;
     address: string;
@@ -336,6 +375,7 @@ export async function completeRestaurantOnboarding(
   const normalizedRestaurant = {
     ...parsed.data.restaurant,
     email: parsed.data.restaurant.email.trim().toLowerCase(),
+    document: parsed.data.restaurant.document.replace(/\D/g, ""),
     phoneNumber: parsed.data.restaurant.phoneNumber.replace(/\D/g, ""),
     postalCode: parsed.data.restaurant.postalCode.replace(/\D/g, ""),
     state: parsed.data.restaurant.state.trim().toUpperCase(),
@@ -432,7 +472,7 @@ export async function completeRestaurantOnboarding(
       emailVerified: Boolean(user.email_confirmed_at),
       supabaseId: user.id,
       ownerFullName: normalizedOwner.fullName,
-      document: normalizedOwner.document,
+      document: normalizedRestaurant.document,
       birthDate: normalizedOwner.birthDate,
       companyType: null,
       providerAvatarUrl: avatarUrl ?? "",
