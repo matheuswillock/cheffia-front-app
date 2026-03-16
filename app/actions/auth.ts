@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/utils/supabase/server";
+import { getSupabaseAdminClient } from "@/app/api/infra/supabase/adminClient";
 import { createEmailConfirmationLink, getEmailService } from "@/app/api/useCases/email";
 import { RestaurantService } from "@/app/api/useCases/restaurant";
 import { UserProfileService } from "@/app/api/useCases/userProfiles";
@@ -296,7 +297,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const supabase = await getSupabaseClient();
+  const adminClient = getSupabaseAdminClient();
   const requestHeaders = await headers();
   const appBaseUrl = requestHeaders.get("origin");
 
@@ -305,19 +306,21 @@ export async function signUp(formData: FormData) {
     password: readStringFormField(formData, "password"),
   };
 
-  const { error, data } = await supabase.auth.signUp({
-    ...credentials,
+  const createdAuthUser = await adminClient.auth.admin.createUser({
+    email: credentials.email,
+    password: credentials.password,
+    email_confirm: false,
   });
 
-  if (error || !data.user) {
+  if (createdAuthUser.error || !createdAuthUser.data.user) {
     redirect("/error");
   }
 
-  if (!data.user.email_confirmed_at) {
+  if (!createdAuthUser.data.user.email_confirmed_at) {
     await sendSignUpConfirmationEmail({
       email: credentials.email,
       fullName: credentials.email,
-      supabaseUserId: data.user.id,
+      supabaseUserId: createdAuthUser.data.user.id,
       appBaseUrl,
     });
   }
@@ -401,22 +404,28 @@ export async function completeRestaurantOnboarding(
       return failOnboarding("Senha obrigatoria para cadastro com email e senha");
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    const adminClient = getSupabaseAdminClient();
+    const createdAuthUser = await adminClient.auth.admin.createUser({
       email: normalizedRestaurant.email,
       password,
+      email_confirm: false,
+      user_metadata: {
+        full_name: normalizedOwner.fullName,
+        portal: "restaurant",
+      },
     });
 
-    if (error || !data.user) {
-      return failOnboarding(error?.message ?? "Nao foi possivel criar o usuario");
+    if (createdAuthUser.error || !createdAuthUser.data.user) {
+      return failOnboarding(createdAuthUser.error?.message ?? "Nao foi possivel criar o usuario");
     }
 
-    user = data.user;
+    user = createdAuthUser.data.user;
 
-    if (!data.user.email_confirmed_at) {
+    if (!createdAuthUser.data.user.email_confirmed_at) {
       await sendSignUpConfirmationEmail({
         email: normalizedRestaurant.email,
         fullName: normalizedOwner.fullName,
-        supabaseUserId: data.user.id,
+        supabaseUserId: createdAuthUser.data.user.id,
         appBaseUrl,
       });
     }

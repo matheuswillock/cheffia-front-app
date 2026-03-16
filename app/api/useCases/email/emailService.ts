@@ -72,11 +72,17 @@ export class EmailService {
     context: EmailContext
   ): Promise<EmailSendResult> {
     try {
-      const config = this.getConfig();
       const requestedTo = dedupeRecipients(input.to);
 
+      if (!requestedTo.length) {
+        return {
+          success: false,
+          error: "At least one recipient is required.",
+        };
+      }
+
       if (process.env.NODE_ENV === "development") {
-        console.info("email.send.skipped_in_development", {
+        console.warn("email.send.skipped_in_development", {
           kind: context.kind,
           tenantId: context.tenantId ?? null,
           restaurantId: context.restaurantId ?? null,
@@ -96,16 +102,11 @@ export class EmailService {
         };
       }
 
+      const config = this.getConfig();
+
       const deliveredTo = config.testMode
         ? dedupeRecipients([config.ownerEmail ?? ""])
         : requestedTo;
-
-      if (!requestedTo.length) {
-        return {
-          success: false,
-          error: "At least one recipient is required.",
-        };
-      }
 
       const subject = config.testMode
         ? `[EMAIL_TEST_MODE] ${input.subject}`

@@ -285,6 +285,24 @@ const getBirthDatePreviewMonth = (value: string): Date | null => {
   return new Date(year, month - 1, 1);
 };
 
+const mapOnboardingErrorMessage = (message: string | null | undefined): string => {
+  const normalized = (message ?? "").toLowerCase();
+
+  if (normalized.includes("address already in use")) {
+    return "Este e-mail já está em uso. Tente entrar na conta ou use outro e-mail.";
+  }
+
+  if (normalized.includes("a user with this email address has already been registered")) {
+    return "Este e-mail já está cadastrado. Faça login ou use outro e-mail.";
+  }
+
+  if (normalized.includes("email rate limit exceeded") || normalized.includes("rate limit")) {
+    return "Muitas tentativas em sequência. Aguarde alguns minutos e tente novamente.";
+  }
+
+  return message ?? "Revise os dados e tente novamente.";
+};
+
 const normalizeState = (value: string): string => value.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
 
 interface SignUpFormProps extends ComponentProps<"div"> {
@@ -529,7 +547,7 @@ export function SignUpForm({
 
         if (!response.isValid || !response.result) {
           toast.error("Não foi possível concluir o cadastro", {
-            description: response.errorMessages[0] ?? "Revise os dados e tente novamente.",
+            description: mapOnboardingErrorMessage(response.errorMessages[0]),
           });
           return;
         }
@@ -547,7 +565,7 @@ export function SignUpForm({
       } catch (error) {
         const message = error instanceof Error ? error.message : "Erro inesperado";
         toast.error("Não foi possível concluir o cadastro", {
-          description: message,
+          description: mapOnboardingErrorMessage(message),
         });
       } finally {
         setIsSubmitting(false);

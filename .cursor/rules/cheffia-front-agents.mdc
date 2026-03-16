@@ -283,6 +283,8 @@ bun run artifacts:check
 - Commit secrets to source files or docs.
 - Create implementation summary docs (`*_IMPLEMENTATION_SUMMARY.md`, `*_FIX_SUMMARY.md`, similar generated summaries).
 - Use npm or yarn (project standard is Bun).
+- Use any outbound email dispatch provider/library other than Resend for application-triggered emails.
+- Rely on Supabase Auth automatic email dispatch (signup/reset/invite/magic link) in application flows.
 - Remove tenant isolation from v1 endpoints.
 - Remove idempotency protections from endpoints that already enforce them without explicit, justified refactor scope.
 - Hardcode app URLs when environment configuration should be used.
