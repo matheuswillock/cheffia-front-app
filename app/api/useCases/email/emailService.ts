@@ -81,27 +81,6 @@ export class EmailService {
         };
       }
 
-      if (process.env.NODE_ENV === "development") {
-        console.warn("email.send.skipped_in_development", {
-          kind: context.kind,
-          tenantId: context.tenantId ?? null,
-          restaurantId: context.restaurantId ?? null,
-          supabaseUserId: context.supabaseUserId ?? null,
-          requestedTo,
-        });
-
-        return {
-          success: true,
-          data: {
-            provider: "resend",
-            messageId: null,
-            requestedTo,
-            deliveredTo: [],
-            testMode: true,
-          },
-        };
-      }
-
       const config = this.getConfig();
 
       const deliveredTo = config.testMode
