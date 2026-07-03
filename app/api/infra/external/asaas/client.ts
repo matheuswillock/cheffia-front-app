@@ -68,7 +68,12 @@ const redact = (value: unknown): unknown => {
 };
 
 const logAsaas = (level: "warn" | "error", message: string, data: Record<string, unknown>): void => {
-  const payload = redact(data);
+  const raw = {
+    requestId: data.requestId ?? null,
+    tenantId: data.tenantId ?? null,
+    ...data,
+  };
+  const payload = redact(raw);
   if (level === "error") {
     console.error("asaas.client", message, payload);
     return;

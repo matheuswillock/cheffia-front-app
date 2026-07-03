@@ -1,4 +1,5 @@
 import { TenantContextError } from "./errors";
+import { resolveRequestIdFromRequest } from "@/lib/server/requestId";
 
 export type TenantSource =
   | "header:x-tenant-id"
@@ -158,7 +159,7 @@ export const resolveTenantContext = async (
   return {
     tenantId: chosen.value,
     source: chosen.source,
-    requestId: safeTrim(request.headers.get("x-request-id")),
+    requestId: resolveRequestIdFromRequest(request),
     restaurantId,
   };
 };

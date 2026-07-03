@@ -35,6 +35,13 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowLeft as AnimatedArrowLeft } from "@/components/animate-ui/icons/arrow-left";
 import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/spinner";
@@ -72,11 +79,27 @@ const PASSWORD_REQUIREMENTS = [
   { id: "special", label: "Pelo menos um caractere especial", test: (value: string) => /[^A-Za-z0-9]/.test(value) },
 ] as const;
 
+const COMPANY_TYPE_OPTIONS = [
+  { value: "MEI", label: "MEI" },
+  { value: "LTDA", label: "LTDA" },
+  { value: "INDIVIDUAL", label: "INDIVIDUAL" },
+] as const;
+
+const COMPANY_TYPE_VALUES = COMPANY_TYPE_OPTIONS.map((option) => option.value);
+
 const signUpOnboardingSchema = z
   .object({
     name: z.string().trim().min(3, "Informe o nome do restaurante"),
     email: z.string().trim().email("Informe um e-mail válido"),
     restaurantDocument: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, "Informe um CNPJ válido"),
+    companyType: z
+      .string()
+      .trim()
+      .min(1, "Selecione o tipo da empresa")
+      .refine(
+        (value) => COMPANY_TYPE_VALUES.includes(value as (typeof COMPANY_TYPE_OPTIONS)[number]["value"]),
+        "Selecione um tipo da empresa válido"
+      ),
     phoneNumber: z.string().trim().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Informe um telefone válido"),
     postalCode: z.string().trim().regex(/^\d{5}-\d{3}$/, "Informe um CEP válido"),
     address: z.string().trim().min(4, "Informe a rua ou avenida"),
@@ -143,7 +166,7 @@ type SignUpOnboardingValues = z.infer<typeof signUpOnboardingSchema>;
 type StepNumber = 1 | 2 | 3;
 
 const STEP_FIELDS: Record<StepNumber, Array<keyof SignUpOnboardingValues>> = {
-  1: ["name", "email", "restaurantDocument", "phoneNumber", "postalCode", "address", "addressNumber", "province", "city", "state"],
+  1: ["name", "email", "restaurantDocument", "companyType", "phoneNumber", "postalCode", "address", "addressNumber", "province", "city", "state"],
   2: ["fullName", "birthDate", "document"],
   3: ["password", "confirmPassword"],
 };
@@ -152,6 +175,7 @@ const DEFAULT_FORM_VALUES: SignUpOnboardingValues = {
   name: "",
   email: "",
   restaurantDocument: "",
+  companyType: "",
   phoneNumber: "",
   postalCode: "",
   address: "",
@@ -349,6 +373,7 @@ export function SignUpForm({
   const currentConfirmPassword = form.watch("confirmPassword") ?? "";
   const currentEmail = form.watch("email") ?? "";
   const currentRestaurantDocument = form.watch("restaurantDocument") ?? "";
+  const currentCompanyType = form.watch("companyType") ?? "";
   const currentName = form.watch("name") ?? "";
   const currentPhoneNumber = form.watch("phoneNumber") ?? "";
   const currentPostalCode = form.watch("postalCode") ?? "";
@@ -388,6 +413,7 @@ export function SignUpForm({
     currentName.trim().length > 0 &&
     currentEmail.trim().length > 0 &&
     currentRestaurantDocument.trim().length > 0 &&
+    currentCompanyType.trim().length > 0 &&
     currentPhoneNumber.trim().length > 0 &&
     currentPostalCode.trim().length > 0 &&
     currentAddress.trim().length > 0 &&
@@ -403,6 +429,7 @@ export function SignUpForm({
     !form.formState.errors.name &&
     !form.formState.errors.email &&
     !form.formState.errors.restaurantDocument &&
+    !form.formState.errors.companyType &&
     !form.formState.errors.phoneNumber &&
     !form.formState.errors.postalCode &&
     !form.formState.errors.address &&
@@ -435,6 +462,7 @@ export function SignUpForm({
         name: values.name,
         email: values.email,
         restaurantDocument: values.restaurantDocument,
+        companyType: values.companyType,
         phoneNumber: values.phoneNumber,
         postalCode: values.postalCode,
         address: values.address,
@@ -491,6 +519,7 @@ export function SignUpForm({
           name: values.name,
           email: values.email,
           document: values.restaurantDocument,
+          companyType: values.companyType.trim().toUpperCase(),
           phoneNumber: values.phoneNumber,
           postalCode: values.postalCode,
           address: values.address,
@@ -912,6 +941,31 @@ export function SignUpForm({
                               }}
                             />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="companyType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Tipo da empresa no Asaas</FormLabel>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione o tipo da empresa" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {COMPANY_TYPE_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

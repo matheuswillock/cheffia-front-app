@@ -3,6 +3,7 @@ import { MenuService } from "@/app/api/useCases/menu";
 import { SupabaseIdempotencyRepository } from "@/app/api/infra/persistence/idempotency/supabaseIdempotencyRepository";
 import { executeWithIdempotency } from "@/lib/server/idempotency";
 import { failOutput } from "@/lib/server/output";
+import { resolveRequestIdFromRequest } from "@/lib/server/requestId";
 import { TenantContextError, requireTenantContext } from "@/lib/server/tenant";
 
 interface HandleDeleteMenuItemParams {
@@ -29,6 +30,7 @@ export const handleDeleteMenuItem = async ({
   endpoint,
 }: HandleDeleteMenuItemParams): Promise<NextResponse> => {
   const service = new MenuService();
+  const requestId = resolveRequestIdFromRequest(request);
   const idempotencyKey = request.headers.get("idempotency-key")?.trim() ?? null;
 
   if (!itemId.trim()) {
@@ -44,7 +46,7 @@ export const handleDeleteMenuItem = async ({
   }
 
   if (!idempotencyKey) {
-    const output = await service.deleteItem(tenantId, itemId);
+    const output = await service.deleteItem(tenantId, itemId, { requestId });
     return NextResponse.json(output, { status: output.isValid ? 200 : 400 });
   }
 
@@ -57,7 +59,7 @@ export const handleDeleteMenuItem = async ({
     payloadForHash: { itemId },
     repository,
     execute: async () => {
-      const output = await service.deleteItem(tenantId, itemId);
+      const output = await service.deleteItem(tenantId, itemId, { requestId });
       return { output, statusCode: output.isValid ? 200 : 400 };
     },
   });

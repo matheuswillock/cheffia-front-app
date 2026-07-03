@@ -27,7 +27,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!idempotencyKey) {
-      const output = await financialAccountService.provisionSubaccount(tenant.tenantId, restaurantId);
+      const output = await financialAccountService.provisionSubaccount(tenant.tenantId, restaurantId, {
+        requestId: tenant.requestId ?? undefined,
+      });
       return NextResponse.json(output, { status: output.isValid ? 200 : 400 });
     }
 
@@ -40,7 +42,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       payloadForHash: { restaurantId },
       repository,
       execute: async () => {
-        const output = await financialAccountService.provisionSubaccount(tenant.tenantId, restaurantId);
+        const output = await financialAccountService.provisionSubaccount(tenant.tenantId, restaurantId, {
+          requestId: tenant.requestId ?? undefined,
+        });
         return { output, statusCode: output.isValid ? 200 : 400 };
       },
     });

@@ -9,6 +9,7 @@ import { getSupabaseAdminClient } from "@/app/api/infra/supabase/adminClient";
 import { createEmailConfirmationLink, getEmailService } from "@/app/api/useCases/email";
 import { RestaurantService } from "@/app/api/useCases/restaurant";
 import { UserProfileService } from "@/app/api/useCases/userProfiles";
+import { resolveRequestIdFromHeaders } from "@/lib/server/requestId";
 
 async function getSupabaseClient() {
   return await createClient();
@@ -53,6 +54,7 @@ const onboardingInputSchema = z
       name: z.string().trim().min(3, "Nome do restaurante invalido"),
       email: z.string().trim().email("Email do restaurante invalido"),
       document: z.string().trim().min(14, "CNPJ do restaurante invalido"),
+      companyType: z.string().trim().min(1, "Tipo da empresa obrigatorio"),
       phoneNumber: z.string().trim().min(10, "Telefone do restaurante invalido"),
       postalCode: z.string().trim().min(8, "CEP invalido"),
       address: z.string().trim().min(4, "Endereco invalido"),
@@ -133,6 +135,7 @@ export interface CompleteRestaurantOnboardingInput {
     name: string;
     email: string;
     document: string;
+    companyType: string;
     phoneNumber: string;
     postalCode: string;
     address: string;
@@ -189,40 +192,31 @@ const sendSignUpConfirmationEmail = async ({
   fullName,
   supabaseUserId,
   appBaseUrl,
+  requestId,
 }: {
   email: string;
   fullName: string;
   supabaseUserId: string;
   appBaseUrl?: string | null;
+  requestId?: string;
 }): Promise<void> => {
-  try {
-    const link = await createEmailConfirmationLink({
-      email,
-      nextPath: "/register/restaurant",
-      appBaseUrl,
-    });
+  const link = await createEmailConfirmationLink({
+    email,
+    nextPath: "/register/restaurant",
+    appBaseUrl,
+  });
 
-    const delivery = await getEmailService().sendEmailConfirmationEmail(
-      {
-        userName: fullName,
-        userEmail: email,
-        confirmationUrl: link.deliveryUrl,
-      },
-      { supabaseUserId }
-    );
+  const delivery = await getEmailService().sendEmailConfirmationEmail(
+    {
+      userName: fullName,
+      userEmail: email,
+      confirmationUrl: link.deliveryUrl,
+    },
+    { supabaseUserId, requestId }
+  );
 
-    if (!delivery.success) {
-      console.error("auth.sign_up.confirmation_email_failed", {
-        supabaseUserId,
-        message: delivery.error,
-      });
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown confirmation email error";
-    console.error("auth.sign_up.confirmation_email_failed", {
-      supabaseUserId,
-      message,
-    });
+  if (!delivery.success) {
+    throw new Error(delivery.error ?? "Failed to send confirmation email");
   }
 };
 
@@ -242,8 +236,10 @@ const buildUserProfileInputFromForm = (
 
 const authenticateWithOAuth = async (nextPath?: string) => {
   const supabase = await getSupabaseClient();
+  const requestHeaders = await headers();
+  const requestId = resolveRequestIdFromHeaders(requestHeaders);
   const origin =
-    (await headers()).get("origin")?.trim() ||
+    requestHeaders.get("origin")?.trim() ||
     process.env.NEXT_PUBLIC_APP_URL?.trim() ||
     "http://localhost:3000";
 
@@ -265,7 +261,10 @@ const authenticateWithOAuth = async (nextPath?: string) => {
   });
 
   if (error) {
-    console.error("Erro no authenticateWithOAuth", error.message);
+    console.error("auth.oauth.authenticate_failed", {
+      requestId,
+      message: error.message,
+    });
     return redirect("/sign-in");
   }
 
@@ -273,6 +272,8 @@ const authenticateWithOAuth = async (nextPath?: string) => {
 };
 
 export async function signIn(formData: FormData) {
+  const requestHeaders = await headers();
+  const requestId = resolveRequestIdFromHeaders(requestHeaders);
   try {
     const supabase = await getSupabaseClient();
     const profileService = new UserProfileService();
@@ -291,7 +292,11 @@ export async function signIn(formData: FormData) {
     revalidatePath("/", "layout");
     redirect(await profileService.resolvePostAuthDestination(data.user.id));
   } catch (error) {
-    console.error("signIn | error:", error);
+    const message = error instanceof Error ? error.message : "Unknown sign-in error";
+    console.error("auth.sign_in.failed", {
+      requestId,
+      message,
+    });
     redirect("/error");
   }
 }
@@ -299,12 +304,22 @@ export async function signIn(formData: FormData) {
 export async function signUp(formData: FormData) {
   const adminClient = getSupabaseAdminClient();
   const requestHeaders = await headers();
+  const requestId = resolveRequestIdFromHeaders(requestHeaders);
   const appBaseUrl = requestHeaders.get("origin");
+  const logInfo = (event: string, payload: Record<string, unknown> = {}) =>
+    console.info(event, { requestId, ...payload });
+  const logError = (event: string, payload: Record<string, unknown> = {}) =>
+    console.error(event, { requestId, ...payload });
 
   const credentials = {
     email: readStringFormField(formData, "email"),
     password: readStringFormField(formData, "password"),
   };
+
+  logInfo("auth.sign_up.started", {
+    email: credentials.email,
+    appBaseUrl,
+  });
 
   const createdAuthUser = await adminClient.auth.admin.createUser({
     email: credentials.email,
@@ -313,17 +328,17 @@ export async function signUp(formData: FormData) {
   });
 
   if (createdAuthUser.error || !createdAuthUser.data.user) {
+    logError("auth.sign_up.failed", {
+      email: credentials.email,
+      message: createdAuthUser.error?.message ?? "Nao foi possivel criar o usuario",
+    });
     redirect("/error");
   }
 
-  if (!createdAuthUser.data.user.email_confirmed_at) {
-    await sendSignUpConfirmationEmail({
-      email: credentials.email,
-      fullName: credentials.email,
-      supabaseUserId: createdAuthUser.data.user.id,
-      appBaseUrl,
-    });
-  }
+  logInfo("auth.sign_up.succeeded", {
+    email: credentials.email,
+    supabaseUserId: createdAuthUser.data.user.id,
+  });
 
   revalidatePath("/", "layout");
   redirect("/register/restaurant");
@@ -365,12 +380,27 @@ export async function completeRestaurantOnboarding(
   input: CompleteRestaurantOnboardingInput
 ): Promise<CompleteRestaurantOnboardingResponse> {
   const parsed = onboardingInputSchema.safeParse(input);
+  const requestHeaders = await headers();
+  const requestId = resolveRequestIdFromHeaders(requestHeaders);
+  const logInfo = (event: string, payload: Record<string, unknown> = {}) =>
+    console.info(event, { requestId, ...payload });
+  const logError = (event: string, payload: Record<string, unknown> = {}) =>
+    console.error(event, { requestId, ...payload });
+
+  logInfo("auth.complete_onboarding.started", {
+    authMethod: input.authMethod,
+    restaurantEmail: input.restaurant?.email ?? null,
+  });
+
   if (!parsed.success) {
+    logError("auth.complete_onboarding.validation_failed", {
+      authMethod: input.authMethod,
+      errors: parsed.error.issues.map((issue) => issue.message),
+    });
     return failOnboarding(parsed.error.issues.map((issue) => issue.message));
   }
 
   const supabase = await getSupabaseClient();
-  const requestHeaders = await headers();
   const appBaseUrl = requestHeaders.get("origin");
   const profileService = new UserProfileService();
   const restaurantService = new RestaurantService();
@@ -379,6 +409,7 @@ export async function completeRestaurantOnboarding(
     ...parsed.data.restaurant,
     email: parsed.data.restaurant.email.trim().toLowerCase(),
     document: parsed.data.restaurant.document.replace(/\D/g, ""),
+    companyType: parsed.data.restaurant.companyType.trim().toUpperCase(),
     phoneNumber: parsed.data.restaurant.phoneNumber.replace(/\D/g, ""),
     postalCode: parsed.data.restaurant.postalCode.replace(/\D/g, ""),
     state: parsed.data.restaurant.state.trim().toUpperCase(),
@@ -397,8 +428,93 @@ export async function completeRestaurantOnboarding(
         user_metadata?: Record<string, unknown>;
       }
     | null = null;
+  let createdAuthUserId: string | null = null;
+  let profilePersisted = false;
+  let hadProfileBefore = false;
+  let createdRestaurantId: string | null = null;
 
-  if (parsed.data.authMethod === "password") {
+  const rollbackOnboarding = async (): Promise<void> => {
+    const rollbackErrors: string[] = [];
+    const adminClient = getSupabaseAdminClient();
+
+    logInfo("auth.complete_onboarding.rollback_started", {
+      userId: user?.id ?? null,
+      createdAuthUserId,
+      createdRestaurantId,
+      shouldRemoveProfile: profilePersisted && !hadProfileBefore,
+    });
+
+    if (createdRestaurantId) {
+      try {
+        const tenantId = await restaurantService.getTenantByRestaurantId(createdRestaurantId);
+
+        if (tenantId) {
+          const deleted = await restaurantService.deleteRestaurant(tenantId, createdRestaurantId);
+          if (!deleted.isValid) {
+            rollbackErrors.push(...deleted.errorMessages);
+          } else {
+            logInfo("auth.complete_onboarding.rollback_restaurant_succeeded", {
+              tenantId,
+              restaurantId: createdRestaurantId,
+            });
+          }
+        }
+      } catch (error) {
+        rollbackErrors.push(error instanceof Error ? error.message : "Unknown restaurant rollback error");
+      }
+    }
+
+    if (profilePersisted && !hadProfileBefore && user?.id) {
+      try {
+        const deletedProfile = await profileService.deleteBySupabaseUserId(user.id, {
+          requestId,
+        });
+        if (!deletedProfile.isValid) {
+          rollbackErrors.push(...deletedProfile.errorMessages);
+        } else {
+          logInfo("auth.complete_onboarding.rollback_profile_succeeded", {
+            supabaseUserId: user.id,
+          });
+        }
+      } catch (error) {
+        rollbackErrors.push(error instanceof Error ? error.message : "Unknown profile rollback error");
+      }
+    }
+
+    if (createdAuthUserId) {
+      try {
+        const removed = await adminClient.auth.admin.deleteUser(createdAuthUserId);
+        if (removed.error) {
+          rollbackErrors.push(removed.error.message);
+        } else {
+          logInfo("auth.complete_onboarding.rollback_auth_user_succeeded", {
+            supabaseUserId: createdAuthUserId,
+          });
+        }
+      } catch (error) {
+        rollbackErrors.push(error instanceof Error ? error.message : "Unknown auth rollback error");
+      }
+    }
+
+    if (rollbackErrors.length > 0) {
+      logError("auth.complete_onboarding.rollback_failed", {
+        userId: user?.id ?? null,
+        createdAuthUserId,
+        createdRestaurantId,
+        errors: rollbackErrors,
+      });
+      return;
+    }
+
+    logInfo("auth.complete_onboarding.rollback_succeeded", {
+      userId: user?.id ?? null,
+      createdAuthUserId,
+      createdRestaurantId,
+    });
+  };
+
+  try {
+    if (parsed.data.authMethod === "password") {
     const password = parsed.data.auth?.password;
     if (!password) {
       return failOnboarding("Senha obrigatoria para cadastro com email e senha");
@@ -416,103 +532,159 @@ export async function completeRestaurantOnboarding(
     });
 
     if (createdAuthUser.error || !createdAuthUser.data.user) {
+      logError("auth.complete_onboarding.auth_user_create_failed", {
+        authMethod: parsed.data.authMethod,
+        restaurantEmail: normalizedRestaurant.email,
+        message: createdAuthUser.error?.message ?? "Nao foi possivel criar o usuario",
+      });
       return failOnboarding(createdAuthUser.error?.message ?? "Nao foi possivel criar o usuario");
     }
 
     user = createdAuthUser.data.user;
+    createdAuthUserId = createdAuthUser.data.user.id;
+    logInfo("auth.complete_onboarding.auth_user_created", {
+      authMethod: parsed.data.authMethod,
+      supabaseUserId: createdAuthUserId,
+      restaurantEmail: normalizedRestaurant.email,
+    });
+    } else {
+      const {
+        data: { user: oauthUser },
+        error,
+      } = await supabase.auth.getUser();
 
-    if (!createdAuthUser.data.user.email_confirmed_at) {
+      if (error || !oauthUser) {
+        logError("auth.complete_onboarding.google_user_fetch_failed", {
+          authMethod: parsed.data.authMethod,
+          message: error?.message ?? "Usuario Google nao autenticado",
+        });
+        return failOnboarding("Usuario Google nao autenticado. Refaça a autenticacao.");
+      }
+
+      user = oauthUser;
+      logInfo("auth.complete_onboarding.google_user_loaded", {
+        authMethod: parsed.data.authMethod,
+        supabaseUserId: user.id,
+      });
+    }
+
+    if (!user) {
+      return failOnboarding("Usuario autenticado nao encontrado");
+    }
+
+    const resolvedEmail = (user.email ?? normalizedRestaurant.email).trim().toLowerCase();
+    const avatarUrl =
+      typeof user.user_metadata?.avatar_url === "string" ? user.user_metadata.avatar_url : null;
+    const usedGoogleEmail =
+      parsed.data.authMethod === "google" && resolvedEmail !== normalizedRestaurant.email;
+
+    hadProfileBefore = Boolean(await profileService.findBySupabaseUserId(user.id));
+
+    const profileOutput = await profileService.upsert({
+      supabaseUserId: user.id,
+      email: resolvedEmail,
+      fullName: normalizedOwner.fullName,
+      birthDate: normalizedOwner.birthDate,
+      document: normalizedOwner.document,
+      role: "master",
+      avatarUrl,
+    }, { requestId });
+
+    if (!profileOutput.isValid) {
+      throw new Error(profileOutput.errorMessages.join("; "));
+    }
+    profilePersisted = true;
+    logInfo("auth.complete_onboarding.profile_upsert_succeeded", {
+      supabaseUserId: user.id,
+      hadProfileBefore,
+    });
+
+    const restaurantOutput = await restaurantService.register(
+      {
+        name: normalizedRestaurant.name,
+        address: normalizedRestaurant.address,
+        addressNumber: normalizedRestaurant.addressNumber,
+        complement: normalizedRestaurant.complement,
+        province: normalizedRestaurant.province,
+        city: normalizedRestaurant.city,
+        state: normalizedRestaurant.state,
+        postalCode: normalizedRestaurant.postalCode,
+        phoneNumber: normalizedRestaurant.phoneNumber,
+        email: resolvedEmail,
+        emailVerified: Boolean(user.email_confirmed_at),
+        supabaseId: user.id,
+        ownerFullName: normalizedOwner.fullName,
+        document: normalizedRestaurant.document,
+        birthDate: normalizedOwner.birthDate,
+        companyType: normalizedRestaurant.companyType,
+        providerAvatarUrl: avatarUrl ?? "",
+      },
+      null,
+      { appBaseUrl, sendWelcomeEmail: false, requestId }
+    );
+
+    if (!restaurantOutput.isValid || !restaurantOutput.result?.restaurantId) {
+      throw new Error(restaurantOutput.errorMessages.join("; "));
+    }
+    createdRestaurantId = restaurantOutput.result.restaurantId;
+    logInfo("auth.complete_onboarding.restaurant_register_succeeded", {
+      supabaseUserId: user.id,
+      restaurantId: createdRestaurantId,
+    });
+
+    if (parsed.data.authMethod === "password" && !user.email_confirmed_at) {
       await sendSignUpConfirmationEmail({
         email: normalizedRestaurant.email,
         fullName: normalizedOwner.fullName,
-        supabaseUserId: createdAuthUser.data.user.id,
+        supabaseUserId: user.id,
         appBaseUrl,
+        requestId,
+      });
+
+      logInfo("auth.complete_onboarding.confirmation_email_sent", {
+        supabaseUserId: user.id,
+        email: normalizedRestaurant.email,
       });
     }
-  } else {
-    const {
-      data: { user: oauthUser },
-      error,
-    } = await supabase.auth.getUser();
 
-    if (error || !oauthUser) {
-      return failOnboarding("Usuario Google nao autenticado. Refaça a autenticacao.");
-    }
-
-    user = oauthUser;
-  }
-
-  if (!user) {
-    return failOnboarding("Usuario autenticado nao encontrado");
-  }
-
-  const resolvedEmail = (user.email ?? normalizedRestaurant.email).trim().toLowerCase();
-  const avatarUrl =
-    typeof user.user_metadata?.avatar_url === "string" ? user.user_metadata.avatar_url : null;
-  const usedGoogleEmail =
-    parsed.data.authMethod === "google" && resolvedEmail !== normalizedRestaurant.email;
-
-  const profileOutput = await profileService.upsert({
-    supabaseUserId: user.id,
-    email: resolvedEmail,
-    fullName: normalizedOwner.fullName,
-    birthDate: normalizedOwner.birthDate,
-    document: normalizedOwner.document,
-    role: "master",
-    avatarUrl,
-  });
-
-  if (!profileOutput.isValid) {
-    return failOnboarding(profileOutput.errorMessages);
-  }
-
-  const restaurantOutput = await restaurantService.register(
-    {
-      name: normalizedRestaurant.name,
-      address: normalizedRestaurant.address,
-      addressNumber: normalizedRestaurant.addressNumber,
-      complement: normalizedRestaurant.complement,
-      province: normalizedRestaurant.province,
-      city: normalizedRestaurant.city,
-      state: normalizedRestaurant.state,
-      postalCode: normalizedRestaurant.postalCode,
-      phoneNumber: normalizedRestaurant.phoneNumber,
-      email: resolvedEmail,
-      emailVerified: Boolean(user.email_confirmed_at),
-      supabaseId: user.id,
-      ownerFullName: normalizedOwner.fullName,
-      document: normalizedRestaurant.document,
-      birthDate: normalizedOwner.birthDate,
-      companyType: null,
-      providerAvatarUrl: avatarUrl ?? "",
-    },
-    null,
-    { appBaseUrl }
-  );
-
-  if (!restaurantOutput.isValid) {
-    return failOnboarding(restaurantOutput.errorMessages);
-  }
-
-  let redirectTo = "/sign-in";
-  if (parsed.data.authMethod === "google") {
-    redirectTo = await profileService.resolvePostAuthDestination(user.id);
-  } else {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (session?.user?.id === user.id) {
+    let redirectTo = "/sign-in";
+    if (parsed.data.authMethod === "google") {
       redirectTo = await profileService.resolvePostAuthDestination(user.id);
-    }
-  }
+    } else {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-  revalidatePath("/", "layout");
-  return okOnboarding({
-    redirectTo,
-    portalName: "Portal Cheffia",
-    usedGoogleEmail,
-  });
+      if (session?.user?.id === user.id) {
+        redirectTo = await profileService.resolvePostAuthDestination(user.id);
+      }
+    }
+
+    revalidatePath("/", "layout");
+    logInfo("auth.complete_onboarding.succeeded", {
+      authMethod: parsed.data.authMethod,
+      supabaseUserId: user.id,
+      restaurantId: createdRestaurantId,
+      redirectTo,
+      usedGoogleEmail,
+    });
+    return okOnboarding({
+      redirectTo,
+      portalName: "Portal Cheffia",
+      usedGoogleEmail,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro inesperado no onboarding";
+    logError("auth.complete_onboarding.failed", {
+      authMethod: parsed.data.authMethod,
+      userId: user?.id ?? null,
+      createdAuthUserId,
+      createdRestaurantId,
+      message,
+    });
+    await rollbackOnboarding();
+    return failOnboarding(message);
+  }
 }
 
 export const signInActionWithProvider = async () => {

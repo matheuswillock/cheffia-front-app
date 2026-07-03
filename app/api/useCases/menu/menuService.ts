@@ -218,7 +218,11 @@ export class MenuService {
     }
   }
 
-  public async deleteItem(tenantId: string, itemId: string): Promise<Output<null>> {
+  public async deleteItem(
+    tenantId: string,
+    itemId: string,
+    context: { requestId?: string } = {}
+  ): Promise<Output<null>> {
     try {
       const supabase = getSupabaseAdminClient();
       const { data: existingItem, error: findError } = await supabase
@@ -250,6 +254,7 @@ export class MenuService {
           const message =
             storageError instanceof Error ? storageError.message : "Unknown storage delete error";
           console.error("menu.delete.storage_remove_failed", {
+            requestId: context.requestId ?? null,
             tenantId,
             itemId,
             mediaPath,

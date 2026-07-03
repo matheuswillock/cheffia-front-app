@@ -7,6 +7,7 @@ import {
   getPaymentIdFromPayload,
 } from "@/app/api/useCases/webhooks/asaasWebhookPayload";
 import { failOutput, okOutput } from "@/lib/server/output";
+import { resolveRequestIdFromRequest } from "@/lib/server/requestId";
 import { requireTenantContext, TenantContextError } from "@/lib/server/tenant";
 
 export const runtime = "nodejs";
@@ -106,6 +107,8 @@ const resolveWebhookTenantId = async (
 };
 
 export async function POST(request: NextRequest) {
+  const requestId = resolveRequestIdFromRequest(request);
+
   try {
     const security = validateWebhookSecurity(request);
     const rawBody = await request.text();
@@ -133,7 +136,7 @@ export async function POST(request: NextRequest) {
     }
 
     const message = error instanceof Error ? error.message : "Unexpected webhook error";
-    console.error("asaas.webhook.error", { message });
+    console.error("asaas.webhook.error", { requestId, message });
     return NextResponse.json(failOutput(message), { status: 500 });
   }
 }

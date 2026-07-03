@@ -59,6 +59,7 @@ export class EmailService {
 
   private logFailure(context: EmailContext, message: string): void {
     console.error("email.send.failed", {
+      requestId: context.requestId ?? null,
       kind: context.kind,
       tenantId: context.tenantId ?? null,
       restaurantId: context.restaurantId ?? null,

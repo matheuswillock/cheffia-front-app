@@ -10,8 +10,8 @@ alwaysApply: true
 <!-- CANONICAL AI GOVERNANCE FILE: agents.md -->
 # Cheffia Front App - AI Implementation Governance
 
-**Version:** 2.2.2
-**Last Updated:** 2026-03-14
+**Version:** 2.2.3
+**Last Updated:** 2026-03-17
 **Canonical Source:** `agents.md` (single source of truth)
 **Adapter Files:** generated with `bun run governance:sync`
 
@@ -309,6 +309,13 @@ bun run artifacts:check
 - Keep route handlers thin and use descriptive success/error messages.
 - Use stable, searchable log event names.
 - Prefer existing naming conventions and module boundaries.
+
+## Logging and Correlation Policy (Critical, FOR NEW FEATURES)
+
+- Backend flows **MUST** resolve a request correlation identifier (`x-request-id` preferred, `x-correlation-id` fallback, generated UUID fallback) at the HTTP/action entrypoint.
+- `console.info` and `console.error` logs emitted by backend route/use-case/service code **MUST** include `requestId` in structured payloads.
+- When orchestration spans multiple backend layers, request correlation context **MUST** be propagated from entrypoint to invoked services/use-cases.
+- Error and rollback logs in multi-step mutating flows **MUST** preserve the same `requestId` used by success-path logs.
 
 ## Request and Interaction Safety (FOR NEW FEATURES)
 

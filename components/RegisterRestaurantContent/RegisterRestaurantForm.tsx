@@ -1,7 +1,7 @@
 "use client";
 
 import LoadingSpin from "@/assets/loading-spin.svg";
-import { Form } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { UseRegisterRestaurantForm } from "@/hooks/UseForms";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -11,6 +11,13 @@ import RestaurantFormField from "./RestaurantFormField";
 import { registerRestaurantFromForm } from "@/lib/api/restaurantClient";
 import { useRouter } from "next/navigation";
 import type { RegisterRestaurantFormData } from "@/types/formTypes";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const COMPANY_TYPE_OPTIONS = [
+  { value: "MEI", label: "MEI" },
+  { value: "LTDA", label: "LTDA" },
+  { value: "INDIVIDUAL", label: "INDIVIDUAL" },
+] as const;
 
 interface RegisterRestaurantFormProps {
   ownerFullName?: string;
@@ -52,7 +59,7 @@ export default function RegisterRestaurantForm({
       providerAvatarUrl: avatarUrl || "",
       supabaseId: id,
       birthDate: isCompany ? undefined : values.birthDate || undefined,
-      companyType: isCompany ? values.companyType || undefined : undefined,
+      companyType: isCompany ? values.companyType?.trim().toUpperCase() || undefined : undefined,
     };
   };
 
@@ -213,16 +220,35 @@ export default function RegisterRestaurantForm({
             )}
 
             {isCompanyDocument ? (
-              <RestaurantFormField
+              <FormField
                 control={form.control}
                 name="companyType"
-                label="Tipo da empresa no Asaas"
-                placeholder="Ex.: MEI"
-                type="text"
-                errorMessage={form.formState.errors.companyType?.message}
-                blurEvent={async () => {
-                  await form.trigger("companyType");
-                }}
+                render={({ field }) => (
+                  <FormItem className="flex flex-col w-full items-start">
+                    <FormLabel
+                      className={`text-sm font-medium ml-2 ${
+                        form.formState.errors.companyType && "text-red-500"
+                      }`}
+                    >
+                      Tipo da empresa no Asaas
+                    </FormLabel>
+                    <Select value={field.value || ""} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="border-[1.5px] border-zinc-800 h-14 w-full text-sm font-base transition-all duration-800 rounded-xl">
+                          <SelectValue placeholder="Selecione o tipo da empresa" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {COMPANY_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="ml-2 text-sm text-red-500" />
+                  </FormItem>
+                )}
               />
             ) : (
               <RestaurantFormField

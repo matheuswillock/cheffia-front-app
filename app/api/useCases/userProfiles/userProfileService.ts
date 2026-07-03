@@ -111,6 +111,16 @@ const buildCheffiaPrefix = (fullName: string): string => {
 export class UserProfileService {
   private readonly prisma = prisma;
 
+  private withRequestId(
+    context: { requestId?: string } | undefined,
+    payload: Record<string, unknown> = {}
+  ): Record<string, unknown> {
+    return {
+      requestId: context?.requestId ?? null,
+      ...payload,
+    };
+  }
+
   public async findBySupabaseUserId(supabaseUserId: string): Promise<UserProfileOutput | null> {
     const profile = await this.prisma.userProfile.findUnique({
       where: { supabaseUserId },
@@ -136,7 +146,10 @@ export class UserProfileService {
     return restaurant ? `/dashboard/${supabaseUserId}` : "/register/restaurant";
   }
 
-  public async upsert(input: UpsertUserProfileInput): Promise<Output<UserProfileOutput>> {
+  public async upsert(
+    input: UpsertUserProfileInput,
+    context?: { requestId?: string }
+  ): Promise<Output<UserProfileOutput>> {
     const parsed = userProfileInputSchema.safeParse(input);
 
     if (!parsed.success) {
@@ -204,11 +217,35 @@ export class UserProfileService {
       return failOutput("Falha ao gerar um cheffiaId unico para o usuario");
     }
 
-    await this.syncAuthMetadata(mapProfile(persisted));
+    await this.syncAuthMetadata(mapProfile(persisted), context);
 
     return okOutput(mapProfile(persisted), [
       existingProfile ? "Perfil do usuario atualizado com sucesso" : "Perfil do usuario criado com sucesso",
     ]);
+  }
+
+  public async deleteBySupabaseUserId(
+    supabaseUserId: string,
+    context?: { requestId?: string }
+  ): Promise<Output<null>> {
+    try {
+      await this.prisma.userProfile.delete({
+        where: { supabaseUserId },
+      });
+
+      return okOutput<null>(null, ["Perfil do usuario removido com sucesso"]);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        return okOutput<null>(null, ["Perfil do usuario ja inexistente"]);
+      }
+
+      const message =
+        error instanceof Error ? error.message : "Unexpected user profile delete error";
+      return failOutput(`Falha ao remover o perfil do usuario: ${message}`);
+    }
   }
 
   private async generateUniqueCheffiaId(fullName: string): Promise<string> {
@@ -242,15 +279,20 @@ export class UserProfileService {
     );
   }
 
-  private async syncAuthMetadata(profile: UserProfileOutput): Promise<void> {
+  private async syncAuthMetadata(
+    profile: UserProfileOutput,
+    context?: { requestId?: string }
+  ): Promise<void> {
     try {
       const adminClient = getSupabaseAdminClient();
       const fetched = await adminClient.auth.admin.getUserById(profile.supabaseUserId);
 
       if (fetched.error) {
         console.error("user_profiles.sync_auth_metadata.get_user_failed", {
-          supabaseUserId: profile.supabaseUserId,
-          message: fetched.error.message,
+          ...this.withRequestId(context, {
+            supabaseUserId: profile.supabaseUserId,
+            message: fetched.error.message,
+          }),
         });
         return;
       }
@@ -270,15 +312,19 @@ export class UserProfileService {
 
       if (updated.error) {
         console.error("user_profiles.sync_auth_metadata.update_failed", {
-          supabaseUserId: profile.supabaseUserId,
-          message: updated.error.message,
+          ...this.withRequestId(context, {
+            supabaseUserId: profile.supabaseUserId,
+            message: updated.error.message,
+          }),
         });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unexpected auth metadata sync error";
       console.error("user_profiles.sync_auth_metadata.failed", {
-        supabaseUserId: profile.supabaseUserId,
-        message,
+        ...this.withRequestId(context, {
+          supabaseUserId: profile.supabaseUserId,
+          message,
+        }),
       });
     }
   }

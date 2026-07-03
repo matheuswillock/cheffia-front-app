@@ -6,6 +6,7 @@ export interface EmailContext {
     | "password-reset"
     | "email-confirmation"
     | "welcome";
+  requestId?: string | null;
   tenantId?: string | null;
   restaurantId?: string | null;
   supabaseUserId?: string | null;

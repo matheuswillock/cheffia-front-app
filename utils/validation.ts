@@ -93,6 +93,7 @@ export const RegisterRestaurantFormSchema = z.object({
   birthDate: z.string().optional(),
   companyType: z.string().optional(),
 }).superRefine((data, ctx) => {
+  const allowedCompanyTypes = ["MEI", "LTDA", "INDIVIDUAL"] as const;
   const documentDigits = data.document.replace(/\D/g, "");
 
   if (![11, 14].includes(documentDigits.length)) {
@@ -117,6 +118,19 @@ export const RegisterRestaurantFormSchema = z.object({
       code: z.ZodIssueCode.custom,
       path: ["companyType"],
       message: "O tipo da empresa é obrigatório para CNPJ",
+    });
+    return;
+  }
+
+  if (
+    documentDigits.length === 14 &&
+    data.companyType?.trim() &&
+    !allowedCompanyTypes.includes(data.companyType.trim().toUpperCase() as (typeof allowedCompanyTypes)[number])
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["companyType"],
+      message: "Selecione um tipo de empresa válido",
     });
   }
 });

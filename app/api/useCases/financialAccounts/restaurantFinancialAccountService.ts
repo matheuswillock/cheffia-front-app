@@ -209,7 +209,8 @@ export class RestaurantFinancialAccountService {
   private getInitialSyncMessage(
     account: InitialSyncEligibleAccount,
     tenantId: string,
-    restaurantId: string
+    restaurantId: string,
+    requestId?: string
   ): string | null {
     if (!account.asaasAccountId || !account.asaasApiKeyEncrypted) {
       return null;
@@ -218,6 +219,7 @@ export class RestaurantFinancialAccountService {
     const scheduled = scheduleInitialRestaurantFinancialSync({
       tenantId,
       restaurantId,
+      requestId,
     });
 
     switch (scheduled.reason) {
@@ -299,7 +301,8 @@ export class RestaurantFinancialAccountService {
 
   public async provisionSubaccount(
     tenantId: string,
-    restaurantId: string
+    restaurantId: string,
+    context: { requestId?: string } = {}
   ): Promise<Output<RestaurantFinancialAccountOutput>> {
     const draft = await this.ensureDraftAccount(tenantId, restaurantId);
     if (!draft.result) {
@@ -319,7 +322,12 @@ export class RestaurantFinancialAccountService {
 
       if (existing.asaasAccountId) {
         const messages = ["Asaas subaccount already provisioned"];
-        const syncMessage = this.getInitialSyncMessage(existing, tenantId, restaurantId);
+        const syncMessage = this.getInitialSyncMessage(
+          existing,
+          tenantId,
+          restaurantId,
+          context.requestId
+        );
         if (syncMessage) {
           messages.push(syncMessage);
         }
@@ -376,7 +384,10 @@ export class RestaurantFinancialAccountService {
       );
 
       assertEncryptionConfigured();
-      const subaccount = await this.getAsaasClient().createSubaccount(payload, { tenantId });
+      const subaccount = await this.getAsaasClient().createSubaccount(payload, {
+        tenantId,
+        requestId: context.requestId,
+      });
       const encryptedApiKey = subaccount.apiKey ? encryptSecret(subaccount.apiKey) : null;
       const lastError = encryptedApiKey
         ? null
@@ -423,7 +434,12 @@ export class RestaurantFinancialAccountService {
       }
 
       const messages = ["Asaas subaccount provisioned successfully"];
-      const syncMessage = this.getInitialSyncMessage(updated, tenantId, restaurantId);
+      const syncMessage = this.getInitialSyncMessage(
+        updated,
+        tenantId,
+        restaurantId,
+        context.requestId
+      );
       if (syncMessage) {
         messages.push(syncMessage);
       }

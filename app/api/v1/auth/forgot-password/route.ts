@@ -6,6 +6,7 @@ import {
   getEmailService,
 } from "@/app/api/useCases/email";
 import { failOutput, fromThrowable, okOutput } from "@/lib/server/output";
+import { resolveRequestIdFromRequest } from "@/lib/server/requestId";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,8 @@ const safeSuccessResponse = okOutput<null>(null, [
 ]);
 
 export async function POST(request: NextRequest) {
+  const requestId = resolveRequestIdFromRequest(request);
+
   try {
     const body = (await request.json()) as unknown;
     const parsed = forgotPasswordSchema.safeParse(body);
@@ -44,11 +47,13 @@ export async function POST(request: NextRequest) {
         },
         {
           supabaseUserId: link.supabaseUser.id,
+          requestId,
         }
       );
 
       if (!result.success) {
         console.error("auth.forgot_password.email_failed", {
+          requestId,
           email: parsed.data.email,
           supabaseUserId: link.supabaseUser.id,
           message: result.error,
@@ -57,6 +62,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown forgot password error";
       console.error("auth.forgot_password.email_failed", {
+        requestId,
         email: parsed.data.email,
         message,
       });
@@ -64,6 +70,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(safeSuccessResponse, { status: 200 });
   } catch (error) {
-    return NextResponse.json(fromThrowable(error), { status: 500 });
+    return NextResponse.json(fromThrowable(error, { requestId }), { status: 500 });
   }
 }

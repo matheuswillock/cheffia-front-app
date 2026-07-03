@@ -3,6 +3,7 @@ import { RestaurantFinancialOnboardingDocumentService } from "./restaurantFinanc
 interface ScheduleInitialSyncInput {
   tenantId: string;
   restaurantId: string;
+  requestId?: string;
 }
 
 interface ScheduleInitialSyncResult {
@@ -36,13 +37,14 @@ const getInitialSyncDelayMs = (): number => {
   return Math.floor(parsed);
 };
 
-const runInitialSync = async ({ tenantId, restaurantId }: ScheduleInitialSyncInput): Promise<void> => {
+const runInitialSync = async ({ tenantId, restaurantId, requestId }: ScheduleInitialSyncInput): Promise<void> => {
   try {
     const service = new RestaurantFinancialOnboardingDocumentService();
     const synced = await service.syncDocuments(tenantId, restaurantId);
 
     if (!synced.isValid) {
       console.error("asaas.initial_document_sync.failed", {
+        requestId: requestId ?? null,
         tenantId,
         restaurantId,
         errors: synced.errorMessages,
@@ -51,6 +53,7 @@ const runInitialSync = async ({ tenantId, restaurantId }: ScheduleInitialSyncInp
     }
 
     console.warn("asaas.initial_document_sync.completed", {
+      requestId: requestId ?? null,
       tenantId,
       restaurantId,
       documents: synced.result?.length ?? 0,
@@ -58,6 +61,7 @@ const runInitialSync = async ({ tenantId, restaurantId }: ScheduleInitialSyncInp
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error";
     console.error("asaas.initial_document_sync.failed", {
+      requestId: requestId ?? null,
       tenantId,
       restaurantId,
       message,

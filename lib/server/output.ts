@@ -1,3 +1,5 @@
+import { randomUUID } from "crypto";
+
 export interface Output<T> {
   isValid: boolean;
   successMessages: string[];
@@ -30,9 +32,10 @@ export const fromThrowable = (
   context: { requestId?: string; tenantId?: string } = {}
 ): Output<null> => {
   const message = error instanceof Error ? error.message : "Unexpected error";
+  const requestId = context.requestId?.trim() || randomUUID();
 
   console.error("server.error", {
-    requestId: context.requestId ?? null,
+    requestId,
     tenantId: context.tenantId ?? null,
     message,
   });
