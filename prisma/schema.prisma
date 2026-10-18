@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MembershipRole {
+  owner
+  manager
+  kitchen
+  waiter
+
+  @@map("membership_role")
+}
+
+enum MembershipStatus {
+  invited
+  active
+  revoked
+
+  @@map("membership_status")
+}
+
+enum IdempotencyStatus {
+  started
+  completed
+  failed
+
+  @@map("idempotency_status")
+}
+
+enum OutboxStatus {
+  pending
+  published
+  failed
+
+  @@map("outbox_status")
+}
+
+model Tenant {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug      String   @unique @db.Text
+  name      String   @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  restaurants     Restaurant[]
+  memberships     RestaurantMembership[]
+  idempotencyKeys IdempotencyKey[]
+  outboxEvents    OutboxEvent[]
+  auditLogs       AuditLog[]
+
+  @@map("tenants")
+}
+
+model Restaurant {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String   @db.Text
+  slug      String?  @db.Text
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  memberships     RestaurantMembership[]
+  idempotencyKeys IdempotencyKey[]
+  outboxEvents    OutboxEvent[]
+  auditLogs       AuditLog[]
+
+  @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
+  @@unique([tenantId, slug], map: "restaurants_tenant_slug_uk")
+  @@index([tenantId], map: "restaurants_tenant_id_idx")
+  @@map("restaurants")
+}
+
+model RestaurantMembership {
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String           @map("tenant_id") @db.Uuid
+  restaurantId String           @map("restaurant_id") @db.Uuid
+  userId       String           @map("user_id") @db.Uuid
+  role         MembershipRole
+  status       MembershipStatus @default(active)
+  createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, restaurantId, userId], map: "memberships_tenant_restaurant_user_uk")
+  @@index([tenantId, userId], map: "memberships_tenant_user_idx")
+  @@index([restaurantId, status], map: "memberships_restaurant_status_idx")
+  @@map("restaurant_memberships")
+}
+
+model IdempotencyKey {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String            @map("tenant_id") @db.Uuid
+  restaurantId       String?           @map("restaurant_id") @db.Uuid
+  method             String            @db.VarChar(10)
+  endpoint           String            @db.Text
+  idempotencyKey     String            @map("idempotency_key") @db.Text
+  requestHash        String?           @map("request_hash") @db.Text
+  status             IdempotencyStatus @default(started)
+  responseStatusCode Int?              @map("response_status_code")
+  responseBody       Json?             @map("response_body")
+  expiresAt          DateTime?         @map("expires_at") @db.Timestamptz(6)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant? @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: NoAction)
+
+  @@unique([tenantId, method, endpoint, idempotencyKey], map: "idempotency_tenant_method_endpoint_key_uk")
+  @@index([tenantId, createdAt], map: "idempotency_tenant_created_at_idx")
+  @@map("idempotency_keys")
+}
+
+model OutboxEvent {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String       @map("tenant_id") @db.Uuid
+  restaurantId  String?      @map("restaurant_id") @db.Uuid
+  aggregateType String       @map("aggregate_type") @db.Text
+  aggregateId   String       @map("aggregate_id") @db.Text
+  eventType     String       @map("event_type") @db.Text
+  eventVersion  Int          @default(1) @map("event_version")
+  sequence      BigInt       @default(autoincrement())
+  payload       Json
+  status        OutboxStatus @default(pending)
+  availableAt   DateTime     @default(now()) @map("available_at") @db.Timestamptz(6)
+  publishedAt   DateTime?    @map("published_at") @db.Timestamptz(6)
+  retryCount    Int          @default(0) @map("retry_count")
+  lastError     String?      @map("last_error") @db.Text
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant? @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: NoAction)
+
+  @@index([tenantId, status, availableAt], map: "outbox_tenant_status_available_idx")
+  @@index([tenantId, aggregateType, aggregateId], map: "outbox_tenant_aggregate_idx")
+  @@map("outbox_events")
+}
+
+model AuditLog {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  restaurantId String?  @map("restaurant_id") @db.Uuid
+  actorUserId  String?  @map("actor_user_id") @db.Uuid
+  action       String   @db.Text
+  entityType   String   @map("entity_type") @db.Text
+  entityId     String?  @map("entity_id") @db.Text
+  outcome      String   @db.Text
+  metadata     Json?
+  requestId    String?  @map("request_id") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant? @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: NoAction)
+
+  @@index([tenantId, createdAt], map: "audit_tenant_created_at_idx")
+  @@index([tenantId, entityType, entityId], map: "audit_tenant_entity_idx")
+  @@map("audit_logs")
+}
