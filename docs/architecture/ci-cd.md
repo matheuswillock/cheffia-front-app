@@ -19,6 +19,15 @@ Pull requests para `main` aceitam somente `develop`. O workflow em
 `.github/workflows/pipeline.yml` valida esse fluxo; a proteção de branches do
 GitHub deve impedir push direto e exigir os checks definidos para cada destino.
 
+Após os gates de qualidade, o job `promote` cria automaticamente um PR quando
+não houver outro aberto para a mesma promoção:
+
+- `feature/*` ou `bugfix/*` → `develop`;
+- `develop` → `main`.
+
+O job é idempotente: pushes adicionais reutilizam o PR aberto em vez de criar
+duplicatas.
+
 ## Responsabilidade de cada plataforma
 
 ### GitHub Actions

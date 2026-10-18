@@ -130,6 +130,62 @@ jobs:
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: bun run db:migrate:deploy
 
+  promote:
+    name: Create promotion pull request
+    if: >-
+      github.event_name == 'push' &&
+      (startsWith(github.ref, 'refs/heads/feature/') ||
+      startsWith(github.ref, 'refs/heads/bugfix/') ||
+      github.ref == 'refs/heads/develop')
+    needs: [quality, database]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Create promotion pull request if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          case "${HEAD_BRANCH}" in
+            feature/*|bugfix/*)
+              target_branch="develop"
+              ;;
+            develop)
+              target_branch="main"
+              ;;
+            *)
+              echo "No promotion PR is required for ${HEAD_BRANCH}."
+              exit 0
+              ;;
+          esac
+
+          existing_pr="$(gh pr list \
+            --repo "${GH_REPOSITORY}" \
+            --head "${HEAD_BRANCH}" \
+            --base "${target_branch}" \
+            --state open \
+            --json number \
+            --jq '.[0].number')"
+
+          if [[ -n "${existing_pr}" ]]; then
+            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${target_branch}"
+            exit 0
+          fi
+
+          gh pr create \
+            --repo "${GH_REPOSITORY}" \
+            --head "${HEAD_BRANCH}" \
+            --base "${target_branch}" \
+            --title "Promote ${HEAD_BRANCH} to ${target_branch}" \
+            --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
+
 # Deploy ownership:
 # - GitHub Actions is the single production migration orchestrator.
 # - It applies Prisma migrations first and Supabase migrations second.
@@ -137,3 +193,4 @@ jobs:
 # Disable Supabase GitHub Integration's "Deploy to production" migration step to avoid
 # a second migration authority racing this job. Supabase remains the owner of
 # supabase/migrations; GitHub Actions only invokes its deployment command in order.
+# The final promote job opens feature/bugfix -> develop and develop -> main PRs.

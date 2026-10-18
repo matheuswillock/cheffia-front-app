@@ -32,6 +32,7 @@ tests/
 ## CI e segurança
 
 - O CI deve executar `bun run test`, `bun run test:components` e `bun run test:e2e` antes do build/deploy.
+- O job final do CI deve criar automaticamente PRs `feature/bugfix` → `develop` e `develop` → `main`, de forma idempotente.
 - Testes de componentes, integração e E2E críticos devem ser gates de promoção.
 - Testes não podem usar credenciais, dados ou serviços de produção.
 - Mocks são permitidos somente nas fronteiras externas; o caminho interno deve ser validado com dependências reais ou Supabase local.

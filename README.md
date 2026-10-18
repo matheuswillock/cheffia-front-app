@@ -83,7 +83,8 @@ Actions executa qualidade e validação local de migrations/RLS. No merge em
 `main`, o job serializado aplica primeiro `prisma/migrations/` e depois
 `supabase/migrations/`; a Vercel Git Integration publica a aplicação. Migrations
 nunca rodam no startup do Next.js. O job usa o secret protegido `DIRECT_URL` e
-não imprime credenciais.
+não imprime credenciais. Ao final dos gates, o CI abre automaticamente o PR para
+`develop` ou `main`, conforme a branch de origem, sem duplicar PRs abertos.
 
 ## 📦 Estrutura do Projeto
 
