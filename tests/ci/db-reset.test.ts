@@ -12,3 +12,10 @@ test("local reset bootstraps Supabase before Prisma runs", () => {
   expect(resetScript).toContain("00000000000000_prisma_baseline.sql")
   expect(resetScript).not.toContain('"--version", "00000000000000"')
 })
+
+test("CI starts only the Supabase database container", () => {
+  expect(resetScript).toContain('"--exclude", SUPABASE_NON_DATABASE_SERVICES')
+  expect(resetScript).toContain("postgrest")
+  expect(resetScript).toContain("storage-api")
+  expect(resetScript).toContain("studio")
+})

@@ -35,6 +35,8 @@ function run(command, args) {
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const supabaseRoot = path.join(repositoryRoot, "supabase")
+const SUPABASE_NON_DATABASE_SERVICES =
+  "edge-runtime,gotrue,imgproxy,kong,logflare,mailpit,postgres-meta,postgrest,realtime,storage-api,studio,supavisor,vector"
 let bootstrapWorkdir
 
 function createBootstrapWorkdir() {
@@ -62,7 +64,9 @@ process.env.DATABASE_URL ??= "postgresql://postgres:postgres@127.0.0.1:54322/pos
 process.env.DIRECT_URL ??= process.env.DATABASE_URL
 
 try {
-  run("supabase", ["start"])
+  // The database/RLS gate does not need the API, Auth, Storage, Realtime, or
+  // dashboard containers. Avoid pulling those images on shared CI runners.
+  run("supabase", ["start", "--exclude", SUPABASE_NON_DATABASE_SERVICES, "--yes"])
   createBootstrapWorkdir()
   run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
   run("bun", ["run", "prisma:migrate:deploy"])
