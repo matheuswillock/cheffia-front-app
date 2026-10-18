@@ -104,32 +104,6 @@ jobs:
       - name: Verify foundation isolation and migration tracking
         run: bun run db:verify
 
-  production-migrations:
-    name: Deploy production migrations
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [quality, database]
-    runs-on: ubuntu-latest
-    environment: production
-    concurrency:
-      group: cheffia-production-migrations
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.4.3"
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: "2.109.1"
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-      - name: Apply Prisma then Supabase migrations
-        env:
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
-        run: bun run db:migrate:deploy
-
   promote:
     name: Create promotion pull request
     if: >-
@@ -188,9 +162,9 @@ jobs:
 
 # Deploy ownership:
 # - GitHub Actions is the single production migration orchestrator.
-# - It applies Prisma migrations first and Supabase migrations second.
+# - production-migrations.yml applies Prisma migrations first and Supabase migrations second.
 # - Vercel Git Integration deploys the develop preview/staging branch and main production.
 # Disable Supabase GitHub Integration's "Deploy to production" migration step to avoid
 # a second migration authority racing this job. Supabase remains the owner of
-# supabase/migrations; GitHub Actions only invokes its deployment command in order.
+# supabase/migrations; GitHub Actions only invokes its deployment workflow on main.
 # The final promote job opens feature/bugfix -> develop and develop -> main PRs.

@@ -41,9 +41,10 @@ Executa os gates de qualidade e a validação local:
 - reset do Supabase local;
 - verificação do histórico de migrations e do isolamento por tenant/RLS.
 
-No push em `main`, o job `production-migrations` executa
-`prisma migrate deploy` seguido de `supabase db push`. O workflow não faz o
-deploy da aplicação; essa responsabilidade permanece na Vercel Git Integration.
+O workflow `.github/workflows/production-migrations.yml` é disparado somente
+por push em `main` e executa `prisma migrate deploy` seguido de `supabase db
+push`. O workflow não faz o deploy da aplicação; essa responsabilidade
+permanece na Vercel Git Integration.
 
 O projeto Supabase de produção do Cheffia é:
 
@@ -80,9 +81,8 @@ No projeto Supabase:
 5. opcionalmente mapear `develop` para um projeto ou branch persistente de staging.
 
 O Supabase continua sendo o dono de `supabase/migrations/`, mas não deve haver
-dois executores no mesmo banco. No push em `main`, o job `production-migrations`
-valida os históricos e aplica primeiro `prisma/migrations/`, depois
-`supabase/migrations/`.
+dois executores no mesmo banco. O workflow de produção valida os históricos e
+aplica primeiro `prisma/migrations/`, depois `supabase/migrations/`.
 
 O workflow atual valida o banco local em PRs e aplica migrations somente no
 projeto de produção em `main`. Se `develop` passar a usar um banco de staging
