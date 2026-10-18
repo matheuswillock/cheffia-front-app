@@ -41,7 +41,7 @@ export default function MenuListToEdit({items = [], handleDeleteButton, loadingB
 
                     <div className="w-28 h-32  rounded-xl m-auto">
                       <Image
-                        src={item.mediaImgixUrl || ImageOff as StaticImageData}
+                        src={item.mediaImgixUrl || (ImageOff as unknown as StaticImageData)}
                         alt={""}
                         width={128}
                         height={160}

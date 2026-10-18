@@ -1,0 +1,2 @@
+-- Development seed data is intentionally empty in the foundation phase.
+-- Do not place credentials or production data in this file.
