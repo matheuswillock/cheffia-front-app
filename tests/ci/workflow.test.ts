@@ -16,6 +16,11 @@ test("CI creates the next promotion pull request", () => {
   expect(workflow).toContain("pull-requests: write")
   expect(workflow).toContain("promote:")
   expect(workflow).toContain("gh pr create")
+  expect(workflow).toContain('branches: ["develop", "release", "main"]')
+  expect(workflow).toContain("release:develop")
+  expect(workflow).toContain("main:release")
+  expect(workflow).toContain("develop)")
+  expect(workflow).toContain("release)")
 })
 
 test("production migrations run only after a push to main", () => {
