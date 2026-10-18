@@ -7,15 +7,19 @@ feature/* ou bugfix/*
           │ PR
           ▼
        develop  ──► preview/staging pela Vercel Git Integration
-          │ PR
-          ▼
-        main    ──► produção pela Vercel Git Integration
+           │ PR
+           ▼
+        release  ──► release candidate / homologação
+           │ PR
+           ▼
+         main    ──► produção pela Vercel Git Integration
                          │
                          └─ migrations pelo GitHub Actions (Prisma → Supabase)
 ```
 
 Pull requests para `develop` aceitam somente `feature/*` ou `bugfix/*`.
-Pull requests para `main` aceitam somente `develop`. O workflow em
+Pull requests para `release` aceitam somente `develop`. Pull requests para
+`main` aceitam somente `release`. O workflow em
 `.github/workflows/pipeline.yml` valida esse fluxo; a proteção de branches do
 GitHub deve impedir push direto e exigir os checks definidos para cada destino.
 
@@ -23,7 +27,8 @@ Após os gates de qualidade, o job `promote` cria automaticamente um PR quando
 não houver outro aberto para a mesma promoção:
 
 - `feature/*` ou `bugfix/*` → `develop`;
-- `develop` → `main`.
+- `develop` → `release`;
+- `release` → `main`.
 
 O job é idempotente: pushes adicionais reutilizam o PR aberto em vez de criar
 duplicatas.
@@ -78,7 +83,7 @@ No projeto Supabase:
 3. usar a integração para branches/preview se desejado;
 4. **deixar desabilitado `Deploy to production` para migrations**, pois a
    produção é orquestrada pelo GitHub Actions;
-5. opcionalmente mapear `develop` para um projeto ou branch persistente de staging.
+5. opcionalmente mapear `develop` e `release` para projetos ou branches persistentes de staging.
 
 O Supabase continua sendo o dono de `supabase/migrations/`, mas não deve haver
 dois executores no mesmo banco. O workflow de produção valida os históricos e
@@ -93,7 +98,7 @@ ambiente; não reutilize o banco de produção para staging.
 
 Configurar o repositório na Vercel para:
 
-- preview/staging a partir de `develop`;
+- preview/staging a partir de `develop` e `release`;
 - produção a partir de `main`;
 - checks de CI obrigatórios antes do merge.
 
@@ -111,7 +116,7 @@ em vez da Git Integration direta para produção.
 
 1. Criar `feature/<nome>` ou `bugfix/<nome>` a partir de `develop`.
 2. Abrir PR para `develop` e aguardar todos os checks.
-3. Validar o preview/staging.
-4. Abrir PR de `develop` para `main`.
-5. Aguardar CI e os checks obrigatórios de branch.
+3. Aguardar a promoção automática de `develop` para `release`.
+4. Validar o release candidate.
+5. Aguardar a promoção automática de `release` para `main`.
 6. Fazer merge em `main`; GitHub Actions aplica Prisma → Supabase e Vercel publica a aplicação.
