@@ -35,8 +35,21 @@ function run(command, args) {
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const supabaseRoot = path.join(repositoryRoot, "supabase")
-const SUPABASE_NON_DATABASE_SERVICES =
-  "edge-runtime,gotrue,imgproxy,kong,logflare,mailpit,postgres-meta,postgrest,realtime,storage-api,studio,supavisor,vector"
+const SUPABASE_NON_DATABASE_SERVICES = [
+  "edge-runtime",
+  "gotrue",
+  "imgproxy",
+  "kong",
+  "logflare",
+  "mailpit",
+  "postgres-meta",
+  "postgrest",
+  "realtime",
+  "storage-api",
+  "studio",
+  "supavisor",
+  "vector",
+]
 let bootstrapWorkdir
 
 function createBootstrapWorkdir() {
@@ -60,14 +73,21 @@ function cleanupBootstrapWorkdir() {
 
 // Supabase owns RLS/Realtime/Storage migrations while Prisma owns tables.
 // Reset only the marker migration first, then apply both layers in order.
-process.env.DATABASE_URL ??= "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-process.env.DIRECT_URL ??= process.env.DATABASE_URL
+const LOCAL_DATABASE_URL =
+  process.env.LOCAL_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+process.env.DATABASE_URL = LOCAL_DATABASE_URL
+process.env.DIRECT_URL = LOCAL_DATABASE_URL
 
 try {
+  createBootstrapWorkdir()
+
   // The database/RLS gate does not need the API, Auth, Storage, Realtime, or
   // dashboard containers. Avoid pulling those images on shared CI runners.
-  run("supabase", ["start", "--exclude", SUPABASE_NON_DATABASE_SERVICES, "--yes"])
-  createBootstrapWorkdir()
+  const excludeServices = SUPABASE_NON_DATABASE_SERVICES.flatMap((service) => [
+    "--exclude",
+    service,
+  ])
+  run("supabase", ["start", "--workdir", bootstrapWorkdir, ...excludeServices, "--yes"])
   run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
   run("bun", ["run", "prisma:migrate:deploy"])
   run("supabase", ["db", "push", "--local", "--yes"])

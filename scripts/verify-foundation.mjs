@@ -1,9 +1,9 @@
 import pg from "pg"
 
 const { Client } = pg
-const connectionString =
-  process.env.DATABASE_URL ??
-  "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+const LOCAL_DATABASE_URL =
+  process.env.LOCAL_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+process.env.DATABASE_URL = LOCAL_DATABASE_URL
 
 function assert(condition, message) {
   if (!condition) {
@@ -11,7 +11,7 @@ function assert(condition, message) {
   }
 }
 
-const client = new Client({ connectionString })
+const client = new Client({ connectionString: LOCAL_DATABASE_URL })
 
 await client.connect()
 
