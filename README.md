@@ -86,6 +86,12 @@ nunca rodam no startup do Next.js. O job usa o secret protegido `DIRECT_URL` e
 não imprime credenciais. Ao final dos gates, o CI abre automaticamente o PR para
 `develop` ou `main`, conforme a branch de origem, sem duplicar PRs abertos.
 
+Para habilitar as migrations automáticas, crie o environment `production` nas
+configurações do repositório GitHub e adicione o secret `DIRECT_URL` com a
+conexão direta ou Session pooler do projeto Supabase Cheffia
+(`dcicvvxuzfdidaefwerq`). O deploy nativo de migrations do Supabase deve
+permanecer desabilitado para evitar dois executores concorrentes.
+
 ## 📦 Estrutura do Projeto
 
 O projeto segue a estrutura padrão do Next.js 15 com App Router, organizado da seguinte forma:

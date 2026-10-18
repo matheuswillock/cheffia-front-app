@@ -39,6 +39,12 @@ Supabase GitHub Integration's automatic production migration step is disabled to
 avoid concurrent `supabase db push` jobs. Migrations must not run from Next.js
 startup.
 
+The current Cheffia production target is the new Supabase project
+`dcicvvxuzfdidaefwerq`. Configure its direct or session-pooler connection as the
+protected GitHub `production` environment secret `DIRECT_URL`; never commit the
+connection string. The first successful deployment creates the Prisma schema and
+then applies the Supabase RLS/trigger migration.
+
 Supabase and Vercel integrations react independently to the same push. The
 application must therefore remain compatible with the previous schema during
 rollout (`expand/contract`). If strict migration-before-application ordering is

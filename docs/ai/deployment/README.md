@@ -91,6 +91,8 @@ description: Define deployment process, infrastructure, and release procedures
 - Key rotation strategy
 - The direct production database credential is stored as the protected GitHub
   environment secret `DIRECT_URL` and is used only by the serialized migration job.
+- The production Supabase target is `dcicvvxuzfdidaefwerq`; its connection string
+  is configured only in the GitHub `production` environment and never committed.
 - CI logs redact connection strings, tokens and keys; real credentials never enter source, migrations or docs.
 
 ## Rollback Plan

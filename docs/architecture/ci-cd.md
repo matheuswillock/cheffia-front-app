@@ -45,6 +45,29 @@ No push em `main`, o job `production-migrations` executa
 `prisma migrate deploy` seguido de `supabase db push`. O workflow não faz o
 deploy da aplicação; essa responsabilidade permanece na Vercel Git Integration.
 
+O projeto Supabase de produção do Cheffia é:
+
+- ref: `dcicvvxuzfdidaefwerq`;
+- URL: `https://dcicvvxuzfdidaefwerq.supabase.co`;
+- migrations remotas no momento da configuração: nenhuma.
+
+### Configuração necessária no GitHub
+
+O código do workflow já está pronto, mas o GitHub não permite versionar a
+credencial do banco. Configure manualmente:
+
+1. abra **Settings → Environments** no repositório;
+2. crie o environment `production`;
+3. adicione nele o secret `DIRECT_URL` com a conexão direta do novo projeto;
+4. se o runner não alcançar a conexão direta IPv6, use a conexão **Session
+   pooler** do Supabase, em modo sessão, na porta 5432;
+5. não use `service_role`, publishable key ou senha em arquivos do repositório.
+
+O valor de `DIRECT_URL` é usado pelo Prisma e pelo Supabase CLI no job
+serializado. A senha deve estar percent-encoded na URL quando contiver
+caracteres especiais. Depois disso, o merge em `main` aplicará a fundação
+Cheffia automaticamente.
+
 ### Supabase GitHub Integration
 
 No projeto Supabase:
@@ -52,8 +75,8 @@ No projeto Supabase:
 1. conectar este repositório;
 2. definir `supabase/` como working directory;
 3. usar a integração para branches/preview se desejado;
-4. **desabilitar `Deploy to production` para migrations**, pois a produção é
-   orquestrada pelo GitHub Actions;
+4. **deixar desabilitado `Deploy to production` para migrations**, pois a
+   produção é orquestrada pelo GitHub Actions;
 5. opcionalmente mapear `develop` para um projeto ou branch persistente de staging.
 
 O Supabase continua sendo o dono de `supabase/migrations/`, mas não deve haver
@@ -61,9 +84,10 @@ dois executores no mesmo banco. No push em `main`, o job `production-migrations`
 valida os históricos e aplica primeiro `prisma/migrations/`, depois
 `supabase/migrations/`.
 
-Se `develop` usar um banco de staging dedicado, ele também precisa de um job de
-migration equivalente com o secret desse ambiente; o workflow atual valida o
-banco local, mas não altera staging automaticamente.
+O workflow atual valida o banco local em PRs e aplica migrations somente no
+projeto de produção em `main`. Se `develop` passar a usar um banco de staging
+dedicado, ele deverá receber um job de migration equivalente com o secret desse
+ambiente; não reutilize o banco de produção para staging.
 
 ### Vercel Git Integration
 
