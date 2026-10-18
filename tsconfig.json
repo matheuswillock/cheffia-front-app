@@ -18,7 +18,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "types": ["node", "next", "next/types/global"], 
+    "types": ["node", "next", "next/types/global", "bun-types"],
     "plugins": [
       {
         "name": "next"
