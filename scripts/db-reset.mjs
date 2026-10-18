@@ -1,4 +1,8 @@
 import { spawnSync } from "node:child_process"
+import { cpSync, mkdirSync, mkdtempSync, rmSync } from "node:fs"
+import os from "node:os"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
 
 function redact(output) {
   return output
@@ -23,17 +27,52 @@ function run(command, args) {
 
   if (result.status !== 0) {
     const output = redact(`${result.stdout ?? ""}\n${result.stderr ?? ""}`).trim()
-    if (output) console.error(output)
-    process.exit(result.status ?? 1)
+    const error = new Error(output || `${command} exited with status ${result.status ?? 1}`)
+    error.exitCode = result.status ?? 1
+    throw error
+  }
+}
+
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const supabaseRoot = path.join(repositoryRoot, "supabase")
+let bootstrapWorkdir
+
+function createBootstrapWorkdir() {
+  const temporaryRoot = process.env.RUNNER_TEMP ?? os.tmpdir()
+  bootstrapWorkdir = mkdtempSync(path.join(temporaryRoot, "cheffia-supabase-bootstrap-"))
+
+  const migrationsDirectory = path.join(bootstrapWorkdir, "supabase", "migrations")
+  mkdirSync(migrationsDirectory, { recursive: true })
+  cpSync(path.join(supabaseRoot, "config.toml"), path.join(bootstrapWorkdir, "supabase", "config.toml"))
+  cpSync(
+    path.join(supabaseRoot, "migrations", "00000000000000_prisma_baseline.sql"),
+    path.join(migrationsDirectory, "00000000000000_prisma_baseline.sql"),
+  )
+}
+
+function cleanupBootstrapWorkdir() {
+  if (bootstrapWorkdir) {
+    rmSync(bootstrapWorkdir, { recursive: true, force: true })
   }
 }
 
 // Supabase owns RLS/Realtime/Storage migrations while Prisma owns tables.
-// Reset the local Supabase history first, then apply both layers in order.
+// Reset only the marker migration first, then apply both layers in order.
 process.env.DATABASE_URL ??= "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 process.env.DIRECT_URL ??= process.env.DATABASE_URL
 
-run("supabase", ["start"])
-run("supabase", ["db", "reset", "--local", "--version", "00000000000000", "--no-seed", "--yes"])
-run("bun", ["run", "prisma:migrate:deploy"])
-run("supabase", ["db", "push", "--local", "--yes"])
+try {
+  run("supabase", ["start"])
+  createBootstrapWorkdir()
+  run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
+  run("bun", ["run", "prisma:migrate:deploy"])
+  run("supabase", ["db", "push", "--local", "--yes"])
+
+  console.log("Local database migrations applied")
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error(redact(message))
+  process.exitCode = error?.exitCode ?? 1
+} finally {
+  cleanupBootstrapWorkdir()
+}
