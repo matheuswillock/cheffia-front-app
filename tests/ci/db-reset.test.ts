@@ -11,6 +11,30 @@ const verifyScript = readFileSync(
   "utf8",
 )
 
+test("ordering verification covers every new table and tenant isolation", () => {
+  for (const table of [
+    "restaurant_tables",
+    "table_sessions",
+    "menu_categories",
+    "menu_items",
+    "modifier_groups",
+    "modifiers",
+    "menu_item_modifier_groups",
+    "orders",
+    "order_items",
+    "order_item_modifiers",
+    "order_state_transitions",
+  ]) {
+    expect(verifyScript).toContain(`"${table}"`)
+  }
+
+  expect(verifyScript).toContain("ordering tables are incomplete")
+  expect(verifyScript).toContain("ordering RLS isolation failed")
+  expect(verifyScript).toContain("orders_select_staff")
+  expect(verifyScript).toContain("atomic order/outbox")
+  expect(verifyScript).toContain("failed transaction left ordering rows behind")
+})
+
 test("local reset bootstraps Supabase before Prisma runs", () => {
   expect(resetScript).toContain('["start", "--workdir", bootstrapWorkdir')
   expect(resetScript).toContain("00000000000000_prisma_baseline.sql")
