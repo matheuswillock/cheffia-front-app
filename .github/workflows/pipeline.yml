@@ -57,6 +57,10 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.4.3"
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: "2.109.1"
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Validate Prisma schema
@@ -67,10 +71,18 @@ jobs:
         run: bun run test
       - name: Component tests
         run: bun run test:components
+      - name: Backend coverage
+        run: bun run test:backend:coverage
+      - name: Frontend coverage
+        run: bun run test:frontend:coverage
       - name: Install Playwright Chromium
         run: bunx playwright install chromium
       - name: E2E smoke tests
         run: bun run test:e2e
+      - name: E2E coverage with local fixtures
+        run: bun run test:e2e:coverage:local
+      - name: Enforce 90 percent coverage in every test layer
+        run: bun run coverage:gate
       - name: Lint
         run: bun run lint
       - name: Build application

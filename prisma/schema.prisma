@@ -40,6 +40,26 @@ enum OutboxStatus {
   @@map("outbox_status")
 }
 
+enum TableSessionStatus {
+  active
+  expired
+  revoked
+
+  @@map("table_session_status")
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  preparing
+  ready
+  delivered
+  rejected
+  cancelled
+
+  @@map("order_status")
+}
+
 model Tenant {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   slug      String   @unique @db.Text
@@ -48,11 +68,22 @@ model Tenant {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  restaurants     Restaurant[]
-  memberships     RestaurantMembership[]
-  idempotencyKeys IdempotencyKey[]
-  outboxEvents    OutboxEvent[]
-  auditLogs       AuditLog[]
+  restaurants            Restaurant[]
+  memberships            RestaurantMembership[]
+  tables                 RestaurantTable[]
+  tableSessions          TableSession[]
+  menuCategories         MenuCategory[]
+  menuItems              MenuItem[]
+  modifierGroups         ModifierGroup[]
+  modifiers              Modifier[]
+  menuItemModifierGroups MenuItemModifierGroup[]
+  orders                 Order[]
+  orderItems             OrderItem[]
+  orderItemModifiers     OrderItemModifier[]
+  orderStateTransitions  OrderStateTransition[]
+  idempotencyKeys        IdempotencyKey[]
+  outboxEvents           OutboxEvent[]
+  auditLogs              AuditLog[]
 
   @@map("tenants")
 }
@@ -66,16 +97,277 @@ model Restaurant {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tenant          Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  memberships     RestaurantMembership[]
-  idempotencyKeys IdempotencyKey[]
-  outboxEvents    OutboxEvent[]
-  auditLogs       AuditLog[]
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  memberships            RestaurantMembership[]
+  tables                 RestaurantTable[]
+  tableSessions          TableSession[]
+  menuCategories         MenuCategory[]
+  menuItems              MenuItem[]
+  modifierGroups         ModifierGroup[]
+  modifiers              Modifier[]
+  menuItemModifierGroups MenuItemModifierGroup[]
+  orders                 Order[]
+  orderItems             OrderItem[]
+  orderItemModifiers     OrderItemModifier[]
+  orderStateTransitions  OrderStateTransition[]
+  idempotencyKeys        IdempotencyKey[]
+  outboxEvents           OutboxEvent[]
+  auditLogs              AuditLog[]
 
   @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
   @@unique([tenantId, slug], map: "restaurants_tenant_slug_uk")
   @@index([tenantId], map: "restaurants_tenant_id_idx")
   @@map("restaurants")
+}
+
+model RestaurantTable {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  label        String   @db.Text
+  qrTokenHash  String   @map("qr_token_hash") @db.Text
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant     @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  sessions   TableSession[]
+  orders     Order[]
+
+  @@unique([tenantId, id], map: "restaurant_tables_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "restaurant_tables_tenant_restaurant_id_uk")
+  @@unique([tenantId, restaurantId, label], map: "restaurant_tables_tenant_restaurant_label_uk")
+  @@unique([tenantId, qrTokenHash], map: "restaurant_tables_tenant_qr_token_hash_uk")
+  @@index([tenantId, restaurantId, isActive], map: "restaurant_tables_tenant_restaurant_active_idx")
+  @@map("restaurant_tables")
+}
+
+model TableSession {
+  id           String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String             @map("tenant_id") @db.Uuid
+  restaurantId String             @map("restaurant_id") @db.Uuid
+  tableId      String             @map("table_id") @db.Uuid
+  tokenHash    String             @map("token_hash") @db.Text
+  status       TableSessionStatus @default(active)
+  expiresAt    DateTime           @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt   DateTime?          @map("last_seen_at") @db.Timestamptz(6)
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant      @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  table      RestaurantTable @relation(fields: [tenantId, restaurantId, tableId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+  orders     Order[]
+
+  @@unique([tenantId, id], map: "table_sessions_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "table_sessions_tenant_restaurant_id_uk")
+  @@unique([tenantId, tokenHash], map: "table_sessions_tenant_token_hash_uk")
+  @@index([tenantId, tableId, status], map: "table_sessions_tenant_table_status_idx")
+  @@index([tenantId, expiresAt], map: "table_sessions_tenant_expires_at_idx")
+  @@map("table_sessions")
+}
+
+model MenuCategory {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  name         String   @db.Text
+  sortOrder    Int      @default(0) @map("sort_order")
+  isPublished  Boolean  @default(false) @map("is_published")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  items      MenuItem[]
+
+  @@unique([tenantId, id], map: "menu_categories_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "menu_categories_tenant_restaurant_id_uk")
+  @@unique([tenantId, restaurantId, name], map: "menu_categories_tenant_restaurant_name_uk")
+  @@index([tenantId, restaurantId, isPublished, sortOrder], map: "menu_categories_publication_idx")
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  categoryId   String   @map("category_id") @db.Uuid
+  name         String   @db.Text
+  description  String?  @db.Text
+  priceCents   Int      @map("price_cents")
+  currency     String   @default("BRL") @db.Char(3)
+  sortOrder    Int      @default(0) @map("sort_order")
+  isPublished  Boolean  @default(false) @map("is_published")
+  isAvailable  Boolean  @default(true) @map("is_available")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant         Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant     Restaurant              @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  category       MenuCategory            @relation(fields: [tenantId, restaurantId, categoryId], references: [tenantId, restaurantId, id], onDelete: Restrict)
+  modifierGroups MenuItemModifierGroup[]
+
+  @@unique([tenantId, id], map: "menu_items_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "menu_items_tenant_restaurant_id_uk")
+  @@index([tenantId, restaurantId, isPublished, isAvailable, sortOrder], map: "menu_items_publication_idx")
+  @@map("menu_items")
+}
+
+model ModifierGroup {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  restaurantId  String   @map("restaurant_id") @db.Uuid
+  name          String   @db.Text
+  minSelections Int      @default(0) @map("min_selections")
+  maxSelections Int      @default(1) @map("max_selections")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant              @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  items      MenuItemModifierGroup[]
+  modifiers  Modifier[]
+
+  @@unique([tenantId, id], map: "modifier_groups_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "modifier_groups_tenant_restaurant_id_uk")
+  @@index([tenantId, restaurantId, isActive], map: "modifier_groups_restaurant_active_idx")
+  @@map("modifier_groups")
+}
+
+model Modifier {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String   @map("tenant_id") @db.Uuid
+  restaurantId    String   @map("restaurant_id") @db.Uuid
+  groupId         String   @map("group_id") @db.Uuid
+  name            String   @db.Text
+  priceDeltaCents Int      @default(0) @map("price_delta_cents")
+  isAvailable     Boolean  @default(true) @map("is_available")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant    @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  group      ModifierGroup @relation(fields: [tenantId, restaurantId, groupId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, id], map: "modifiers_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "modifiers_tenant_restaurant_id_uk")
+  @@index([tenantId, groupId, isAvailable], map: "modifiers_group_available_idx")
+  @@map("modifiers")
+}
+
+model MenuItemModifierGroup {
+  tenantId        String @map("tenant_id") @db.Uuid
+  restaurantId    String @map("restaurant_id") @db.Uuid
+  menuItemId      String @map("menu_item_id") @db.Uuid
+  modifierGroupId String @map("modifier_group_id") @db.Uuid
+  sortOrder       Int    @default(0) @map("sort_order")
+
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant    Restaurant    @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  menuItem      MenuItem      @relation(fields: [tenantId, restaurantId, menuItemId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+  modifierGroup ModifierGroup @relation(fields: [tenantId, restaurantId, modifierGroupId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+
+  @@id([tenantId, menuItemId, modifierGroupId])
+  @@index([tenantId, restaurantId, sortOrder], map: "menu_item_modifier_groups_order_idx")
+  @@map("menu_item_modifier_groups")
+}
+
+model Order {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String      @map("tenant_id") @db.Uuid
+  restaurantId  String      @map("restaurant_id") @db.Uuid
+  tableId       String      @map("table_id") @db.Uuid
+  sessionId     String      @map("session_id") @db.Uuid
+  status        OrderStatus @default(pending)
+  note          String?     @db.Text
+  subtotalCents Int         @map("subtotal_cents")
+  totalCents    Int         @map("total_cents")
+  currency      String      @default("BRL") @db.Char(3)
+  version       Int         @default(1)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant      Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant  Restaurant             @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  table       RestaurantTable        @relation(fields: [tenantId, restaurantId, tableId], references: [tenantId, restaurantId, id], onDelete: Restrict)
+  session     TableSession           @relation(fields: [tenantId, restaurantId, sessionId], references: [tenantId, restaurantId, id], onDelete: Restrict)
+  items       OrderItem[]
+  transitions OrderStateTransition[]
+
+  @@unique([tenantId, id], map: "orders_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "orders_tenant_restaurant_id_uk")
+  @@index([tenantId, restaurantId, status, createdAt], map: "orders_kitchen_queue_idx")
+  @@index([tenantId, sessionId, createdAt], map: "orders_session_created_idx")
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  restaurantId     String   @map("restaurant_id") @db.Uuid
+  orderId          String   @map("order_id") @db.Uuid
+  sourceMenuItemId String?  @map("source_menu_item_id") @db.Uuid
+  nameSnapshot     String   @map("name_snapshot") @db.Text
+  quantity         Int
+  unitPriceCents   Int      @map("unit_price_cents")
+  lineTotalCents   Int      @map("line_total_cents")
+  note             String?  @db.Text
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant     Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant          @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  order      Order               @relation(fields: [tenantId, restaurantId, orderId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+  modifiers  OrderItemModifier[]
+
+  @@unique([tenantId, id], map: "order_items_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "order_items_tenant_restaurant_id_uk")
+  @@index([tenantId, orderId], map: "order_items_order_idx")
+  @@map("order_items")
+}
+
+model OrderItemModifier {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  restaurantId     String   @map("restaurant_id") @db.Uuid
+  orderItemId      String   @map("order_item_id") @db.Uuid
+  sourceModifierId String?  @map("source_modifier_id") @db.Uuid
+  nameSnapshot     String   @map("name_snapshot") @db.Text
+  priceDeltaCents  Int      @map("price_delta_cents")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  orderItem  OrderItem  @relation(fields: [tenantId, restaurantId, orderItemId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, id], map: "order_item_modifiers_tenant_id_uk")
+  @@unique([tenantId, restaurantId, id], map: "order_item_modifiers_tenant_restaurant_id_uk")
+  @@index([tenantId, orderItemId], map: "order_item_modifiers_item_idx")
+  @@map("order_item_modifiers")
+}
+
+model OrderStateTransition {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String       @map("tenant_id") @db.Uuid
+  restaurantId String       @map("restaurant_id") @db.Uuid
+  orderId      String       @map("order_id") @db.Uuid
+  fromStatus   OrderStatus? @map("from_status")
+  toStatus     OrderStatus  @map("to_status")
+  actorUserId  String?      @map("actor_user_id") @db.Uuid
+  actorRole    String       @map("actor_role") @db.Text
+  reason       String?      @db.Text
+  requestId    String?      @map("request_id") @db.Text
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+  order      Order      @relation(fields: [tenantId, restaurantId, orderId], references: [tenantId, restaurantId, id], onDelete: Cascade)
+
+  @@index([tenantId, orderId, createdAt], map: "order_state_transitions_order_idx")
+  @@index([tenantId, restaurantId, createdAt], map: "order_state_transitions_restaurant_idx")
+  @@map("order_state_transitions")
 }
 
 model RestaurantMembership {
