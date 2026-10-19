@@ -34,7 +34,10 @@ export async function verifySessionServer() {
   const supabase = await createClient();
   const { error, data: { user } } = await supabase.auth.getUser();
 
-  if (error || !user) unauthorized();
+  if (error || !user) {
+    unauthorized()
+    throw new Error('Unauthorized redirect did not interrupt execution')
+  }
 
   return user
 }
