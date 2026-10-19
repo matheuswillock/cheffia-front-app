@@ -56,11 +56,11 @@ Evidence: `bun test tests/unit/order-state.test.ts` and `bun run test` pass; typ
 ### Marco 2 implementation checkpoint
 
 - Added `RestaurantTable`, `TableSession`, catalog/modifier entities, `Order` snapshots and `OrderStateTransition` to `prisma/schema.prisma`.
-- Added Prisma migration `20261018170000_ordering_domain` with tenant + restaurant composite foreign keys and database checks for monetary, quantity and modifier bounds.
+- Added Supabase-owned relational migration `20261018140000_relational_schema.sql` with tenant + restaurant composite foreign keys and database checks for monetary, quantity and modifier bounds.
 - Added Supabase migration `20261018170000_ordering_rls.sql` with RLS on every new table, staff restaurant scoping, published-menu policies, table-session order reads, updated-at triggers and server-owned writes.
 - Extended `scripts/verify-foundation.mjs` so the local database gate checks ordering tables, RLS, staff policy presence and cross-tenant order visibility.
 
-Evidence: isolated Supabase local run applied Prisma migrations and both Supabase migrations; `bun run db:verify` passed. `bun test tests/ci/db-reset.test.ts tests/ci/order-schema.test.ts`, Prisma validation and typecheck passed.
+Evidence: isolated Supabase local run applied the complete Supabase migration history and RLS; `bun run db:verify` passed. `bun test tests/ci/db-reset.test.ts tests/ci/order-schema.test.ts`, Prisma validation and typecheck passed.
 
 ### Marco 3 — Use cases and API
 
@@ -114,7 +114,7 @@ Evidence so far: the hard 90% gate passes with backend 90.47%, frontend 92.61% a
 
 ## Validation evidence
 
-Each task must link tests, migration status, CI run or manual evidence. Repository gates use Bun, Vitest/RTL, Playwright and Supabase local; production uses serialized Prisma → Supabase migrations.
+Each task must link tests, migration status, CI run or manual evidence. Repository gates use Bun, Vitest/RTL, Playwright and Supabase local; production migrations are applied by Supabase GitHub Integration.
 
 ## Risks and mitigation
 
