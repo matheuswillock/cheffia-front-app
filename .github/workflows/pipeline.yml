@@ -222,9 +222,7 @@ jobs:
 
 # Deploy ownership:
 # - GitHub Actions is the single production migration orchestrator.
-# - production-migrations.yml applies Prisma migrations first and Supabase migrations second.
+# - Supabase GitHub Integration applies supabase/migrations on the configured production branch.
 # - Vercel Git Integration deploys the develop preview/staging branch and main production.
-# Disable Supabase GitHub Integration's "Deploy to production" migration step to avoid
-# a second migration authority racing this job. Supabase remains the owner of
-# supabase/migrations; GitHub Actions only invokes its deployment workflow on main.
+# GitHub Actions must not apply production migrations; Prisma is ORM/client generation only.
 # The final promote job opens feature/bugfix -> develop -> release -> main PRs.

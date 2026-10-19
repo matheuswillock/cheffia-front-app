@@ -12,7 +12,7 @@ description: Technical implementation notes, patterns, and code guidelines
 
 - Install and run with Bun; generate Prisma client with `bun run prisma:generate`.
 - Configure `DATABASE_URL`, `DIRECT_URL` and `TABLE_QR_SIGNING_SECRET` locally only.
-- Apply Prisma migrations before Supabase migrations; production remains workflow-owned.
+- Prisma generates the ORM client; Supabase owns and applies the complete migration history.
 
 ## Code Structure
 

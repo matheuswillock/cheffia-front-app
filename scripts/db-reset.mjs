@@ -71,8 +71,8 @@ function cleanupBootstrapWorkdir() {
   }
 }
 
-// Supabase owns RLS/Realtime/Storage migrations while Prisma owns tables.
-// Reset only the marker migration first, then apply both layers in order.
+// Supabase owns the complete database migration history. Prisma only generates
+// and executes the application ORM client; it never migrates this database.
 const LOCAL_DATABASE_URL =
   process.env.LOCAL_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 process.env.DATABASE_URL = LOCAL_DATABASE_URL
@@ -89,8 +89,8 @@ try {
   ])
   run("supabase", ["start", "--workdir", bootstrapWorkdir, ...excludeServices, "--yes"])
   run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
-  run("bun", ["run", "prisma:migrate:deploy"])
-  run("supabase", ["db", "push", "--local", "--yes"])
+  cpSync(supabaseRoot + "/migrations", migrationsDirectory, { recursive: true })
+  run("supabase", ["db", "push", "--local", "--workdir", bootstrapWorkdir, "--yes"])
 
   console.log("Local database migrations applied")
 } catch (error) {

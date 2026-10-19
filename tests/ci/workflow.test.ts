@@ -3,9 +3,6 @@ import { expect, test } from "bun:test"
 const workflow = await Bun.file(
   new URL("../../.github/workflows/pipeline.yml", import.meta.url),
 ).text()
-const productionWorkflow = await Bun.file(
-  new URL("../../.github/workflows/production-migrations.yml", import.meta.url),
-).text()
 const packageJson = await Bun.file(new URL("../../package.json", import.meta.url)).json()
 
 test("CI executes the repository test suite", () => {
@@ -46,12 +43,8 @@ test("automatic promotion PRs do not repeat expensive quality jobs", () => {
   expect(workflow).toContain("needs: [quality, database]")
 })
 
-test("production migrations run only after a push to main", () => {
+test("Supabase GitHub integration owns production migrations", async () => {
   expect(workflow).not.toContain("production-migrations:")
-  expect(productionWorkflow).toContain('branches: ["main"]')
-  expect(productionWorkflow).not.toContain("workflow_dispatch")
-  expect(productionWorkflow).toContain("run: bun run db:migrate:prisma:deploy")
-  expect(productionWorkflow).not.toContain("supabase db push")
-  expect(productionWorkflow).toContain("environment: production")
-  expect(productionWorkflow).toContain("DIRECT_URL: ${{ secrets.DIRECT_URL }}")
+  expect(await Bun.file(new URL("../../.github/workflows/production-migrations.yml", import.meta.url)).exists()).toBe(false)
+  expect(workflow).toContain("Supabase GitHub Integration")
 })
