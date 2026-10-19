@@ -51,12 +51,13 @@ const SUPABASE_NON_DATABASE_SERVICES = [
   "vector",
 ]
 let bootstrapWorkdir
+let migrationsDirectory
 
 function createBootstrapWorkdir() {
   const temporaryRoot = process.env.RUNNER_TEMP ?? os.tmpdir()
   bootstrapWorkdir = mkdtempSync(path.join(temporaryRoot, "cheffia-supabase-bootstrap-"))
 
-  const migrationsDirectory = path.join(bootstrapWorkdir, "supabase", "migrations")
+  migrationsDirectory = path.join(bootstrapWorkdir, "supabase", "migrations")
   mkdirSync(migrationsDirectory, { recursive: true })
   cpSync(path.join(supabaseRoot, "config.toml"), path.join(bootstrapWorkdir, "supabase", "config.toml"))
   cpSync(
