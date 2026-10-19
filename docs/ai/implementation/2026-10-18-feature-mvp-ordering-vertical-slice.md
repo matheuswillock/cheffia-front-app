@@ -82,3 +82,4 @@ description: Technical implementation notes, patterns, and code guidelines
 - The `dev` script no longer forces Turbopack or a fixed Node inspector port; this avoids the generated Prisma `.js` import failure and inspector collisions seen in local development.
 - CI now has separate backend, frontend and E2E coverage commands plus a hard 90% `coverage:gate`; the latest local gate passed backend 90.47%, frontend 92.61% and E2E 100%.
 - `scripts/e2e-local.mjs` now provisions isolated Supabase/Auth fixtures and proves the real QR → order → kitchen → status flow; cleanup tolerates the Supabase CLI volume-prune warning after tests finish.
+- Promotion jobs are now explicit and independent (`feature/bugfix → develop`, `develop → release`, `release → main`). Automatic bot-created PRs skip repeated quality/database jobs because the originating push already passed the full gates.

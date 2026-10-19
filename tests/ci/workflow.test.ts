@@ -29,13 +29,21 @@ test("CI enforces a 90 percent backend, frontend and E2E coverage gate", () => {
 
 test("CI creates the next promotion pull request", () => {
   expect(workflow).toContain("pull-requests: write")
-  expect(workflow).toContain("promote:")
+  expect(workflow).toContain("promote-feature-to-develop:")
+  expect(workflow).toContain("promote-develop-to-release:")
+  expect(workflow).toContain("promote-release-to-main:")
   expect(workflow).toContain("gh pr create")
   expect(workflow).toContain('branches: ["develop", "release", "main"]')
   expect(workflow).toContain("release:develop")
   expect(workflow).toContain("main:release")
   expect(workflow).toContain("develop)")
   expect(workflow).toContain("release)")
+})
+
+test("automatic promotion PRs do not repeat expensive quality jobs", () => {
+  expect(workflow).toContain("github.event.pull_request.user.login != 'github-actions[bot]'")
+  expect(workflow).toContain("github.event_name == 'push'")
+  expect(workflow).toContain("needs: [quality, database]")
 })
 
 test("production migrations run only after a push to main", () => {

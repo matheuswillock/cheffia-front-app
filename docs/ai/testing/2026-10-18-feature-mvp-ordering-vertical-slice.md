@@ -82,6 +82,8 @@ CI runs independent coverage gates for all three layers:
 
 Latest local result: 53 Bun tests, 8 component tests, 3 E2E tests; backend `90.47%`, frontend `92.61%`, E2E `100%` — gate passed.
 
+The promotion workflow avoids rerunning expensive gates on bot-created promotion PRs; human-created PRs still execute the complete validation suite.
+
 ## Manual validation
 
 - [ ] Test customer flow on a narrow mobile viewport and keyboard-accessible controls.

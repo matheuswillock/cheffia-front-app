@@ -49,6 +49,9 @@ jobs:
 
   quality:
     name: Quality gates
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.user.login != 'github-actions[bot]'
     needs: branch-policy
     runs-on: ubuntu-latest
     steps:
@@ -100,6 +103,9 @@ jobs:
 
   database:
     name: Local database and RLS
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.user.login != 'github-actions[bot]'
     needs: branch-policy
     runs-on: ubuntu-latest
     steps:
@@ -119,14 +125,12 @@ jobs:
       - name: Verify foundation isolation and migration tracking
         run: bun run db:verify
 
-  promote:
-    name: Create promotion pull request
+  promote-feature-to-develop:
+    name: Promote feature/bugfix to develop
     if: >-
       github.event_name == 'push' &&
       (startsWith(github.ref, 'refs/heads/feature/') ||
-      startsWith(github.ref, 'refs/heads/bugfix/') ||
-      github.ref == 'refs/heads/develop' ||
-      github.ref == 'refs/heads/release')
+      startsWith(github.ref, 'refs/heads/bugfix/'))
     needs: [quality, database]
     runs-on: ubuntu-latest
     permissions:
@@ -139,45 +143,82 @@ jobs:
           GH_REPOSITORY: ${{ github.repository }}
           HEAD_BRANCH: ${{ github.ref_name }}
           COMMIT_SHA: ${{ github.sha }}
+          TARGET_BRANCH: develop
         shell: bash
         run: |
           set -euo pipefail
 
-          case "${HEAD_BRANCH}" in
-            feature/*|bugfix/*)
-              target_branch="develop"
-              ;;
-            develop)
-              target_branch="release"
-              ;;
-            release)
-              target_branch="main"
-              ;;
-            *)
-              echo "No promotion PR is required for ${HEAD_BRANCH}."
-              exit 0
-              ;;
-          esac
-
           existing_pr="$(gh pr list \
             --repo "${GH_REPOSITORY}" \
             --head "${HEAD_BRANCH}" \
-            --base "${target_branch}" \
+            --base "${TARGET_BRANCH}" \
             --state open \
             --json number \
             --jq '.[0].number')"
 
           if [[ -n "${existing_pr}" ]]; then
-            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${target_branch}"
+            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
             exit 0
           fi
 
           gh pr create \
             --repo "${GH_REPOSITORY}" \
             --head "${HEAD_BRANCH}" \
-            --base "${target_branch}" \
-            --title "Promote ${HEAD_BRANCH} to ${target_branch}" \
+            --base "${TARGET_BRANCH}" \
+            --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" \
             --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
+
+  promote-develop-to-release:
+    name: Promote develop to release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: [quality, database]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Create promotion pull request if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          TARGET_BRANCH: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          existing_pr="$(gh pr list --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --state open --json number --jq '.[0].number')"
+          if [[ -n "${existing_pr}" ]]; then
+            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
+            exit 0
+          fi
+          gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
+
+  promote-release-to-main:
+    name: Promote release to main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+    needs: [quality, database]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Create promotion pull request if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          TARGET_BRANCH: main
+        shell: bash
+        run: |
+          set -euo pipefail
+          existing_pr="$(gh pr list --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --state open --json number --jq '.[0].number')"
+          if [[ -n "${existing_pr}" ]]; then
+            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
+            exit 0
+          fi
+          gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
 
 # Deploy ownership:
 # - GitHub Actions is the single production migration orchestrator.
