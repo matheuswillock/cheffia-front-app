@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import Image from "next/image";
-import { stripe } from "@/utils/stripe";
+import { getStripeClient } from "@/utils/stripe";
 import { redirect } from "next/navigation";
 import InfoIcon from "@/assets/InfoIcon.svg";
 import ErrorIcon from "@/assets/ErrorIcon.svg";
@@ -55,7 +55,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       redirect("/");
     }
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const paymentIntent = await getStripeClient().paymentIntents.retrieve(paymentIntentId);
     const { status } = paymentIntent as { status: PaymentStatus };
 
     return (

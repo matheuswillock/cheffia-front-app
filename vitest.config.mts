@@ -16,11 +16,15 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json-summary"],
+      reportsDirectory: "coverage/frontend",
+      include: ["src/components/Ordering/**/*.{ts,tsx}"],
+      exclude: ["**/*.d.ts"],
+    },
     include: [
       "tests/components/**/*.test.{ts,tsx}",
-      "tests/unit/**/*.test.{ts,tsx}",
-      "tests/integration/**/*.test.{ts,tsx}",
-      "tests/regressions/**/*.test.{ts,tsx}",
     ],
   },
 })

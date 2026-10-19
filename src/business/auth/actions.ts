@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/utils/supabase/server';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 
 async function getSupabaseClient() {
   return await createClient();
@@ -64,6 +65,9 @@ export async function signIn(formData: FormData) {
     redirect('/dashboard')
 
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
     console.error('signIn | error:', error)
     redirect('/error')
   }
