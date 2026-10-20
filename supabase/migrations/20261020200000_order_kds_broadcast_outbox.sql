@@ -1,6 +1,4 @@
 -- The outbox is the durable source of truth; Broadcast delivery is best effort.
-ALTER TYPE public.outbox_status ADD VALUE IF NOT EXISTS 'processing';
-
 ALTER TABLE public.outbox_events
   ADD COLUMN IF NOT EXISTS lease_token uuid,
   ADD COLUMN IF NOT EXISTS lease_expires_at timestamptz;

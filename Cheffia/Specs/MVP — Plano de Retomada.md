@@ -1,8 +1,8 @@
 # Cheffia — Plano de Retomada do MVP
 
-**Status:** aprovado para implementação incremental
-**Data:** 2026-10-18
-**Branch de trabalho atual:** `main`
+**Status:** implementação incremental em andamento — Slice 3 entregue na branch `feature/order-kds-completion`, aguardando validação integral dos gates
+**Data de atualização:** 2026-10-20
+**Branch de integração:** `develop` · **branch da entrega Slice 3:** `feature/order-kds-completion`
 **Stack alvo:** Next.js + Supabase + Prisma ORM 7 estável + Bun
 
 ## 1. Objetivo
@@ -55,12 +55,30 @@ O MVP deve provar o ciclo operacional antes de ampliar pagamentos, importação 
 
 ### Slice 3 — Pedido e KDS
 
-- Sessão única por mesa, com link privado de recuperação do ticket.
+- Sessão de mesa como fronteira de autorização do pedido público.
 - Idempotência obrigatória na criação e em todas as transições de escrita.
 - Snapshot imutável de item, preço, modificadores e observação no pedido confirmado.
-- KDS FIFO por restaurante, com estados e primeira transição válida sob concorrência.
-- Cancelamento pelo cliente somente antes do preparo; depois, decisão da cozinha.
-- Entrega opcional pelo operador; no modo item a item, agregada quando todos os itens ativos forem entregues.
+- KDS FIFO por restaurante, com concorrência otimista e estados `pending → confirmed → preparing → ready → delivered`.
+- A cozinha pode recusar em `pending` ou `confirmed`, obrigatoriamente com motivo.
+- O cliente pode cancelar somente em `pending` ou `confirmed`; a partir de `preparing`, a API devolve erro explícito de regra de negócio.
+- Entrega é do pedido inteiro; entrega por item não integra este MVP.
+
+#### Contratos do Slice 3
+
+- `POST /api/public/orders/:orderId/cancel` requer `Idempotency-Key` e os cabeçalhos da sessão de mesa; retorna `{ orderId, status, version }`.
+- `POST /api/restaurants/:slug/orders/:orderId/transitions` requer sessão de membro ativo e `Idempotency-Key`; retorna o mesmo contrato.
+- Repetir uma chave com o mesmo payload reproduz a resposta; reutilizá-la com payload distinto ou concorrer com outra escrita devolve conflito, sem duplicar transição ou evento.
+- Realtime usa apenas canais privados: `order:<orderId>` para o cliente e `restaurant:<restaurantId>:orders` para a operação.
+- Cada mensagem contém somente `eventId`, `sequence`, `eventType`, `orderId`, `status` e `version`. Broadcast é sinal de atualização: os consumidores deduplicam, detectam lacunas e recarregam o snapshot persistido.
+- `postgres_changes` não é transporte do Slice 3.
+
+#### Operação do outbox
+
+- Toda criação ou mudança de estado grava o evento no mesmo commit do pedido.
+- O publisher reivindica lotes com lease/fencing, publica ambos os tópicos privados e só então marca o evento como `published`.
+- Falhas aplicam backoff; na décima tentativa o evento passa a `failed`, sem desfazer o pedido.
+- `POST /api/internal/outbox/publish` exige `Authorization: Bearer $CRON_SECRET`; `vercel.json` agenda sua execução a cada minuto.
+- `SUPABASE_SECRET_KEY` é exclusivo do publisher. Em E2E usa-se a chave do Supabase temporário; segredos de produção nunca entram em fixtures.
 
 ### Fora do primeiro MVP operacional
 
@@ -68,6 +86,8 @@ O MVP deve provar o ciclo operacional antes de ampliar pagamentos, importação 
 - Importador CSV/Excel/link público com IA — será o próximo slice e já nascerá assíncrono.
 - Split de pagamento de consumidor e repasse ao restaurante.
 - Impressão automática, e-mail transacional e notificações de alto volume.
+- Recuperação privada de ticket e rotação de QR (mantidas como trabalho posterior do Slice 2/operacional).
+- Entrega por item.
 
 ## 4. Migrations e deploy do banco
 
@@ -135,7 +155,7 @@ transação de domínio
   ├─ altera pedido/estado
   └─ grava outbox_event com event_id, tenant_id, aggregate_id e sequence
              ↓ commit
-trigger/publisher → Supabase Broadcast privado
+publisher com lease/retry → Supabase Broadcast privado
              ↓
 KDS/menu/status do cliente → ressincronização no banco
 ```
@@ -148,7 +168,7 @@ O cliente deve:
 - deduplicar `event_id`;
 - nunca tratar a mensagem realtime como fonte única da verdade.
 
-O canal deve carregar tenant/restaurante no tópico e ser protegido por RLS. O payload não deve conter segredo ou dados de outro tenant.
+Os canais devem ser `private: true` e protegidos por RLS em `realtime.messages`: a sessão só recebe o pedido associado a ela; o membro ativo só recebe o tópico do seu restaurante. O ambiente Supabase deve manter acesso público a canais desabilitado. O payload não deve conter segredo ou dados de outro tenant.
 
 O hook WebSocket legado em `src/hooks/useWebSocket.ts` será removido/adaptado quando o slice KDS for implementado; ele não é base aceitável para o MVP.
 
@@ -158,14 +178,15 @@ O hook WebSocket legado em `src/hooks/useWebSocket.ts` será removido/adaptado q
 
 Não provisionar Vercel Queues como dependência obrigatória do primeiro slice. Preparar o domínio para filas desde já, mas usar processamento síncrono somente onde o trabalho é curto e transacional.
 
-### Não usar fila no MVP inicial
+### Não usar fila de produto no MVP inicial
 
 - criação do pedido;
 - transições do KDS;
 - disponibilidade de item;
 - leitura do cardápio;
 - sessão de mesa;
-- broadcast de mudança operacional.
+
+O broadcast não bloqueia a escrita: ele é entregue pelo publisher interno do Outbox, agendado por Vercel Cron. Isso não introduz uma fila de produto nem muda a regra transacional do pedido.
 
 Esses fluxos precisam de resposta imediata e consistência transacional. O Outbox garante persistência; Supabase Realtime garante entrega best-effort do sinal; a ressincronização garante correção.
 
@@ -178,7 +199,7 @@ Implementar o contrato de evento e os campos que permitem futura entrega at-leas
 - `aggregate_type` e `aggregate_id`;
 - `event_type` versionado;
 - `payload` validado;
-- `available_at`, `attempt_count`, `published_at` e `last_error`;
+- `available_at`, `retry_count`, `published_at`, `last_error`, lease e fencing token;
 - chave de idempotência no consumidor;
 - correlação por `request_id`.
 
@@ -218,12 +239,12 @@ Cada fatia deve entregar teste de aceitação e não deve deixar uma segunda imp
 
 ## 9. Estado atual e próximos passos
 
-O checkout `main` contém Next.js/Supabase SSR e UI, mas não contém ainda `prisma/` ou `supabase/` versionados. A branch `origin/migration-backend` contém material de migração que deve ser tratado como fonte de referência, não mesclado cegamente.
+O repositório já versiona Prisma, migrations Supabase, RLS, testes por camada e o fluxo QR → pedido → KDS. O Slice 3 foi implementado na branch indicada no cabeçalho e ainda depende da execução bem-sucedida de todos os gates em ambiente com Bun, Supabase CLI e Docker.
 
 Próximos passos executáveis:
 
-1. comparar o schema da branch migrada com o modelo MVP aprovado;
-2. remover/rotacionar qualquer credencial exposta no histórico;
-3. criar baseline Prisma e migrations Supabase sem dados sensíveis;
-4. configurar as integrações do Supabase/Vercel e a proteção do fluxo `feature/bugfix` → `develop` → `main`;
-5. implementar Slice 0 com testes de idempotência e autorização.
+1. promover `feature/order-kds-completion` para `develop` após revisão e CI verde;
+2. executar `bun run test`, `bun run test:components`, `bun run typecheck`, `bun run db:reset`, `bun run db:verify`, `bun run test:e2e`, `bun run test:e2e:local` e `bun run test:coverage`;
+3. configurar `CRON_SECRET`, `SUPABASE_SECRET_KEY` e Broadcast privado no ambiente de deploy;
+4. validar o backlog do Outbox em `/api/health` e o runbook de eventos presos antes da promoção para `main`;
+5. retomar os itens explicitamente fora de escopo somente após o ciclo completo de pedido/KDS estar estável.

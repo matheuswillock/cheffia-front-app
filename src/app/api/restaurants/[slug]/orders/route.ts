@@ -28,7 +28,7 @@ export async function GET(
       userId: user.id,
       statuses: statuses as OrderStatus[],
     })
-    const restaurant = await getPrismaClient().restaurant.findUnique({ where: { slug }, select: { id: true } })
+    const restaurant = await getPrismaClient().restaurant.findFirst({ where: { slug }, select: { id: true } })
 
     return Response.json(result, {
       headers: { "Cache-Control": "no-store", ...(restaurant ? { "X-Restaurant-Id": restaurant.id } : {}) },
