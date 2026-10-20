@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test"
 
-const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3000"
-const port = new URL(baseURL).port || "3000"
+const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100"
+const port = new URL(baseURL).port || "3100"
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -24,9 +24,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `bunx next dev -p ${port}`,
+    command: `bun run next dev -p ${port}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
     env: {
       STRIPE_PUBLISHABLE_KEY: "pk_test_ci_placeholder",
