@@ -39,8 +39,10 @@ export default defineConfig({
       DATABASE_URL: process.env.E2E_DATABASE_URL ?? "",
       DIRECT_URL: process.env.E2E_DATABASE_URL ?? "",
       TABLE_QR_SIGNING_SECRET: process.env.E2E_TABLE_QR_SIGNING_SECRET ?? "e2e-table-secret",
+      SUPABASE_JWT_SECRET: process.env.E2E_SUPABASE_JWT_SECRET ?? "",
       NEXT_PUBLIC_SUPABASE_URL: process.env.E2E_SUPABASE_URL ?? "http://127.0.0.1:54321",
       SUPABASE_ANON_KEY: process.env.E2E_SUPABASE_ANON_KEY ?? "ci-placeholder",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.E2E_SUPABASE_ANON_KEY ?? "ci-placeholder",
     },
   },
 })

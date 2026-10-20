@@ -20,7 +20,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "json-summary"],
       reportsDirectory: "coverage/frontend",
-      include: ["src/components/Ordering/**/*.{ts,tsx}"],
+      include: ["src/components/Ordering/**/*.{ts,tsx}", "src/hooks/useOrderRealtime.ts"],
       exclude: ["**/*.d.ts"],
     },
     include: [

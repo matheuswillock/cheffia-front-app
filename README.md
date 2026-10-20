@@ -63,7 +63,7 @@ shadcn add dialog
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Supabase](https://supabase.com/)
-- Prisma ORM 7 para schema e migrations do domínio
+- Prisma ORM 7 como client tipado do domínio; migrations pertencem ao Supabase
 - Bun para runtime e gerenciamento de pacotes
 
 ### Qualidade e migrations
@@ -78,18 +78,18 @@ bun run lint
 bun run build
 ```
 
-O fluxo de branches é `feature/*` ou `bugfix/*` → `develop` → `main`. O GitHub
-Actions executa qualidade e validação local de migrations/RLS. No merge em
-`main`, a Supabase GitHub Integration aplica `supabase/migrations/`; a Vercel Git Integration publica a aplicação. Prisma é apenas o ORM/client. Migrations
-nunca rodam no startup do Next.js. O job usa o secret protegido `DIRECT_URL` e
-não imprime credenciais. Ao final dos gates, o CI abre automaticamente o PR para
-`develop` ou `main`, conforme a branch de origem, sem duplicar PRs abertos.
+O fluxo de branches é `feature/*` ou `bugfix/*` → `develop` → `release` → `main`.
+O GitHub Actions executa qualidade e validação local de migrations/RLS em cada
+push e, ao final dos gates, abre automaticamente o PR de promoção da branch
+correspondente, sem duplicar PRs abertos. No merge em `main`, a Supabase GitHub
+Integration aplica `supabase/migrations/` e a Vercel Git Integration publica a
+aplicação. Prisma é apenas o ORM/client; migrations nunca rodam no startup do
+Next.js e nenhuma credencial é impressa nos logs.
 
-Para habilitar as migrations automáticas, conecte o repositório ao Supabase
-GitHub Integration, use `supabase/` como working directory e configure o deploy
-de produção para `main`.
-(`dcicvvxuzfdidaefwerq`). O deploy nativo de migrations do Supabase deve
-permanecer desabilitado para evitar dois executores concorrentes.
+O projeto Supabase de produção é `dcicvvxuzfdidaefwerq`. Para habilitar as
+migrations automáticas, conecte o repositório ao Supabase GitHub Integration,
+use `supabase/` como working directory e configure o deploy de produção para a
+branch `main`.
 
 ## 📦 Estrutura do Projeto
 
