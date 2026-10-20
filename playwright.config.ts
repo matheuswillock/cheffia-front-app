@@ -24,7 +24,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `"${process.execPath}" x next dev -p ${port}`,
+    command: `"${process.execPath}" run next dev -p ${port}`,
     url: baseURL,
     reuseExistingServer: false,
     timeout: 120_000,
