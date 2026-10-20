@@ -10,7 +10,7 @@ web
 
 O Cheffia atende três públicos que participam de um único fluxo operacional:
 
-- **Cliente na mesa:** acessa o cardápio por QR code, monta o pedido e acompanha seu estado.
+- **Cliente na mesa:** acessa o hub do restaurante por QR/NFC, consulta o cardápio, monta o pedido, acompanha seu estado e pode avaliar a experiência após a entrega.
 - **Equipe de cozinha/operação:** recebe os pedidos, organiza o preparo e atualiza o andamento com clareza e velocidade.
 - **Dono ou gerente do restaurante:** configura cardápio e mesas, acompanha a operação e garante que o estabelecimento use o fluxo de pedidos de forma confiável.
 
@@ -29,9 +29,9 @@ O compromisso central do produto é conectar a mesa à cozinha em um único flux
 ## Operating Context
 
 - Restaurantes, bares e operações de atendimento em mesa.
-- Cliente usa o próprio celular, normalmente após ler um QR code vinculado ao estabelecimento/mesa.
+- Cliente usa o próprio celular, normalmente após tocar um cartão NFC ou ler um QR code vinculado ao estabelecimento/mesa.
 - Cozinha ou equipe de preparo precisa consultar e executar pedidos em um ambiente de operação rápida.
-- Dono ou gerente configura o cardápio, divulga o QR code e acompanha a operação pelo portal do restaurante.
+- Dono ou gerente configura cardápio, identidade pública, QR/NFC e acompanha a operação e feedback pelo portal do restaurante.
 - O produto é multi-tenant: dados e operações de cada restaurante precisam permanecer isolados.
 
 ## Capabilities and Constraints
@@ -39,9 +39,14 @@ O compromisso central do produto é conectar a mesa à cozinha em um único flux
 ### MVP inicial
 
 - Cardápio digital por restaurante e mesa.
+- Hub público com identidade do restaurante (logo, capa, tagline e CTA).
+- Acesso por QR e NFC com QR como fallback.
+- Modo visual opcional do cardápio, sempre acompanhado de modo lista acessível.
 - Criação de pedido pelo cliente.
 - Entrega do pedido à operação de cozinha em tempo real.
 - Atualização e acompanhamento do status do pedido.
+- Avaliação pós-entrega com nota, tags rápidas e comentário opcional.
+- Analytics mínimo do funil de entrada até pedido e avaliação.
 - Gestão mínima de cardápio, QR code e operação pelo restaurante.
 
 ### Fora do MVP inicial
