@@ -80,15 +80,14 @@ bun run build
 
 O fluxo de branches é `feature/*` ou `bugfix/*` → `develop` → `main`. O GitHub
 Actions executa qualidade e validação local de migrations/RLS. No merge em
-`main`, o job serializado aplica primeiro `prisma/migrations/` e depois
-`supabase/migrations/`; a Vercel Git Integration publica a aplicação. Migrations
+`main`, a Supabase GitHub Integration aplica `supabase/migrations/`; a Vercel Git Integration publica a aplicação. Prisma é apenas o ORM/client. Migrations
 nunca rodam no startup do Next.js. O job usa o secret protegido `DIRECT_URL` e
 não imprime credenciais. Ao final dos gates, o CI abre automaticamente o PR para
 `develop` ou `main`, conforme a branch de origem, sem duplicar PRs abertos.
 
-Para habilitar as migrations automáticas, crie o environment `production` nas
-configurações do repositório GitHub e adicione o secret `DIRECT_URL` com a
-conexão direta ou Session pooler do projeto Supabase Cheffia
+Para habilitar as migrations automáticas, conecte o repositório ao Supabase
+GitHub Integration, use `supabase/` como working directory e configure o deploy
+de produção para `main`.
 (`dcicvvxuzfdidaefwerq`). O deploy nativo de migrations do Supabase deve
 permanecer desabilitado para evitar dois executores concorrentes.
 

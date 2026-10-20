@@ -88,5 +88,5 @@ description: Define monitoring strategy, metrics, alerts, and incident response
 **How do we verify system health?**
 
 - `/api/health` for database connectivity.
-- Isolated Prisma → Supabase migration and RLS verification.
+- Isolated Supabase relational migration and RLS verification.
 - Playwright API boundary smoke and homepage smoke on every CI run.

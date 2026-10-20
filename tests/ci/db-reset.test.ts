@@ -35,12 +35,14 @@ test("ordering verification covers every new table and tenant isolation", () => 
   expect(verifyScript).toContain("failed transaction left ordering rows behind")
 })
 
-test("local reset bootstraps Supabase before Prisma runs", () => {
+test("local reset bootstraps the complete Supabase migration history", () => {
   expect(resetScript).toContain('["start", "--workdir", bootstrapWorkdir')
   expect(resetScript).toContain("00000000000000_prisma_baseline.sql")
   expect(resetScript).not.toContain('"--version", "00000000000000"')
   expect(resetScript).toContain("process.env.DATABASE_URL = LOCAL_DATABASE_URL")
   expect(resetScript).toContain("process.env.DIRECT_URL = LOCAL_DATABASE_URL")
+  expect(resetScript).toContain('"db", "push"')
+  expect(resetScript).not.toContain("prisma:migrate:deploy")
 })
 
 test("CI starts only the Supabase database container", () => {
@@ -54,4 +56,6 @@ test("CI starts only the Supabase database container", () => {
 
 test("foundation verification uses the local database explicitly", () => {
   expect(verifyScript).toContain("process.env.DATABASE_URL = LOCAL_DATABASE_URL")
+  expect(verifyScript).toContain("supabase_migrations.schema_migrations")
+  expect(verifyScript).not.toContain("_prisma_migrations")
 })

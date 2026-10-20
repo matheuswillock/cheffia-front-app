@@ -24,11 +24,7 @@
     "prisma:validate": "prisma validate",
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",
-    "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:migrate:status": "prisma migrate status",
     "supabase:migrate:push": "supabase db push --linked",
-    "db:migrate:deploy": "bun scripts/migrate-deploy.mjs",
     "db:reset": "bun scripts/db-reset.mjs",
     "db:verify": "bun scripts/verify-foundation.mjs"
   },

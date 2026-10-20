@@ -70,13 +70,13 @@ description: Define deployment process, infrastructure, and release procedures
 
 **How do we handle schema changes?**
 
-- Prisma owns application-schema migrations in `prisma/migrations/`.
-- Supabase CLI owns RLS, triggers, Realtime and Storage migrations in `supabase/migrations/`.
-- GitHub Actions runs quality gates, local migration/RLS verification and the
-  serialized production migration deployment.
-- GitHub Actions is the single production migration orchestrator: Prisma first,
-  then Supabase. The Supabase GitHub Integration must not also deploy production
-  migrations.
+- Prisma is the application ORM/client generator only; it does not own migration history.
+- Supabase owns the complete relational schema, RLS, triggers, Realtime and Storage migrations in `supabase/migrations/`.
+- GitHub Actions runs quality gates and local Supabase migration/RLS verification.
+- The enabled Supabase GitHub Integration applies `supabase/migrations/` on the
+  configured production branch.
+- Production has one migration authority: Supabase GitHub Integration. Prisma
+  migration commands are intentionally absent from the production pipeline.
 - Vercel Git Integration publishes `develop` previews/staging and `main` production.
 - Production schema changes are never made manually in the Supabase Dashboard after migration tracking begins.
 - Rollback is forward-only: ship a corrective migration; do not edit an applied migration.

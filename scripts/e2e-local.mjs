@@ -151,10 +151,6 @@ try {
   run("supabase", ["db", "reset", "--local", "--workdir", workdir, "--no-seed", "--yes"])
 
   const databaseUrl = `postgresql://postgres:postgres@127.0.0.1:${databasePort}/postgres`
-  run("bun", ["run", "prisma:migrate:deploy"], {
-    DATABASE_URL: databaseUrl,
-    DIRECT_URL: databaseUrl,
-  })
   cpSync(path.join(repositoryRoot, "supabase/migrations"), migrationsDirectory, { recursive: true })
   run("supabase", ["db", "push", "--local", "--workdir", workdir, "--yes"])
 
