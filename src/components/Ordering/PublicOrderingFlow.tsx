@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import type { PublicMenu } from "@/business/order/publicMenu"
 import type { OrderStatus } from "@/business/order/orderState"
+import { useOrderRealtime } from "@/hooks/useOrderRealtime"
 
 type CartLine = {
   menuItemId: string
@@ -172,6 +173,20 @@ export function PublicOrderingFlow({ restaurantSlug }: { restaurantSlug: string 
   }
 
   const totalCents = cart.reduce((sum, line) => sum + line.priceCents * line.quantity, 0)
+  const updateOrderStatus = useCallback((status: OrderStatus) => {
+    setOrder((current) => (current ? { ...current, status } : current))
+  }, [])
+  const reconcileOrderSnapshot = useCallback((snapshot: { status: OrderStatus }) => {
+    setOrder((current) => (current ? { ...current, status: snapshot.status } : current))
+  }, [])
+
+  useOrderRealtime({
+    orderId,
+    sessionId,
+    sessionToken,
+    onStatus: updateOrderStatus,
+    onSnapshot: reconcileOrderSnapshot,
+  })
 
   const submit = async () => {
     if (!sessionId || !sessionToken) {

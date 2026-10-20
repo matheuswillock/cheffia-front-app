@@ -101,7 +101,7 @@ Evidence: 37 Bun tests pass, component tests pass, Prisma/typecheck pass, and pr
 - Extended the local database verification gate with order/Outbox atomicity and rollback checks.
 - Made deferred Stripe initialization lazy so `bun run build` succeeds without payment secrets; payment execution still fails explicitly when unconfigured.
 
-Evidence so far: the hard 90% gate passes with backend 90.47%, frontend 92.61% and E2E 100%. The local real-data E2E covers QR/session → order → kitchen login/confirmation → customer status resync. Realtime transport/reconnect validation and branch promotion remain open; the operational runbook and safe request correlation are documented/implemented.
+Evidence so far: the hard 90% gate passes with backend 90.47%, frontend 92.61% and E2E 100%. The local real-data E2E covers QR/session → order → kitchen login/confirmation → customer status resync, including a session-scoped Realtime token. Branch promotion remains open; the operational runbook and safe request correlation are documented/implemented.
 
 ## Dependencies and blockers
 
