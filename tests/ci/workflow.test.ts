@@ -30,6 +30,7 @@ test("CI creates the next promotion pull request", () => {
   expect(workflow).toContain("promote-develop-to-release:")
   expect(workflow).toContain("promote-release-to-main:")
   expect(workflow).toContain("gh pr create")
+  expect(workflow).toContain("No commits between")
   expect(workflow).toContain('branches: ["develop", "release", "main"]')
   expect(workflow).toContain("release:develop")
   expect(workflow).toContain("main:release")
