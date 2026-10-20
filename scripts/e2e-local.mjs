@@ -7,10 +7,12 @@ import { fileURLToPath } from "node:url"
 
 import { createClient } from "@supabase/supabase-js"
 import pg from "pg"
+import { assertLocalE2EPrerequisites } from "./e2e-preflight.mjs"
 
 const { Client } = pg
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
-const temporaryRoot = process.env.RUNNER_TEMP ?? "/tmp/opencode"
+const temporaryRoot = process.env.RUNNER_TEMP ?? os.tmpdir()
+assertLocalE2EPrerequisites()
 const workdir = mkdtempSync(path.join(temporaryRoot, "cheffia-e2e-supabase-"))
 const supabaseWorkdir = path.join(workdir, "supabase")
 const migrationsDirectory = path.join(supabaseWorkdir, "migrations")
@@ -21,6 +23,7 @@ const e2eBaseUrl = "http://localhost:3100"
 const tableSigningSecret = "e2e-table-secret"
 const staffEmail = "kitchen.e2e@cheffia.local"
 const staffPassword = "E2eKitchenPassword123!"
+let supabaseStarted = false
 
 function run(command, args, env = {}) {
   const result = spawnSync(command, args, {
@@ -29,7 +32,7 @@ function run(command, args, env = {}) {
     stdio: "inherit",
   })
   if (result.status !== 0) {
-    process.exit(result.status ?? 1)
+    throw new Error(`${command} ${args.join(" ")} exited with ${result.status ?? 1}`)
   }
 }
 
@@ -148,6 +151,7 @@ try {
     "vector",
     "--yes",
   ])
+  supabaseStarted = true
   run("supabase", ["db", "reset", "--local", "--workdir", workdir, "--no-seed", "--yes"])
 
   const databaseUrl = `postgresql://postgres:postgres@127.0.0.1:${databasePort}/postgres`
@@ -176,13 +180,15 @@ try {
   }
   run("bun", ["run", "test:e2e"], env)
 } finally {
-  const stopResult = spawnSync(
-    "supabase",
-    ["stop", "--workdir", workdir, "--no-backup"],
-    { cwd: repositoryRoot, env: process.env, stdio: "inherit" },
-  )
-  if (stopResult.status !== 0) {
-    console.warn("Supabase cleanup returned a non-zero status; test results are preserved.")
+  if (supabaseStarted) {
+    const stopResult = spawnSync(
+      "supabase",
+      ["stop", "--workdir", workdir, "--no-backup"],
+      { cwd: repositoryRoot, env: process.env, stdio: "inherit" },
+    )
+    if (stopResult.status !== 0) {
+      console.warn("Supabase cleanup returned a non-zero status; test results are preserved.")
+    }
   }
   rmSync(workdir, { recursive: true, force: true })
 }

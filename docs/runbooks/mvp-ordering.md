@@ -25,6 +25,23 @@ Supabase relational schema → Supabase RLS/triggers → verification
 
 Do not point local tests at production or at a shared database.
 
+### Real local E2E with Supabase
+
+The critical QR-to-kitchen flow runs against an isolated local Supabase stack,
+not mocks. It requires Bun, the Supabase CLI and a running Docker daemon:
+
+```bash
+bun --version
+supabase --version
+docker info
+bun run test:e2e:local
+```
+
+On Fedora, install missing prerequisites with `dnf` or the official Supabase
+CLI installation method; do not use `apt`. The command stops before creating
+fixtures when any prerequisite is unavailable. It creates and removes its own
+temporary Supabase workdir, database, Auth user, tenant, table and menu data.
+
 ## Incident: order creation failure
 
 1. Check the HTTP error code and request correlation data.
