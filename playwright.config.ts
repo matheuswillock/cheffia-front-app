@@ -43,6 +43,8 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_URL: process.env.E2E_SUPABASE_URL ?? "http://127.0.0.1:54321",
       SUPABASE_ANON_KEY: process.env.E2E_SUPABASE_ANON_KEY ?? "ci-placeholder",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.E2E_SUPABASE_ANON_KEY ?? "ci-placeholder",
+      SUPABASE_SECRET_KEY: process.env.E2E_SUPABASE_SECRET_KEY ?? "",
+      CRON_SECRET: process.env.E2E_CRON_SECRET ?? "e2e-cron-secret",
     },
   },
 })

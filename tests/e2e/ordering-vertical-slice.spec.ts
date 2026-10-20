@@ -44,6 +44,11 @@ test.describe("ordering vertical slice with local fixtures", () => {
     await kitchen.getByRole("button", { name: `Confirmar pedido ${order.orderId}` }).click()
     await expect(kitchen.getByText("Confirmado")).toBeVisible()
 
+    const published = await kitchen.context().request.post("/api/internal/outbox/publish", {
+      headers: { Authorization: `Bearer ${requireE2EEnvironment(process.env, "E2E_CRON_SECRET")}` },
+    })
+    expect(published.ok()).toBeTruthy()
+
     await expect(customer.getByRole("status")).toContainText("confirmed", { timeout: 15_000 })
 
     await kitchenContext.close()

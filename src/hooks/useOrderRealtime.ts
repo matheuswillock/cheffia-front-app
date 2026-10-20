@@ -82,18 +82,18 @@ export function useOrderRealtime(input: {
         accessToken: requestToken,
       })
       channel = client
-        .channel(`order:${input.orderId}`)
+        .channel(`order:${input.orderId}`, { config: { private: true } })
         .on(
-          "postgres_changes",
-          { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${input.orderId}` },
+          "broadcast",
+          { event: "order.updated" },
           (payload) => {
-            const row = payload.new as { id?: string; status?: OrderStatus; version?: number }
-            if (!row.status || typeof row.version !== "number") return
+            const row = payload.payload as { eventId?: string; orderId?: string; sequence?: number; status?: OrderStatus; version?: number }
+            if (!row.status || typeof row.version !== "number" || typeof row.sequence !== "number" || !row.eventId || row.orderId !== input.orderId) return
             const result = applyOrderRealtimeEvent(stateRef.current, {
-              eventId: `${input.orderId}:${row.version}`,
+              eventId: row.eventId,
               orderId: input.orderId as string,
               eventVersion: 1,
-              sequence: row.version,
+              sequence: row.sequence,
               status: row.status,
             })
             stateRef.current = result.state

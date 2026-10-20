@@ -38,8 +38,18 @@ describe("KitchenOrderHub", () => {
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
       "/api/restaurants/demo/orders/order-1/transitions",
-      expect.objectContaining({ method: "POST" }),
+      expect.objectContaining({ method: "POST", headers: expect.objectContaining({ "Idempotency-Key": expect.any(String) }) }),
     )
+  })
+
+  it("requires an accessible reason before rejecting a pending order", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify([{
+      orderId: "order-1", status: "pending", tableLabel: "Mesa 1", createdAt: "2026-10-18T12:00:00.000Z", updatedAt: "2026-10-18T12:00:00.000Z", items: [],
+    }]), { status: 200 }))
+    const user = userEvent.setup()
+    render(<KitchenOrderHub restaurantSlug="demo" />)
+    await user.click(await screen.findByRole("button", { name: "Recusar pedido" }))
+    expect(screen.getByLabelText("Motivo da recusa")).toBeRequired()
   })
 
   it("exposes a readable error when the kitchen queue cannot load", async () => {

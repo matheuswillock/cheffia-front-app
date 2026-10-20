@@ -7,6 +7,8 @@ import {
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createOrderTransitionRepository } from "@/server/ordering/transitionOrderRepository"
 import { orderStatuses, type OrderStatus } from "@/business/order/orderState"
+import { createHash } from "node:crypto"
+import { getIdempotencyKey } from "@/business/order/orderContracts"
 
 export const dynamic = "force-dynamic"
 
@@ -16,6 +18,8 @@ export async function POST(
 ) {
   const user = await verifySessionServer()
   const { slug, orderId } = await context.params
+  const idempotencyKey = getIdempotencyKey(request.headers)
+  if (!idempotencyKey) return Response.json({ code: "IDEMPOTENCY_KEY_REQUIRED" }, { status: 400 })
   let body: unknown
   try {
     body = await request.json()
@@ -41,11 +45,15 @@ export async function POST(
       userId: user.id,
       nextStatus: nextStatus as OrderStatus,
       reason: reason as string | undefined,
+      idempotency: {
+        method: "POST", endpoint: `/api/restaurants/${slug}/orders/${orderId}/transitions`, idempotencyKey,
+        requestHash: createHash("sha256").update(JSON.stringify({ status: nextStatus, reason: typeof reason === "string" ? reason.trim() : null })).digest("hex"),
+      },
     })
     return Response.json(result, { status: 200, headers: { "Cache-Control": "no-store" } })
   } catch (error) {
     if (error instanceof TransitionOrderError) {
-      return Response.json({ code: error.code }, { status: error.code === "ORDER_STATE_CONFLICT" ? 409 : 404 })
+      return Response.json({ code: error.code }, { status: error.code === "ORDER_NOT_FOUND_OR_FORBIDDEN" ? 404 : 409 })
     }
     if (error instanceof OrderTransitionRuleError) {
       return Response.json({ code: error.code }, { status: 409 })

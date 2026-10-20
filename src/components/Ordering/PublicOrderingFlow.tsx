@@ -224,6 +224,29 @@ export function PublicOrderingFlow({ restaurantSlug }: { restaurantSlug: string 
     }
   }
 
+  const cancelOrder = async () => {
+    if (!order || !sessionId || !sessionToken) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      const response = await fetch(`/api/public/orders/${encodeURIComponent(order.orderId)}/cancel`, {
+        method: "POST",
+        headers: {
+          "Idempotency-Key": crypto.randomUUID(),
+          "X-Table-Session-Id": sessionId,
+          "X-Table-Session-Token": sessionToken,
+        },
+      })
+      if (!response.ok) throw new Error("ORDER_CANCELLATION_FAILED")
+      const result = await response.json() as { status: OrderStatus }
+      setOrder((current) => current ? { ...current, status: result.status } : current)
+    } catch {
+      setError("Este pedido não pode mais ser cancelado.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   if (loading) return <p role="status">Carregando cardápio…</p>
   if (!menu) return <p role="alert">{error ?? "Cardápio indisponível."}</p>
 
@@ -318,9 +341,14 @@ export function PublicOrderingFlow({ restaurantSlug }: { restaurantSlug: string 
           {submitting ? "Enviando…" : "Enviar pedido"}
         </button>
         {order && (
-          <p role="status" className="mt-4 rounded-lg bg-muted p-3 text-sm">
-            Pedido enviado · status: <strong>{order.status}</strong>
-          </p>
+          <div className="mt-4 rounded-lg bg-muted p-3 text-sm">
+            <p role="status">Pedido enviado · status: <strong>{order.status}</strong></p>
+            {(order.status === "pending" || order.status === "confirmed") && (
+              <button type="button" className="mt-2 underline" onClick={() => void cancelOrder()} disabled={submitting}>
+                Cancelar pedido
+              </button>
+            )}
+          </div>
         )}
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
       </aside>
