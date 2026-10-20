@@ -31,6 +31,7 @@ export function useOrderRealtime(input: {
     let disposed = false
     let channel: ReturnType<ReturnType<typeof createClient>["channel"]> | null = null
     let client: ReturnType<typeof createClient> | null = null
+    let subscribedOnce = false
 
     const headers = {
       "X-Table-Session-Id": input.sessionId,
@@ -48,17 +49,27 @@ export function useOrderRealtime(input: {
       input.onSnapshot(snapshot)
     }
 
-    const connect = async () => {
-      const tokenResponse = await fetch(
+    // Called on connect and on every reconnect so an expired token is never reused.
+    const requestToken = async () => {
+      const response = await fetch(
         `/api/public/orders/${encodeURIComponent(input.orderId as string)}/realtime-token`,
         { cache: "no-store", headers },
       )
-      if (!tokenResponse.ok || disposed) {
+      if (!response.ok) throw new Error("Realtime token unavailable")
+      const payload = await response.json() as { token: string }
+      return payload.token
+    }
+
+    const connect = async () => {
+      // Establish the version baseline before subscribing so the first event can be ordered.
+      await resync().catch(() => undefined)
+      try {
+        await requestToken()
+      } catch {
         await resync().catch(() => undefined)
         return
       }
 
-      const tokenPayload = await tokenResponse.json() as { token: string }
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
       const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       if (!supabaseUrl || !anonKey || disposed) {
@@ -68,7 +79,7 @@ export function useOrderRealtime(input: {
 
       client = createClient(supabaseUrl, anonKey, {
         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-        accessToken: async () => tokenPayload.token,
+        accessToken: requestToken,
       })
       channel = client
         .channel(`order:${input.orderId}`)
@@ -91,6 +102,13 @@ export function useOrderRealtime(input: {
           },
         )
         .subscribe((status) => {
+          if (disposed) return
+          if (status === "SUBSCRIBED") {
+            // A resubscribe means events may have been missed while offline.
+            if (subscribedOnce) void resync().catch(() => undefined)
+            subscribedOnce = true
+            return
+          }
           if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
             void resync().catch(() => undefined)
           }

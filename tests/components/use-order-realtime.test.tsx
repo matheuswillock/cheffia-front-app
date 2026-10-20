@@ -25,6 +25,7 @@ vi.mock("@supabase/supabase-js", () => ({ createClient: supabase.createClient })
 const { useOrderRealtime } = await import("@/hooks/useOrderRealtime")
 
 type PostgresChangeHandler = (payload: { new: Record<string, unknown> }) => void
+type SubscriptionHandler = (status: string) => void
 
 function Probe(input: {
   onStatus: (status: OrderStatus) => void
@@ -47,6 +48,30 @@ function realtimeHandler() {
   return call[2] as PostgresChangeHandler
 }
 
+function subscriptionHandler() {
+  const call = supabase.channel.subscribe.mock.calls[0] as unknown[] | undefined
+  if (!call) throw new Error("Realtime subscription was not started")
+  return call[0] as SubscriptionHandler
+}
+
+function mockFetch(snapshot: () => { status: OrderStatus; version: number }) {
+  let tokens = 0
+  const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+    const url = String(input)
+    if (url === "/api/public/orders/order-1/realtime-token") {
+      tokens += 1
+      return new Response(JSON.stringify({ token: `session-jwt-${tokens}`, expiresInSeconds: 300 }), {
+        status: 200,
+      })
+    }
+    if (url === "/api/public/orders/order-1") {
+      return new Response(JSON.stringify(snapshot()), { status: 200 })
+    }
+    return new Response(null, { status: 404 })
+  })
+  return fetchMock
+}
+
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321")
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key")
@@ -65,10 +90,8 @@ afterEach(() => {
 
 describe("useOrderRealtime", () => {
   it("subscribes with a session-scoped token and applies ordered status events", async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response(JSON.stringify({ token: "session-jwt", expiresInSeconds: 300 }), { status: 200 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "preparing", version: 5 }), { status: 200 }))
+    let snapshot = { status: "pending" as OrderStatus, version: 3 }
+    const fetchMock = mockFetch(() => snapshot)
     const onStatus = vi.fn()
     const onSnapshot = vi.fn()
 
@@ -76,8 +99,8 @@ describe("useOrderRealtime", () => {
     expect(screen.getByText("conectado")).toBeInTheDocument()
 
     await waitFor(() => expect(supabase.channel.subscribe).toHaveBeenCalledTimes(1))
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      1,
+    expect(onSnapshot).toHaveBeenCalledWith({ status: "pending", version: 3 })
+    expect(fetchMock).toHaveBeenCalledWith(
       "/api/public/orders/order-1/realtime-token",
       expect.objectContaining({
         headers: {
@@ -88,32 +111,49 @@ describe("useOrderRealtime", () => {
     )
 
     const options = supabase.createClient.mock.calls[0]?.[2] as { accessToken: () => Promise<string> }
-    await expect(options.accessToken()).resolves.toBe("session-jwt")
+    await expect(options.accessToken()).resolves.toBe("session-jwt-2")
 
-    realtimeHandler()({ new: { status: "confirmed", version: 1 } })
+    subscriptionHandler()("SUBSCRIBED")
+    expect(onSnapshot).toHaveBeenCalledTimes(1)
+
+    realtimeHandler()({ new: { status: "confirmed", version: 4 } })
     expect(onStatus).toHaveBeenCalledWith("confirmed")
 
-    realtimeHandler()({ new: { status: "confirmed", version: 1 } })
+    realtimeHandler()({ new: { status: "confirmed", version: 4 } })
     expect(onStatus).toHaveBeenCalledTimes(1)
 
-    realtimeHandler()({ new: { status: "preparing", version: 5 } })
-    await waitFor(() => expect(onSnapshot).toHaveBeenCalledWith({ status: "preparing", version: 5 }))
+    snapshot = { status: "preparing", version: 6 }
+    subscriptionHandler()("SUBSCRIBED")
+    await waitFor(() => expect(onSnapshot).toHaveBeenCalledWith({ status: "preparing", version: 6 }))
+
+    realtimeHandler()({ new: { status: "preparing", version: 6 } })
     expect(onStatus).toHaveBeenCalledTimes(1)
+
+    realtimeHandler()({ new: { status: "ready", version: 7 } })
+    expect(onStatus).toHaveBeenLastCalledWith("ready")
+
+    cleanup()
+    expect(supabase.client.removeChannel).toHaveBeenCalledTimes(1)
   })
 
   it("falls back to a persisted snapshot when token issuance is denied", async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response(JSON.stringify({ code: "ORDER_NOT_AVAILABLE" }), { status: 404 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ status: "ready", version: 3 }), { status: 200 }))
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input)
+      if (url === "/api/public/orders/order-1/realtime-token") {
+        return new Response(JSON.stringify({ code: "ORDER_NOT_AVAILABLE" }), { status: 404 })
+      }
+      if (url === "/api/public/orders/order-1") {
+        return new Response(JSON.stringify({ status: "ready", version: 3 }), { status: 200 })
+      }
+      return new Response(null, { status: 404 })
+    })
     const onStatus = vi.fn()
     const onSnapshot = vi.fn()
 
     render(<Probe onStatus={onStatus} onSnapshot={onSnapshot} />)
 
     await waitFor(() => expect(onSnapshot).toHaveBeenCalledWith({ status: "ready", version: 3 }))
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
+    expect(fetchMock).toHaveBeenCalledWith(
       "/api/public/orders/order-1",
       expect.objectContaining({ cache: "no-store" }),
     )
