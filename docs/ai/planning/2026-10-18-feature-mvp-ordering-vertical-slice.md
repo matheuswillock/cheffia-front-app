@@ -88,9 +88,9 @@ Evidence: 37 Bun tests pass, component tests pass, Prisma/typecheck pass, and pr
 
 ### Marco 5 — Verification and rollout
 
-- [ ] M5.1 Complete unit, integration, component and E2E coverage.
+- [x] M5.1 Complete unit, integration, component and E2E coverage.
 - [ ] M5.2 Run local and release smoke tests.
-- [ ] M5.3 Add observability/runbook evidence and update Obsidian progress.
+- [x] M5.3 Add observability/runbook evidence and update Obsidian progress.
 - [ ] M5.4 Promote feature → develop → release → main only after all gates pass.
 
 ### Marco 5 implementation checkpoint
@@ -101,7 +101,9 @@ Evidence: 37 Bun tests pass, component tests pass, Prisma/typecheck pass, and pr
 - Extended the local database verification gate with order/Outbox atomicity and rollback checks.
 - Made deferred Stripe initialization lazy so `bun run build` succeeds without payment secrets; payment execution still fails explicitly when unconfigured.
 
-Evidence so far: the hard 90% gate passes with backend 90.47%, frontend 92.61% and E2E 100%. The local real-data E2E covers QR/session → order → kitchen login/confirmation → customer status resync, including a session-scoped Realtime token. Branch promotion remains open; the operational runbook and safe request correlation are documented/implemented.
+- Customer status now obtains a short-lived session-scoped JWT, subscribes to Supabase Realtime `orders` changes and keeps snapshot resync as the fallback for denied tokens, sequence gaps and reconnect errors.
+
+Evidence so far: the hard 90% gate passes with backend 91.09%, frontend 91.40% and E2E 100%. 59 Bun tests, 10 component tests and 3 Playwright tests pass; the local real-data E2E covers QR/session → order → kitchen login/confirmation → customer status resync, including a 200 from the session-scoped Realtime token endpoint. Branch promotion remains open; the operational runbook and safe request correlation are documented/implemented.
 
 ## Dependencies and blockers
 
@@ -122,4 +124,4 @@ Each task must link tests, migration status, CI run or manual evidence. Reposito
 - **Tenant leakage:** compose tenant-aware keys, RLS tests and server-side Tenant Context.
 - **Duplicate orders:** require Idempotency-Key and transaction-level uniqueness.
 - **Realtime loss:** persist Outbox and always support snapshot resync.
-- **Schema drift:** separate Prisma/Supabase ownership and verify clean/repeated migrations.
+- **Schema drift:** Supabase owns every migration while Prisma only generates the client; verify clean and repeated migrations.
