@@ -80,6 +80,36 @@ describe("PublicOrderingFlow", () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
+  it("cancels a pending order with the table session and an idempotency key", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/restaurant/menu/demo?session_id=session-1&session_token=session-token-12345678",
+    )
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+      const url = String(input)
+      if (url === "/api/public/restaurants/demo/menu") return new Response(JSON.stringify(menu), { status: 200 })
+      if (url === "/api/public/orders") return new Response(JSON.stringify({ orderId: "order-1", status: "pending", totalCents: 2500 }), { status: 201 })
+      if (url === "/api/public/orders/order-1/cancel") return new Response(JSON.stringify({ orderId: "order-1", status: "cancelled", version: 2 }), { status: 200 })
+      if (url.includes("/realtime-token")) return new Response(JSON.stringify({ token: "token" }), { status: 200 })
+      if (url === "/api/public/orders/order-1") return new Response(JSON.stringify({ status: "pending", version: 1 }), { status: 200 })
+      return new Response(null, { status: 404 })
+    })
+    const user = userEvent.setup()
+    render(<PublicOrderingFlow restaurantSlug="demo" />)
+    await user.click(await screen.findByRole("button", { name: "Adicionar Burger" }))
+    await user.click(screen.getByRole("button", { name: "Enviar pedido" }))
+    await user.click(await screen.findByRole("button", { name: "Cancelar pedido" }))
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("cancelled"))
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/public/orders/order-1/cancel",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({ "Idempotency-Key": expect.any(String), "X-Table-Session-Id": "session-1" }),
+      }),
+    )
+  })
+
   it("reads a cookie session, validates modifiers and reports order failures", async () => {
     const menuWithModifiers = {
       ...menu,
