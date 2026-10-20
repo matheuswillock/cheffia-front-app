@@ -1,4 +1,4 @@
 -- Marker migration.
--- Prisma creates the relational schema before Supabase-specific migrations run.
--- Keeping this version allows the local reset script to stop before RLS and then
--- apply the Prisma migration followed by the remaining Supabase migrations.
+-- Supabase creates the relational schema and owns the complete migration history.
+-- This marker preserves the initial migration boundary before the relational,
+-- RLS and trigger migrations that follow.

@@ -86,15 +86,18 @@ try {
   )
   assert(policyResult.rowCount === 1, "orders staff policy is missing")
 
-  const prismaMigration = await client.query(
+  const supabaseMigrations = await client.query(
     `
       SELECT 1
-      FROM _prisma_migrations
-      WHERE migration_name = '20261018140000_foundation'
-        AND finished_at IS NOT NULL
+      FROM supabase_migrations.schema_migrations
+      WHERE version = ANY($1::text[])
     `,
+    [["20261018140000", "20261018165114", "20261018170000"]],
   )
-  assert(prismaMigration.rowCount === 1, "Prisma foundation migration is not applied")
+  assert(
+    supabaseMigrations.rowCount === 3,
+    "Supabase relational/RLS migrations are incomplete",
+  )
 
   await client.query("BEGIN")
 

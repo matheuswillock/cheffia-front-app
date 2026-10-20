@@ -8,9 +8,6 @@ const directUrl =
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-  },
   datasource: {
     // Prisma CLI needs a direct Supabase connection. Runtime uses DATABASE_URL.
     url: directUrl,

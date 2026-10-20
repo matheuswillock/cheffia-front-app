@@ -17,10 +17,10 @@ bun run build
 bun run typecheck
 ```
 
-For the database gate, use an isolated Supabase instance. The approved order is:
+For the database gate, use an isolated Supabase instance. The approved flow is:
 
 ```text
-Prisma migrations → Supabase migrations → RLS verification
+Supabase relational schema → Supabase RLS/triggers → verification
 ```
 
 Do not point local tests at production or at a shared database.

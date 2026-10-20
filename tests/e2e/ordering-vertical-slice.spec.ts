@@ -17,10 +17,14 @@ test.describe("ordering vertical slice with local fixtures", () => {
     const orderResponsePromise = customer.waitForResponse(
       (response) => response.url().endsWith("/api/public/orders") && response.request().method() === "POST",
     )
+    const realtimeTokenPromise = customer.waitForResponse(
+      (response) => response.url().includes("/realtime-token") && response.request().method() === "GET",
+    )
     await customer.getByRole("button", { name: "Enviar pedido" }).click()
     const orderResponse = await orderResponsePromise
     expect(orderResponse.status()).toBe(201)
     const order = await orderResponse.json() as { orderId: string; status: string }
+    expect((await realtimeTokenPromise).status()).toBe(200)
     await expect(customer.getByRole("status")).toContainText("pending")
 
     const kitchenContext = await browser.newContext()

@@ -73,17 +73,17 @@ O MVP deve provar o ciclo operacional antes de ampliar pagamentos, importação 
 
 ### 4.1 Fonte de verdade
 
-O banco terá duas camadas versionadas, com responsabilidades distintas:
+O banco terá uma única fonte de verdade de migrations:
 
-1. `prisma/migrations/`: tabelas, colunas, enums, relações, índices e constraints do domínio.
-2. `supabase/migrations/`: RLS, funções, triggers, Broadcast, Storage policies e objetos específicos do Supabase/PostgreSQL.
+1. `supabase/migrations/`: tabelas, colunas, enums, relações, índices, constraints, RLS, funções, triggers, Broadcast e Storage policies.
+2. Prisma é somente o ORM/client e não mantém histórico de migrations.
 
-Não manteremos duas migrations independentes para o mesmo objeto. Uma mudança deve ter um único dono.
+Não manteremos duas migrations independentes para o mesmo objeto.
 
 ### 4.2 Fluxo local
 
-1. Alterar o schema Prisma ou SQL Supabase na branch.
-2. Gerar a migration com a CLI correspondente.
+1. Alterar o schema Prisma e a migration SQL Supabase na branch.
+2. Gerar/revisar a migration Supabase.
 3. Aplicar e testar localmente.
 4. Revisar SQL, RLS, locks, operação destrutiva e compatibilidade backward.
 5. Commitar migration, schema/config e testes.
@@ -94,7 +94,6 @@ Comandos de referência:
 bun install
 bun run prisma:validate
 bun run prisma:generate
-bun run prisma:migrate:dev -- --name nome_da_mudanca
 supabase migration new nome_da_mudanca
 bun run db:reset
 bun run db:verify
@@ -107,25 +106,22 @@ Migrations **não** serão executadas no startup do Next.js. Em serverless, cada
 O pipeline terá gates de qualidade e promoção por ambiente:
 
 ```text
-feature/bugfix → develop → main → Prisma deploy → Supabase deploy + Vercel deploy
+feature/bugfix → develop → release → main → Supabase deploy + Vercel deploy
 ```
 
-O GitHub Actions será o orquestrador único das migrations de produção na `main`:
-validará os históricos, aplicará `prisma migrate deploy` e depois `supabase db
-push`. O Supabase GitHub Integration continua sendo a integração de código e o
-dono da camada `supabase/migrations`, mas seu deploy automático de migrations em
-produção deve ficar desabilitado para não haver dois executores concorrentes.
-Como Vercel e o job de migrations reagem ao mesmo push, a aplicação deve ser
+O Supabase GitHub Integration será o executor das migrations de produção na
+`main`; GitHub Actions valida qualidade e o banco local, mas não aplica migrations
+de produção. Prisma não executa migrations.
+Como Vercel e o Supabase Integration reagem ao mesmo push, a aplicação deve ser
 compatível com o schema anterior durante o rollout (`expand/contract`).
 
-As credenciais de produção ficam no secret protegido `DIRECT_URL` do environment
-`production` no GitHub Actions. Nenhum valor real será versionado ou impresso em
-logs.
+As credenciais de produção ficam gerenciadas pela integração do Supabase. Nenhum
+valor real será versionado ou impresso em logs.
 
 ### 4.4 Regras de segurança operacional
 
 - Produção nunca recebe alteração manual pelo Dashboard depois que o histórico estiver inicializado.
-- `supabase migration list` e `prisma migrate status` são executados antes de aplicar.
+- `supabase migration list` é verificado nos ambientes locais antes de aplicar.
 - Migrations destrutivas exigem migration de expansão, backfill, janela de remoção e validação explícita.
 - Falhas de histórico devem ser corrigidas com `migration repair` somente após confirmar o estado real; nunca recriar migration já aplicada.
 - A migration inicial será criada a partir do schema recuperado e auditado, não inventada a partir da `main` atual, que ainda não contém o schema.

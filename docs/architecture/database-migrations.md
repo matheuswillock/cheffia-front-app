@@ -2,12 +2,13 @@
 
 ## Decision
 
-Cheffia uses Supabase PostgreSQL with two versioned migration layers:
+Cheffia uses Supabase PostgreSQL with one migration owner:
 
-- `prisma/migrations/` owns application tables, relations, enums, indexes and constraints.
-- `supabase/migrations/` owns RLS, triggers, Realtime Broadcast, Storage policies and Supabase-specific functions.
+- `supabase/migrations/` owns the complete relational schema, enums, indexes,
+  constraints, RLS, triggers, Realtime and Storage policies.
+- Prisma owns only the ORM schema/client and runtime queries.
 
-One object must have one owner. Do not create the same table or policy in both systems.
+One object must have one owner. Prisma does not run migrations.
 
 ## Local workflow
 
@@ -15,35 +16,29 @@ One object must have one owner. Do not create the same table or policy in both s
 bun install
 bun run prisma:validate
 bun run prisma:generate
-bun run prisma:migrate:dev -- --name add_feature
-supabase migration new add_feature_policy
 bun run db:reset
 bun run db:verify
 ```
 
-Use a direct Supabase connection for Prisma CLI migrations (`DIRECT_URL`) and a pooled connection for application traffic (`DATABASE_URL`). Never commit either value.
+Use `DATABASE_URL` for application traffic and keep database credentials outside
+the repository. Schema changes are authored as Supabase migrations.
 
 ## Production workflow
 
-Migrations are applied automatically by the production GitHub Actions workflow
-when `main` is deployed:
+Migrations are applied by the enabled Supabase GitHub Integration when `main`
+is deployed:
 
 ```text
-feature/bugfix → develop → main → Prisma migration deploy → Supabase migration deploy
+feature/bugfix → develop → release → main → Supabase migration deploy
 ```
 
-GitHub Actions is the single production migration orchestrator. It validates both
-histories, applies `prisma/migrations/` first and then applies
-`supabase/migrations/`. Supabase remains the owner of the second layer, while the
-Supabase GitHub Integration's automatic production migration step is disabled to
-avoid concurrent `supabase db push` jobs. Migrations must not run from Next.js
-startup.
+GitHub Actions validates the application and local Supabase migration/RLS gates;
+it does not apply production migrations. Prisma migration history is not used.
+Migrations must not run from Next.js startup.
 
-The current Cheffia production target is the new Supabase project
-`dcicvvxuzfdidaefwerq`. Configure its direct or session-pooler connection as the
-protected GitHub `production` environment secret `DIRECT_URL`; never commit the
-connection string. The first successful deployment creates the Prisma schema and
-then applies the Supabase RLS/trigger migration.
+The current Cheffia production target is the configured Supabase project. The
+Supabase integration applies the complete relational and RLS migration history;
+connection strings are never committed.
 
 Supabase and Vercel integrations react independently to the same push. The
 application must therefore remain compatible with the previous schema during

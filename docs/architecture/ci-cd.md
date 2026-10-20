@@ -14,7 +14,7 @@ feature/* ou bugfix/*
            ▼
          main    ──► produção pela Vercel Git Integration
                          │
-                         └─ migrations pelo GitHub Actions (Prisma → Supabase)
+                          └─ migrations pelo Supabase GitHub Integration
 ```
 
 Pull requests para `develop` aceitam somente `feature/*` ou `bugfix/*`.
@@ -46,10 +46,10 @@ Executa os gates de qualidade e a validação local:
 - reset do Supabase local;
 - verificação do histórico de migrations e do isolamento por tenant/RLS.
 
-O workflow `.github/workflows/production-migrations.yml` é disparado somente
-por push em `main` e executa `prisma migrate deploy` seguido de `supabase db
-push`. O workflow não faz o deploy da aplicação; essa responsabilidade
-permanece na Vercel Git Integration.
+O GitHub Actions não executa migrations de produção. O Supabase GitHub
+Integration aplica `supabase/migrations/` quando `main` é atualizado. O
+workflow não faz o deploy da aplicação; essa responsabilidade permanece na
+Vercel Git Integration.
 
 O projeto Supabase de produção do Cheffia é:
 
@@ -59,20 +59,9 @@ O projeto Supabase de produção do Cheffia é:
 
 ### Configuração necessária no GitHub
 
-O código do workflow já está pronto, mas o GitHub não permite versionar a
-credencial do banco. Configure manualmente:
-
-1. abra **Settings → Environments** no repositório;
-2. crie o environment `production`;
-3. adicione nele o secret `DIRECT_URL` com a conexão direta do novo projeto;
-4. se o runner não alcançar a conexão direta IPv6, use a conexão **Session
-   pooler** do Supabase, em modo sessão, na porta 5432;
-5. não use `service_role`, publishable key ou senha em arquivos do repositório.
-
-O valor de `DIRECT_URL` é usado pelo Prisma e pelo Supabase CLI no job
-serializado. A senha deve estar percent-encoded na URL quando contiver
-caracteres especiais. Depois disso, o merge em `main` aplicará a fundação
-Cheffia automaticamente.
+O workflow não precisa de credencial de banco: os gates usam apenas o Supabase
+local efêmero do runner. Nenhum secret de produção é consumido pelo GitHub
+Actions e nenhuma senha, `service_role` ou publishable key é versionada.
 
 ### Supabase GitHub Integration
 
@@ -80,19 +69,17 @@ No projeto Supabase:
 
 1. conectar este repositório;
 2. definir `supabase/` como working directory;
-3. usar a integração para branches/preview se desejado;
-4. **deixar desabilitado `Deploy to production` para migrations**, pois a
-   produção é orquestrada pelo GitHub Actions;
+3. manter habilitado `Deploy to production` para migrations em `main`;
+4. opcionalmente usar a integração para branches/preview;
 5. opcionalmente mapear `develop` e `release` para projetos ou branches persistentes de staging.
 
-O Supabase continua sendo o dono de `supabase/migrations/`, mas não deve haver
-dois executores no mesmo banco. O workflow de produção valida os históricos e
-aplica primeiro `prisma/migrations/`, depois `supabase/migrations/`.
+O Supabase é o único executor de `supabase/migrations/` em produção. Prisma é
+somente ORM/client; não existe histórico Prisma de produção.
 
-O workflow atual valida o banco local em PRs e aplica migrations somente no
-projeto de produção em `main`. Se `develop` passar a usar um banco de staging
-dedicado, ele deverá receber um job de migration equivalente com o secret desse
-ambiente; não reutilize o banco de produção para staging.
+O workflow atual valida o banco local em PRs e pushes; migrations remotas são
+aplicadas exclusivamente pela integração do Supabase ao atualizar `main`. Se
+`develop` passar a usar um banco de staging dedicado, ele deverá ser mapeado na
+própria integração; não reutilize o banco de produção para staging.
 
 ### Vercel Git Integration
 
@@ -119,4 +106,4 @@ em vez da Git Integration direta para produção.
 3. Aguardar a promoção automática de `develop` para `release`.
 4. Validar o release candidate.
 5. Aguardar a promoção automática de `release` para `main`.
-6. Fazer merge em `main`; GitHub Actions aplica Prisma → Supabase e Vercel publica a aplicação.
+6. Fazer merge em `main`; Supabase aplica as migrations e Vercel publica a aplicação.
