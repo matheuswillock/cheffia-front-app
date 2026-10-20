@@ -42,8 +42,7 @@ test("starts an isolated application server instead of reusing another worktree"
 
   expect(config).toContain('"http://127.0.0.1:3100"')
   expect(config).toContain("reuseExistingServer: false")
-  expect(config).toContain("process.execPath")
-  expect(config).toContain("run next dev")
+  expect(config).toContain("command: `bun run next dev")
 })
 
 test("checks local E2E prerequisites before allocating Supabase fixtures", () => {
