@@ -250,3 +250,20 @@ GRANT SELECT ON
 TO authenticated;
 
 GRANT SELECT ON public.orders, public.order_items, public.order_item_modifiers TO anon;
+
+-- Realtime listens to persisted order updates. The client still resyncs from
+-- Postgres after reconnects, duplicate events or sequence gaps.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime')
+     AND NOT EXISTS (
+       SELECT 1
+       FROM pg_publication_tables
+       WHERE pubname = 'supabase_realtime'
+         AND schemaname = 'public'
+         AND tablename = 'orders'
+     ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+  END IF;
+END
+$$;

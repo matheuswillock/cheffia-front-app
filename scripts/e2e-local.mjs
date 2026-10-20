@@ -166,6 +166,7 @@ try {
     E2E_BASE_URL: e2eBaseUrl,
     E2E_DATABASE_URL: fixtures.databaseUrl,
     E2E_TABLE_QR_SIGNING_SECRET: tableSigningSecret,
+    E2E_SUPABASE_JWT_SECRET: status.JWT_SECRET,
     E2E_SUPABASE_URL: fixtures.apiUrl,
     E2E_SUPABASE_ANON_KEY: fixtures.anonKey,
     E2E_TABLE_TOKEN: fixtures.token,
