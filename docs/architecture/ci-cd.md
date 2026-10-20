@@ -59,20 +59,9 @@ O projeto Supabase de produção do Cheffia é:
 
 ### Configuração necessária no GitHub
 
-O código do workflow já está pronto, mas o GitHub não permite versionar a
-credencial do banco. Configure manualmente:
-
-1. abra **Settings → Environments** no repositório;
-2. crie o environment `production`;
-3. adicione nele o secret `DIRECT_URL` com a conexão direta do novo projeto;
-4. se o runner não alcançar a conexão direta IPv6, use a conexão **Session
-   pooler** do Supabase, em modo sessão, na porta 5432;
-5. não use `service_role`, publishable key ou senha em arquivos do repositório.
-
-O valor de `DIRECT_URL` é usado pelo Prisma e pelo Supabase CLI no job
-serializado. A senha deve estar percent-encoded na URL quando contiver
-caracteres especiais. Depois disso, o merge em `main` aplicará a fundação
-Cheffia automaticamente.
+O workflow não precisa de credencial de banco: os gates usam apenas o Supabase
+local efêmero do runner. Nenhum secret de produção é consumido pelo GitHub
+Actions e nenhuma senha, `service_role` ou publishable key é versionada.
 
 ### Supabase GitHub Integration
 
@@ -87,10 +76,10 @@ No projeto Supabase:
 O Supabase é o único executor de `supabase/migrations/` em produção. Prisma é
 somente ORM/client; não existe histórico Prisma de produção.
 
-O workflow atual valida o banco local em PRs e aplica migrations somente no
-projeto de produção em `main`. Se `develop` passar a usar um banco de staging
-dedicado, ele deverá receber um job de migration equivalente com o secret desse
-ambiente; não reutilize o banco de produção para staging.
+O workflow atual valida o banco local em PRs e pushes; migrations remotas são
+aplicadas exclusivamente pela integração do Supabase ao atualizar `main`. Se
+`develop` passar a usar um banco de staging dedicado, ele deverá ser mapeado na
+própria integração; não reutilize o banco de produção para staging.
 
 ### Vercel Git Integration
 
