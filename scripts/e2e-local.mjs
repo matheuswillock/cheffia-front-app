@@ -173,6 +173,8 @@ try {
     E2E_SUPABASE_JWT_SECRET: status.JWT_SECRET,
     E2E_SUPABASE_URL: fixtures.apiUrl,
     E2E_SUPABASE_ANON_KEY: fixtures.anonKey,
+    E2E_SUPABASE_SECRET_KEY: status.SERVICE_ROLE_KEY,
+    E2E_CRON_SECRET: "e2e-cron-secret",
     E2E_TABLE_TOKEN: fixtures.token,
     E2E_STAFF_EMAIL: staffEmail,
     E2E_STAFF_PASSWORD: staffPassword,

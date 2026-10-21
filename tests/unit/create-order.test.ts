@@ -58,7 +58,7 @@ function repository(): OrderCreationRepository & { outboxCount: number } {
           ]
         },
         async createOrder(input) {
-          return { id: "order-1", status: "pending" as const, totalCents: input.totalCents }
+          return { id: "order-1", status: "pending" as const, version: 1, totalCents: input.totalCents }
         },
         async createOutboxEvent() {
           outboxCount += 1

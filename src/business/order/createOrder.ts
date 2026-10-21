@@ -45,7 +45,7 @@ type OrderTransaction = {
     subtotalCents: number
     totalCents: number
     items: OrderItemSnapshot[]
-  }): Promise<{ id: string; status: OrderStatus; totalCents: number }>
+  }): Promise<{ id: string; status: OrderStatus; totalCents: number; version: number }>
   createOutboxEvent(input: {
     tenantId: string
     restaurantId: string
@@ -146,6 +146,7 @@ export async function createOrder(input: {
       payload: {
         orderId: order.id,
         status: order.status,
+        version: order.version,
         totalCents: order.totalCents,
       },
     })

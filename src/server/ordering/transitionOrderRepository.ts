@@ -1,4 +1,4 @@
-import type { OrderTransitionRepository } from "@/business/order/transitionOrder"
+import type { OrderTransitionRepository, OrderMutationResult } from "@/business/order/transitionOrder"
 import type { PrismaClient } from "@/generated/prisma/client"
 import { Prisma } from "@/generated/prisma/client"
 
@@ -26,7 +26,7 @@ export function createOrderTransitionRepository(prisma: PrismaClient): OrderTran
                 tenantId: membership.tenantId,
                 restaurantId: membership.restaurantId,
               },
-              select: { tenantId: true, restaurantId: true, status: true },
+              select: { tenantId: true, restaurantId: true, status: true, version: true },
             })
             if (!order) {
               return null
@@ -37,6 +37,7 @@ export function createOrderTransitionRepository(prisma: PrismaClient): OrderTran
               restaurantId: order.restaurantId,
               status: order.status,
               role: membership.role,
+              version: order.version,
             }
           },
 
@@ -53,7 +54,11 @@ export function createOrderTransitionRepository(prisma: PrismaClient): OrderTran
                 version: { increment: 1 },
               },
             })
-            return result.count === 1
+            if (result.count !== 1) return null
+            const order = await transaction.order.findUniqueOrThrow({
+              where: { id: orderId }, select: { version: true },
+            })
+            return order.version
           },
 
           async createTransition(input) {
@@ -81,6 +86,25 @@ export function createOrderTransitionRepository(prisma: PrismaClient): OrderTran
                 eventType: "order.status_changed",
                 payload: payload as Prisma.InputJsonValue,
               },
+            })
+          },
+          async claimIdempotency(input) {
+            const inserted = await transaction.idempotencyKey.createMany({
+              data: { ...input, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) }, skipDuplicates: true,
+            })
+            if (inserted.count === 1) return { kind: "created" as const }
+            const existing = await transaction.idempotencyKey.findUniqueOrThrow({
+              where: { tenantId_method_endpoint_idempotencyKey: { tenantId: input.tenantId, method: input.method, endpoint: input.endpoint, idempotencyKey: input.idempotencyKey } },
+              select: { requestHash: true, status: true, responseBody: true },
+            })
+            if (existing.requestHash !== input.requestHash) return { kind: "conflict" as const }
+            if (existing.status !== "completed" || !existing.responseBody) return { kind: "in_progress" as const }
+            return { kind: "replay" as const, responseBody: existing.responseBody as unknown as OrderMutationResult }
+          },
+          async completeIdempotency(input) {
+            await transaction.idempotencyKey.update({
+              where: { tenantId_method_endpoint_idempotencyKey: { tenantId: input.tenantId, method: input.method, endpoint: input.endpoint, idempotencyKey: input.idempotencyKey } },
+              data: { status: "completed", responseStatusCode: 200, responseBody: input.responseBody as Prisma.InputJsonValue },
             })
           },
         }),

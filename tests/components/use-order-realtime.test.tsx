@@ -24,7 +24,7 @@ vi.mock("@supabase/supabase-js", () => ({ createClient: supabase.createClient })
 
 const { useOrderRealtime } = await import("@/hooks/useOrderRealtime")
 
-type PostgresChangeHandler = (payload: { new: Record<string, unknown> }) => void
+type BroadcastHandler = (payload: { payload: Record<string, unknown> }) => void
 type SubscriptionHandler = (status: string) => void
 
 function Probe(input: {
@@ -45,7 +45,7 @@ function Probe(input: {
 function realtimeHandler() {
   const call = supabase.channel.on.mock.calls[0] as unknown[] | undefined
   if (!call) throw new Error("Realtime subscription was not registered")
-  return call[2] as PostgresChangeHandler
+  return call[2] as BroadcastHandler
 }
 
 function subscriptionHandler() {
@@ -116,20 +116,20 @@ describe("useOrderRealtime", () => {
     subscriptionHandler()("SUBSCRIBED")
     expect(onSnapshot).toHaveBeenCalledTimes(1)
 
-    realtimeHandler()({ new: { status: "confirmed", version: 4 } })
+    realtimeHandler()({ payload: { eventId: "event-4", orderId: "order-1", sequence: 4, status: "confirmed", version: 4 } })
     expect(onStatus).toHaveBeenCalledWith("confirmed")
 
-    realtimeHandler()({ new: { status: "confirmed", version: 4 } })
+    realtimeHandler()({ payload: { eventId: "event-4", orderId: "order-1", sequence: 4, status: "confirmed", version: 4 } })
     expect(onStatus).toHaveBeenCalledTimes(1)
 
     snapshot = { status: "preparing", version: 6 }
     subscriptionHandler()("SUBSCRIBED")
     await waitFor(() => expect(onSnapshot).toHaveBeenCalledWith({ status: "preparing", version: 6 }))
 
-    realtimeHandler()({ new: { status: "preparing", version: 6 } })
+    realtimeHandler()({ payload: { eventId: "event-6", orderId: "order-1", sequence: 6, status: "preparing", version: 6 } })
     expect(onStatus).toHaveBeenCalledTimes(1)
 
-    realtimeHandler()({ new: { status: "ready", version: 7 } })
+    realtimeHandler()({ payload: { eventId: "event-7", orderId: "order-1", sequence: 7, status: "ready", version: 7 } })
     expect(onStatus).toHaveBeenLastCalledWith("ready")
 
     cleanup()
