@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react"
+import { cleanup, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -15,6 +15,7 @@ vi.mock("@/utils/supabase/client", () => ({ createClient: realtime.createClient 
 import { KitchenOrderHub } from "@/components/Ordering/KitchenOrderHub"
 
 afterEach(() => {
+  cleanup()
   vi.restoreAllMocks()
   realtime.createClient.mockClear()
   realtime.client.channel.mockClear()
@@ -86,5 +87,18 @@ describe("KitchenOrderHub", () => {
     render(<KitchenOrderHub restaurantSlug="demo" />)
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível carregar a fila")
+  })
+
+  it("reloads the kitchen queue when requested by staff", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify([]), { status: 200 }))
+    const user = userEvent.setup()
+
+    render(<KitchenOrderHub restaurantSlug="demo" />)
+    await screen.findByText("Nenhum pedido ativo.")
+    await user.click(screen.getByRole("button", { name: "Atualizar" }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
   })
 })
