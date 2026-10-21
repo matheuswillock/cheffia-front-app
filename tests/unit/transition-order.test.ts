@@ -9,6 +9,7 @@ import type { OrderStatus } from "@/business/order/orderState"
 function repository(): OrderTransitionRepository & { transitionCount: number } {
   let status: OrderStatus = "pending"
   let transitionCount = 0
+  let version = 1
 
   return {
     get transitionCount() {
@@ -22,14 +23,16 @@ function repository(): OrderTransitionRepository & { transitionCount: number } {
             restaurantId: "restaurant-1",
             status,
             role: "kitchen",
+            version,
           }
         },
         async updateStatus(input) {
           if (status !== input.expectedStatus) {
-            return false
+            return null
           }
           status = input.nextStatus
-          return true
+          version += 1
+          return version
         },
         async createTransition() {
           transitionCount += 1
@@ -51,7 +54,7 @@ test("authorizes kitchen transitions and writes an event", async () => {
     nextStatus: "confirmed",
   })
 
-  expect(result).toEqual({ status: "confirmed" })
+  expect(result).toEqual({ orderId: "order-1", status: "confirmed", version: 2 })
   expect(repositoryInstance.transitionCount).toBe(1)
 })
 

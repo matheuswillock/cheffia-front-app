@@ -64,6 +64,14 @@ temporary Supabase workdir, database, Auth user, tenant, table and menu data.
 3. If a Realtime event has a sequence gap or duplicate, discard it and resync.
 4. Never infer a status transition from a missing or out-of-order event.
 
+## Incident: Broadcast or outbox unavailable
+
+1. The persisted order remains authoritative; reload the relevant customer or KDS snapshot.
+2. Inspect `/api/health` for pending, processing, failed and oldest pending outbox counts.
+3. The Vercel minute cron calls the authenticated publisher. A processing event with an expired lease is safely claimed again.
+4. After ten failed attempts an event becomes `failed`; fix delivery first, then replay it deliberately. Never reverse an order merely because Broadcast failed.
+5. Keep channels private and public channel access disabled in Supabase. `CRON_SECRET` and `SUPABASE_SECRET_KEY` never belong in fixtures or logs.
+
 ## Incident: migration failure
 
 1. Stop promotion; do not retry production migrations manually.

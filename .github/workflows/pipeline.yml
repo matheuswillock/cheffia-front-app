@@ -81,7 +81,7 @@ jobs:
       - name: Install Playwright Chromium
         run: bunx playwright install chromium
       - name: E2E smoke tests
-        run: bun run test:e2e
+        run: bun run test:e2e:local
       - name: E2E coverage with local fixtures
         run: bun run test:e2e:coverage:local
       - name: Enforce 90 percent coverage in every test layer

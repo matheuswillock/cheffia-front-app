@@ -1,8 +1,10 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js"
 
 import type { OrderStatus } from "@/business/order/orderState"
+import { createClient as createSupabaseClient } from "@/utils/supabase/client"
 
 type KitchenOrder = {
   orderId: string
@@ -35,6 +37,9 @@ export function KitchenOrderHub({ restaurantSlug }: { restaurantSlug: string }) 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [transitioning, setTransitioning] = useState<string | null>(null)
+  const [rejecting, setRejecting] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState("")
+  const [restaurantId, setRestaurantId] = useState<string | null>(null)
 
   const loadOrders = useCallback(async () => {
     try {
@@ -42,6 +47,8 @@ export function KitchenOrderHub({ restaurantSlug }: { restaurantSlug: string }) 
         cache: "no-store",
       })
       if (!response.ok) throw new Error("KITCHEN_ORDERS_UNAVAILABLE")
+      const id = response.headers.get("X-Restaurant-Id")
+      if (id) setRestaurantId(id)
       setOrders((await response.json()) as KitchenOrder[])
       setError(null)
     } catch {
@@ -57,8 +64,29 @@ export function KitchenOrderHub({ restaurantSlug }: { restaurantSlug: string }) 
     return () => window.clearInterval(interval)
   }, [loadOrders])
 
-  const advance = async (order: KitchenOrder) => {
-    const target = nextStatus[order.status]
+  useEffect(() => {
+    if (!restaurantId) return
+    let disposed = false
+    let channel: RealtimeChannel | null = null
+    const seen = new Set<string>()
+    let client: SupabaseClient | null = null
+    void createSupabaseClient().then((resolved) => {
+      if (disposed) return
+      client = resolved
+      channel = resolved
+        .channel(`restaurant:${restaurantId}:orders`, { config: { private: true } })
+        .on("broadcast", { event: "order.updated" }, (message) => {
+          const event = message.payload as { eventId?: unknown }
+          if (typeof event.eventId !== "string" || seen.has(event.eventId)) return
+          seen.add(event.eventId)
+          void loadOrders()
+        })
+        .subscribe((status) => { if (status === "SUBSCRIBED") void loadOrders() })
+    })
+    return () => { disposed = true; if (client && channel) void client.removeChannel(channel) }
+  }, [restaurantId, loadOrders])
+
+  const advance = async (order: KitchenOrder, target = nextStatus[order.status], reason?: string) => {
     if (!target) return
 
     setTransitioning(order.orderId)
@@ -68,14 +96,16 @@ export function KitchenOrderHub({ restaurantSlug }: { restaurantSlug: string }) 
         `/api/restaurants/${encodeURIComponent(restaurantSlug)}/orders/${encodeURIComponent(order.orderId)}/transitions`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: target }),
+          headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+          body: JSON.stringify({ status: target, reason }),
         },
       )
       if (!response.ok) throw new Error("ORDER_TRANSITION_FAILED")
       const result = (await response.json()) as { status: OrderStatus }
       setOrders((current) =>
-        current.map((item) => (item.orderId === order.orderId ? { ...item, status: result.status } : item)),
+        result.status === "delivered" || result.status === "rejected"
+          ? current.filter((item) => item.orderId !== order.orderId)
+          : current.map((item) => (item.orderId === order.orderId ? { ...item, status: result.status } : item)),
       )
     } catch {
       setError("O pedido mudou antes da atualização. Recarregue a fila.")
@@ -128,6 +158,23 @@ export function KitchenOrderHub({ restaurantSlug }: { restaurantSlug: string }) 
                 >
                   {transitioning === order.orderId ? "Atualizando…" : actionLabel(order.status)}
                 </button>
+              )}
+              {(order.status === "pending" || order.status === "confirmed") && (
+                <button type="button" className="mt-2 w-full rounded-lg border px-3 py-2" onClick={() => { setRejecting(order.orderId); setRejectReason("") }}>
+                  Recusar pedido
+                </button>
+              )}
+              {rejecting === order.orderId && (
+                <form className="mt-3 space-y-2" onSubmit={(event) => {
+                  event.preventDefault()
+                  if (!rejectReason.trim()) return
+                  setRejecting(null)
+                  void advance(order, "rejected", rejectReason)
+                }}>
+                  <label htmlFor={`reject-${order.orderId}`} className="text-sm font-medium">Motivo da recusa</label>
+                  <input id={`reject-${order.orderId}`} value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} required className="w-full rounded border px-2 py-1" />
+                  <button type="submit" className="rounded bg-destructive px-3 py-2 text-destructive-foreground">Confirmar recusa</button>
+                </form>
               )}
             </article>
           ))}
