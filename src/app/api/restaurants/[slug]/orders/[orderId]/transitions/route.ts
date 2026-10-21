@@ -9,6 +9,7 @@ import { createOrderTransitionRepository } from "@/server/ordering/transitionOrd
 import { orderStatuses, type OrderStatus } from "@/business/order/orderState"
 import { createHash } from "node:crypto"
 import { getIdempotencyKey } from "@/business/order/orderContracts"
+import { schedulePendingOutboxPublish } from "@/server/ordering/schedulePublish"
 
 export const dynamic = "force-dynamic"
 
@@ -50,6 +51,7 @@ export async function POST(
         requestHash: createHash("sha256").update(JSON.stringify({ status: nextStatus, reason: typeof reason === "string" ? reason.trim() : null })).digest("hex"),
       },
     })
+    schedulePendingOutboxPublish()
     return Response.json(result, { status: 200, headers: { "Cache-Control": "no-store" } })
   } catch (error) {
     if (error instanceof TransitionOrderError) {
