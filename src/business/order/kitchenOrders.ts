@@ -18,7 +18,7 @@ export type KitchenOrdersRepository = {
     restaurantSlug: string
     userId: string
     statuses: OrderStatus[]
-  }): Promise<KitchenOrder[] | null>
+  }): Promise<{ restaurantId: string; orders: KitchenOrder[] } | null>
 }
 
 export class KitchenOrdersError extends Error {
@@ -33,22 +33,25 @@ export async function listKitchenOrders(input: {
   userId: string
   statuses: OrderStatus[]
 }) {
-  const orders = await input.repository.findOrders({
+  const found = await input.repository.findOrders({
     restaurantSlug: input.restaurantSlug,
     userId: input.userId,
     statuses: input.statuses,
   })
 
-  if (!orders) {
+  if (!found) {
     throw new KitchenOrdersError("KITCHEN_ACCESS_DENIED")
   }
 
-  return orders.map((order) => ({
-    orderId: order.id,
-    status: order.status,
-    tableLabel: order.tableLabel,
-    createdAt: order.createdAt.toISOString(),
-    updatedAt: order.updatedAt.toISOString(),
-    items: order.items,
-  }))
+  return {
+    restaurantId: found.restaurantId,
+    orders: found.orders.map((order) => ({
+      orderId: order.id,
+      status: order.status,
+      tableLabel: order.tableLabel,
+      createdAt: order.createdAt.toISOString(),
+      updatedAt: order.updatedAt.toISOString(),
+      items: order.items,
+    })),
+  }
 }

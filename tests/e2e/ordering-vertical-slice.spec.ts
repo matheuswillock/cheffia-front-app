@@ -1,5 +1,20 @@
 import { expect, test } from "@playwright/test"
+import { Client } from "pg"
 import { requireCreatedOrder, requireE2EEnvironment } from "../../scripts/e2e-preflight.mjs"
+
+async function outboxStatuses(databaseUrl: string, orderId: string) {
+  const client = new Client({ connectionString: databaseUrl })
+  await client.connect()
+  try {
+    const result = await client.query<{ status: string }>(
+      "select status::text from public.outbox_events where aggregate_type = 'order' and aggregate_id = $1 order by sequence",
+      [orderId],
+    )
+    return result.rows.map((row) => row.status)
+  } finally {
+    await client.end()
+  }
+}
 
 test.describe("ordering vertical slice with local fixtures", () => {
   test.skip(!process.env.E2E_TABLE_TOKEN, "requires scripts/e2e-local.mjs fixtures")
@@ -44,14 +59,27 @@ test.describe("ordering vertical slice with local fixtures", () => {
     await kitchen.getByRole("button", { name: `Confirmar pedido ${order.orderId}` }).click()
     await expect(kitchen.getByText("Confirmado")).toBeVisible()
 
-    const published = await kitchen.context().request.post("/api/internal/outbox/publish", {
-      headers: { Authorization: `Bearer ${requireE2EEnvironment(process.env, "E2E_CRON_SECRET")}` },
-    })
-    expect(published.ok()).toBeTruthy()
+    // No manual publisher call: writes must publish their own outbox events, with the cron as safety net.
+    await expect
+      .poll(() => outboxStatuses(requireE2EEnvironment(process.env, "E2E_DATABASE_URL"), order.orderId), {
+        timeout: 10_000,
+      })
+      .toEqual(["published", "published"])
 
     await expect(customer.getByRole("status")).toContainText("confirmed", { timeout: 15_000 })
 
     await kitchenContext.close()
     await customerContext.close()
+  })
+})
+
+test.describe("outbox publisher cron contract", () => {
+  test.skip(!process.env.E2E_TABLE_TOKEN, "requires scripts/e2e-local.mjs fixtures")
+
+  test("Vercel cron GET is authorized and unauthenticated calls are rejected", async ({ request }) => {
+    const secret = requireE2EEnvironment(process.env, "E2E_CRON_SECRET")
+
+    expect((await request.get("/api/internal/outbox/publish", { headers: { Authorization: `Bearer ${secret}` } })).status()).toBe(200)
+    expect((await request.get("/api/internal/outbox/publish")).status()).toBe(401)
   })
 })
