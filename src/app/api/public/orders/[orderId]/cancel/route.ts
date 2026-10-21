@@ -3,6 +3,7 @@ import { CancelOrderError, CancelOrderRuleError, cancelOrderForCustomer } from "
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createCancelOrderRepository } from "@/server/ordering/cancelOrderRepository"
 import { createHash } from "node:crypto"
+import { schedulePendingOutboxPublish } from "@/server/ordering/schedulePublish"
 
 export const dynamic = "force-dynamic"
 
@@ -22,6 +23,7 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
         requestHash: createHash("sha256").update(JSON.stringify({ orderId, sessionId })).digest("hex"),
       },
     })
+    schedulePendingOutboxPublish()
     return Response.json(result, { headers: { "Cache-Control": "no-store", "Idempotency-Key": idempotencyKey } })
   } catch (error) {
     if (error instanceof CancelOrderError) {
