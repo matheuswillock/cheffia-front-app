@@ -39,7 +39,9 @@ export function createKitchenOrdersRepository(prisma: PrismaClient): KitchenOrde
         },
       })
 
-      return orders.map((order) => ({
+      return {
+        restaurantId: membership.restaurantId,
+        orders: orders.map((order) => ({
         id: order.id,
         status: order.status as OrderStatus,
         tableLabel: order.table.label,
@@ -50,7 +52,8 @@ export function createKitchenOrdersRepository(prisma: PrismaClient): KitchenOrde
           quantity: item.quantity,
           note: item.note,
         })),
-      }))
+        })),
+      }
     },
   }
 }

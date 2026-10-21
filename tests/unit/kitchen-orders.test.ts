@@ -7,7 +7,9 @@ import {
 
 const repository: KitchenOrdersRepository = {
   async findOrders() {
-    return [
+    return {
+      restaurantId: "restaurant-1",
+      orders: [
       {
         id: "order-2",
         status: "confirmed",
@@ -24,7 +26,8 @@ const repository: KitchenOrdersRepository = {
         updatedAt: new Date("2026-10-18T12:00:00.000Z"),
         items: [{ name: "Burger", quantity: 2, note: "Sem cebola" }],
       },
-    ]
+      ],
+    }
   },
 }
 
@@ -36,7 +39,9 @@ test("returns kitchen orders in queue order with snapshot fields", async () => {
       userId: "user-1",
       statuses: ["pending", "confirmed"],
     }),
-  ).resolves.toEqual([
+  ).resolves.toEqual({
+    restaurantId: "restaurant-1",
+    orders: [
     {
       orderId: "order-2",
       status: "confirmed",
@@ -53,7 +58,8 @@ test("returns kitchen orders in queue order with snapshot fields", async () => {
       updatedAt: "2026-10-18T12:00:00.000Z",
       items: [{ name: "Burger", quantity: 2, note: "Sem cebola" }],
     },
-  ])
+    ],
+  })
 })
 
 test("maps an unauthorized restaurant to a non-enumerating domain error", async () => {
