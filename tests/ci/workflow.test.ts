@@ -59,4 +59,7 @@ test("integration tests run against the local database after it is verified", ()
   const database = workflow.slice(workflow.indexOf("name: Local database and RLS"))
   expect(database.indexOf("bun run db:verify")).toBeGreaterThan(-1)
   expect(database.indexOf("bun run test:integration:local")).toBeGreaterThan(database.indexOf("bun run db:verify"))
+  // The database job does not run typecheck, so it must generate the Prisma client itself.
+  expect(database).toContain("bun run prisma:generate")
+  expect(database.indexOf("bun run prisma:generate")).toBeLessThan(database.indexOf("bun run test:integration:local"))
 })

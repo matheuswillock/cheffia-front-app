@@ -124,6 +124,8 @@ jobs:
         run: bun run db:reset
       - name: Verify foundation isolation and migration tracking
         run: bun run db:verify
+      - name: Generate Prisma client
+        run: bun run prisma:generate
       - name: Run repository and SQL integration tests
         run: bun run test:integration:local
 
