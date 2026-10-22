@@ -69,7 +69,7 @@ status: in-progress
 
 ## Reporting and gates
 
-Relevant commands are `bun run test`, `bun run test:components`, `bun run test:e2e`, `bun run test:e2e:local`, `bun run db:reset`, `bun run db:verify` and `bun run build`. New tests remain in `tests/unit`, `tests/integration`, `tests/components` and `tests/e2e`; regressions go in `tests/regressions`.
+Relevant commands are `bun run test`, `bun run test:components`, `bun run test:e2e`, `bun run test:e2e:local`, `bun run db:reset`, `bun run db:verify` and `bun run build`. New tests remain in `tests/unit`, `tests/integration` (run with `bun run test:integration:local` after `bun run db:reset`), `tests/components` and `tests/e2e`; regressions go in `tests/regressions`.
 
 ### Coverage gate
 

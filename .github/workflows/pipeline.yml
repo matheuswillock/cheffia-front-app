@@ -124,6 +124,8 @@ jobs:
         run: bun run db:reset
       - name: Verify foundation isolation and migration tracking
         run: bun run db:verify
+      - name: Run repository and SQL integration tests
+        run: bun run test:integration:local
 
   promote-feature-to-develop:
     name: Promote feature/bugfix to develop

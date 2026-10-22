@@ -1,5 +1,6 @@
 import { publishOrderOutboxEvent } from "@/business/order/publishOutbox"
 import { createClient } from "@supabase/supabase-js"
+import type { PrismaClient } from "@/generated/prisma/client"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createOutboxPublisherRepository } from "@/server/ordering/outboxPublisherRepository"
 
@@ -17,14 +18,25 @@ async function broadcast(topic: string, payload: unknown) {
   }
 }
 
-export async function publishPendingOutbox(batchSize = 50) {
-  const repository = createOutboxPublisherRepository(getPrismaClient())
+type PublishPendingOutboxOptions = {
+  batchSize?: number
+  // Defaults keep the production behavior: the shared Prisma client and Supabase Broadcast.
+  prisma?: PrismaClient
+  publish?: (topic: string, payload: unknown) => Promise<void>
+}
+
+export async function publishPendingOutbox({
+  batchSize = 50,
+  prisma = getPrismaClient(),
+  publish = broadcast,
+}: PublishPendingOutboxOptions = {}) {
+  const repository = createOutboxPublisherRepository(prisma)
   const events = await repository.claim(batchSize)
   let published = 0
   let failed = 0
   for (const event of events) {
     try {
-      await publishOrderOutboxEvent({ event, publish: broadcast })
+      await publishOrderOutboxEvent({ event, publish })
       await repository.markPublished(event)
       published += 1
     } catch (error) {

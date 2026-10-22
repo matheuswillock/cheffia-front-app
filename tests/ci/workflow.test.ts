@@ -49,3 +49,14 @@ test("Supabase GitHub integration owns production migrations", async () => {
   expect(await Bun.file(new URL("../../.github/workflows/production-migrations.yml", import.meta.url)).exists()).toBe(false)
   expect(workflow).toContain("Supabase GitHub Integration")
 })
+
+test("integration tests run against the local database after it is verified", () => {
+  expect(packageJson.scripts["test:integration:local"]).toBe("bun test tests/integration tests/regressions")
+  // Unit gates and coverage must not need a database.
+  expect(packageJson.scripts.test).not.toContain("tests/integration")
+  expect(packageJson.scripts["test:backend:coverage"]).not.toContain("tests/integration")
+
+  const database = workflow.slice(workflow.indexOf("name: Local database and RLS"))
+  expect(database.indexOf("bun run db:verify")).toBeGreaterThan(-1)
+  expect(database.indexOf("bun run test:integration:local")).toBeGreaterThan(database.indexOf("bun run db:verify"))
+})
