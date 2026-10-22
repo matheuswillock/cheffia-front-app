@@ -41,7 +41,35 @@ test("CI creates the next promotion pull request", () => {
 test("automatic promotion PRs do not repeat expensive quality jobs", () => {
   expect(workflow).toContain("github.event.pull_request.user.login != 'github-actions[bot]'")
   expect(workflow).toContain("github.event_name == 'push'")
-  expect(workflow).toContain("needs: [quality, database]")
+  expect(workflow).toContain("needs: [quality, database, realtime]")
+})
+
+test("realtime authorization runs as its own job in parallel with the database job and gates promotion", () => {
+  const realtimeStart = workflow.indexOf("  realtime:\n")
+  expect(realtimeStart).toBeGreaterThan(-1)
+  expect(workflow).toContain("name: Realtime integration")
+  const realtimeEnd = workflow.indexOf("\n  promote-feature-to-develop:", realtimeStart)
+  const realtimeJob = workflow.slice(realtimeStart, realtimeEnd)
+  // Parallel with database: it depends only on branch policy, never on the database job.
+  expect(realtimeJob).toContain("needs: branch-policy")
+  expect(realtimeJob).toContain("bun run prisma:generate")
+  expect(realtimeJob).toContain("bun run test:realtime:local")
+  expect(realtimeJob).toContain("supabase/setup-cli@v1")
+  expect(realtimeJob).toContain('version: "2.109.1"')
+  expect(realtimeJob).toContain('bun-version: "1.4.3"')
+  expect(realtimeJob).toContain("bun install --frozen-lockfile")
+  expect(realtimeJob).not.toContain("db:reset")
+  // Every promotion job that waits for the database must also wait for realtime.
+  const promotions = workflow.slice(workflow.indexOf("  promote-feature-to-develop:"))
+  expect(promotions.match(/needs: \[quality, database, realtime\]/g)?.length).toBe(3)
+  const database = workflow.slice(workflow.indexOf("  database:\n"), realtimeStart)
+  expect(database).not.toContain("test:realtime:local")
+})
+
+test("package scripts expose the realtime runner and keep it out of the database integration run", () => {
+  expect(packageJson.scripts["test:realtime:local"]).toBe("bun scripts/integration-local.mjs --realtime")
+  expect(packageJson.scripts["test:integration:local"]).toContain("--path-ignore-patterns")
+  expect(packageJson.scripts["test:integration:local"]).toContain("realtime-*.test.ts")
 })
 
 test("Supabase GitHub integration owns production migrations", async () => {
@@ -51,7 +79,9 @@ test("Supabase GitHub integration owns production migrations", async () => {
 })
 
 test("integration tests run against the local database after it is verified", () => {
-  expect(packageJson.scripts["test:integration:local"]).toBe("bun test tests/integration tests/regressions")
+  expect(packageJson.scripts["test:integration:local"]).toBe(
+    'bun test tests/integration tests/regressions --path-ignore-patterns "**/realtime-*.test.ts"',
+  )
   // Unit gates and coverage must not need a database.
   expect(packageJson.scripts.test).not.toContain("tests/integration")
   expect(packageJson.scripts["test:backend:coverage"]).not.toContain("tests/integration")
