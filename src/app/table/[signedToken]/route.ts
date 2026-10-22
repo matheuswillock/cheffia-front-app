@@ -1,3 +1,4 @@
+import { withRequestId } from "@/server/ordering/requestContext"
 import { resolveTableSession, TableSessionError } from "@/business/order/tableSession"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createTableSessionRepository } from "@/server/ordering/tableSessionRepository"
@@ -14,7 +15,7 @@ export async function GET(
   const fallback = new URL("/error", request.url)
 
   if (!signingSecret) {
-    return NextResponse.redirect(fallback)
+    return withRequestId(request, NextResponse.redirect(fallback))
   }
 
   try {
@@ -24,7 +25,7 @@ export async function GET(
       signingSecret,
     })
     const destination = new URL(`/restaurant/menu/${session.restaurantSlug}`, request.url)
-    const response = NextResponse.redirect(destination)
+    const response = withRequestId(request, NextResponse.redirect(destination))
 
     response.cookies.set(
       "cheffia_table_session",
@@ -45,10 +46,10 @@ export async function GET(
     return response
   } catch (error) {
     if (error instanceof TableSessionError) {
-      return NextResponse.redirect(fallback)
+      return withRequestId(request, NextResponse.redirect(fallback))
     }
 
     console.error("Table QR landing failed")
-    return NextResponse.redirect(fallback)
+    return withRequestId(request, NextResponse.redirect(fallback))
   }
 }

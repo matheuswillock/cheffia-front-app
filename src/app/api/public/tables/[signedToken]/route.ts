@@ -1,3 +1,4 @@
+import { jsonWithRequestId } from "@/server/ordering/requestContext"
 import { resolveTableSession, TableSessionError } from "@/business/order/tableSession"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createTableSessionRepository } from "@/server/ordering/tableSessionRepository"
@@ -5,15 +6,14 @@ import { createTableSessionRepository } from "@/server/ordering/tableSessionRepo
 export const dynamic = "force-dynamic"
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ signedToken: string }> },
 ) {
   const { signedToken } = await context.params
   const signingSecret = process.env.TABLE_QR_SIGNING_SECRET
 
   if (!signingSecret) {
-    return Response.json(
-      { code: "TABLE_SESSION_UNAVAILABLE" },
+    return jsonWithRequestId(request,      { code: "TABLE_SESSION_UNAVAILABLE" },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     )
   }
@@ -25,8 +25,7 @@ export async function GET(
       signingSecret,
     })
 
-    return Response.json(
-      {
+    return jsonWithRequestId(request,      {
         sessionId: session.sessionId,
         sessionToken: session.sessionToken,
         tableId: session.tableId,
@@ -39,15 +38,13 @@ export async function GET(
     )
   } catch (error) {
     if (error instanceof TableSessionError) {
-      return Response.json(
-        { code: "TABLE_NOT_AVAILABLE" },
+      return jsonWithRequestId(request,        { code: "TABLE_NOT_AVAILABLE" },
         { status: 404, headers: { "Cache-Control": "no-store" } },
       )
     }
 
     console.error("Table session resolution failed")
-    return Response.json(
-      { code: "TABLE_SESSION_UNAVAILABLE" },
+    return jsonWithRequestId(request,      { code: "TABLE_SESSION_UNAVAILABLE" },
       { status: 503, headers: { "Cache-Control": "no-store" } },
     )
   }

@@ -1,8 +1,9 @@
+import { jsonWithRequestId } from "@/server/ordering/requestContext"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 
 export const dynamic = "force-dynamic"
 
-export async function GET() {
+export async function GET(request: Request) {
   const checkedAt = new Date().toISOString()
 
   try {
@@ -16,8 +17,7 @@ export async function GET() {
     })
     const counts = Object.fromEntries(outbox.map((entry) => [entry.status, entry._count._all]))
 
-    return Response.json(
-      {
+    return jsonWithRequestId(request,      {
         status: "ok",
         checkedAt,
         dependencies: { database: "ok" },
@@ -35,8 +35,7 @@ export async function GET() {
   } catch {
     console.error("Health check failed")
 
-    return Response.json(
-      {
+    return jsonWithRequestId(request,      {
         status: "degraded",
         checkedAt,
         dependencies: { database: "error" },
