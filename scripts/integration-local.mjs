@@ -38,7 +38,7 @@ if (!process.argv.includes("--realtime")) {
       },
       async ({ status, databaseUrl }) => {
         const environment = createSupabaseTestEnvironment(status, { databaseUrl })
-        const result = spawnSync("bun", ["test", ...files], {
+        const result = spawnSync("bun", ["test", "--timeout", "60000", ...files], {
           cwd: repositoryRoot,
           env: { ...process.env, ...environment },
           stdio: "inherit",

@@ -46,6 +46,11 @@ type Listener = { channel: RealtimeChannel; received: Array<{ marker?: string }>
 
 async function subscribe(client: SupabaseClient, topic: string): Promise<Listener> {
   const received: Array<{ marker?: string }> = []
+  // supabase-js cannot subscribe the same topic twice on one client. Shared staff clients reach
+  // here again from the control, so drop the earlier test's channel first.
+  for (const existing of client.getChannels()) {
+    if (existing.topic === `realtime:${topic}`) await client.removeChannel(existing)
+  }
   const channel = client.channel(topic, { config: { private: true } })
   channel.on("broadcast", { event: EVENT }, (message) => {
     received.push(message.payload as { marker?: string })
@@ -88,9 +93,15 @@ async function attempt(listener: Listener, topic: string, timeoutMs: number) {
   return deliveredWithin(listener, marker, timeoutMs)
 }
 
-function tableSessionClient(sessionId: string) {
-  const client = anonymousClient()
-  client.realtime.setAuth(createSupabaseRealtimeToken({ sessionId, jwtSecret: JWT_SECRET }))
+async function tableSessionClient(sessionId: string) {
+  // Same wiring as useOrderRealtime. With accessToken alone, supabase-js joins the first time
+  // with the anon key (the async token is not resolved yet) and Realtime denies the join; the
+  // client only recovers on its own rejoin seconds later. Resolving the token first joins once,
+  // with the table_session_id claim.
+  const token = createSupabaseRealtimeToken({ sessionId, jwtSecret: JWT_SECRET })
+  const client = createClient(API_URL, ANON_KEY, { ...clientOptions, accessToken: async () => token })
+  openClients.push(client)
+  await client.realtime.setAuth()
   return client
 }
 
@@ -181,11 +192,11 @@ describe("private Broadcast authorization against the local Supabase stack", () 
   // the subscription or the transport is broken.
   function ensureControl() {
     control ??= (async () => {
-      const ownTableSession = await subscribe(tableSessionClient(tenantA.sessionId), `order:${orderA}`)
+      const ownTableSession = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderA}`)
       expect(ownTableSession.state).toBe("SUBSCRIBED")
       expect(await attempt(ownTableSession, `order:${orderA}`, DELIVERY_TIMEOUT_MS)).toBe(true)
 
-      const otherTableSession = await subscribe(tableSessionClient(tenantB.sessionId), `order:${orderB}`)
+      const otherTableSession = await subscribe(await tableSessionClient(tenantB.sessionId), `order:${orderB}`)
       expect(otherTableSession.state).toBe("SUBSCRIBED")
       expect(await attempt(otherTableSession, `order:${orderB}`, DELIVERY_TIMEOUT_MS)).toBe(true)
 
@@ -198,7 +209,7 @@ describe("private Broadcast authorization against the local Supabase stack", () 
 
   describe("positive control", () => {
     test("a table session receives a broadcast on its own order topic", async () => {
-      const listener = await subscribe(tableSessionClient(tenantA.sessionId), `order:${orderA}`)
+      const listener = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderA}`)
       expect(listener.state).toBe("SUBSCRIBED")
       expect(await attempt(listener, `order:${orderA}`, DELIVERY_TIMEOUT_MS)).toBe(true)
     })
@@ -213,19 +224,19 @@ describe("private Broadcast authorization against the local Supabase stack", () 
 
   test("a table session does not receive a broadcast for an order of another tenant", async () => {
     await ensureControl()
-    const listener = await subscribe(tableSessionClient(tenantA.sessionId), `order:${orderB}`)
+    const listener = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderB}`)
     expect(await attempt(listener, `order:${orderB}`, DENIAL_WINDOW_MS)).toBe(false)
   })
 
   test("an expired table session does not receive a broadcast for its own order", async () => {
     await ensureControl()
-    const listener = await subscribe(tableSessionClient(expiredSession.sessionId), `order:${expiredOrder}`)
+    const listener = await subscribe(await tableSessionClient(expiredSession.sessionId), `order:${expiredOrder}`)
     expect(await attempt(listener, `order:${expiredOrder}`, DENIAL_WINDOW_MS)).toBe(false)
   })
 
   test("a table session whose status is not active does not receive a broadcast for its own order", async () => {
     await ensureControl()
-    const listener = await subscribe(tableSessionClient(revokedSession.sessionId), `order:${revokedOrder}`)
+    const listener = await subscribe(await tableSessionClient(revokedSession.sessionId), `order:${revokedOrder}`)
     expect(await attempt(listener, `order:${revokedOrder}`, DENIAL_WINDOW_MS)).toBe(false)
   })
 
