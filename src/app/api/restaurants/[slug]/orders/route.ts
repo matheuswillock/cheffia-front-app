@@ -1,8 +1,9 @@
+import { requireRouteSession } from "@/server/auth/routeSession"
+import { jsonWithRequestId } from "@/server/ordering/requestContext"
 import { listKitchenOrders, KitchenOrdersError } from "@/business/order/kitchenOrders"
 import { orderStatuses, type OrderStatus } from "@/business/order/orderState"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createKitchenOrdersRepository } from "@/server/ordering/kitchenOrdersRepository"
-import { verifySessionServer } from "@/utils/supabase/server"
 
 export const dynamic = "force-dynamic"
 
@@ -12,13 +13,15 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ slug: string }> },
 ) {
-  const user = await verifySessionServer()
+  const session = await requireRouteSession(request)
+  if (!session.ok) return session.response
+  const user = session.user
   const { slug } = await context.params
   const requestedStatuses = new URL(request.url).searchParams.getAll("status")
   const statuses = requestedStatuses.length ? requestedStatuses : defaultKitchenStatuses
 
   if (statuses.some((status) => !orderStatuses.includes(status as OrderStatus))) {
-    return Response.json({ code: "INVALID_ORDER_STATUS_FILTER" }, { status: 400 })
+    return jsonWithRequestId(request, { code: "INVALID_ORDER_STATUS_FILTER" }, { status: 400 })
   }
 
   try {
@@ -29,15 +32,15 @@ export async function GET(
       statuses: statuses as OrderStatus[],
     })
 
-    return Response.json(result.orders, {
+    return jsonWithRequestId(request, result.orders, {
       headers: { "Cache-Control": "no-store", "X-Restaurant-Id": result.restaurantId },
     })
   } catch (error) {
     if (error instanceof KitchenOrdersError) {
-      return Response.json({ code: error.code }, { status: 404 })
+      return jsonWithRequestId(request, { code: error.code }, { status: 404 })
     }
 
     console.error("Kitchen order lookup failed")
-    return Response.json({ code: "KITCHEN_ORDERS_UNAVAILABLE" }, { status: 503 })
+    return jsonWithRequestId(request, { code: "KITCHEN_ORDERS_UNAVAILABLE" }, { status: 503 })
   }
 }
