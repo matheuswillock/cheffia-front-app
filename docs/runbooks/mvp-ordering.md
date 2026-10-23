@@ -12,6 +12,7 @@ Run the gates with Bun:
 ```bash
 bun run test
 bun run db:reset && bun run test:integration:local
+bun run test:realtime:local
 bun run test:components
 bun run test:e2e
 bun run build
@@ -25,6 +26,35 @@ Supabase relational schema → Supabase RLS/triggers → verification
 ```
 
 Do not point local tests at production or at a shared database.
+
+### Realtime Broadcast authorization
+
+`bun run test:realtime:local` proves that a table session and a kitchen member
+receive only their own Broadcast topics. It needs the complete local stack
+(Realtime, Auth, the API gateway and PostgREST), so it does not reuse
+`db:reset`, which starts only the database. The runner starts the stack, applies
+every migration, exports the test variables, and removes the containers and the
+temporary workdir even when a test fails.
+
+The suite starts with a positive control: a table session and a kitchen member
+must receive a broadcast on their own topics. Denial tests count only after that
+control passes, so "nothing arrived" cannot hide a broken subscription. CI runs
+it in the `Realtime integration` job, in parallel with `Local database and RLS`.
+Both are promotion gates.
+
+Table-session clients must resolve their token before the first join
+(`await client.realtime.setAuth()` after creating the client with `accessToken`).
+Otherwise supabase-js joins with the anon key, Realtime denies it, and the client
+only recovers on its own rejoin seconds later. `useOrderRealtime` and the suite
+both do this.
+
+Both the Broadcast policy and `has_table_session` read the claim through
+`auth.jwt()`. The legacy `request.jwt.claim.table_session_id` setting is never
+filled by PostgREST. `can_receive_table_session_order_broadcast()` is granted to
+`anon` and is therefore callable as an RPC. That is intentional and harmless: it
+takes no arguments, answers only for the caller's own active session, and outside
+Realtime the topic is null so it returns false. Keep `anon` without any grant on
+`table_sessions`, where `token_hash` lives.
 
 ### Real local E2E with Supabase
 
