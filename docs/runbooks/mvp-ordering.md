@@ -10,7 +10,8 @@ Payments, refunds, split and production data recovery are outside this runbook.
 Run the gates with Bun:
 
 ```bash
-bun test tests/ci tests/unit tests/integration tests/regressions
+bun run test
+bun run db:reset && bun run test:integration:local
 bun run test:components
 bun run test:e2e
 bun run build
