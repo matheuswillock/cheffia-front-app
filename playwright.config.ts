@@ -1,18 +1,23 @@
-import { defineConfig, devices } from "@playwright/test"
+import { defineConfig, devices, type ReporterDescription } from "@playwright/test"
 
 const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:3100"
 const port = new URL(baseURL).port || "3100"
+const reporters: ReporterDescription[] = []
+
+if (process.env.PLAYWRIGHT_JSON_REPORT) {
+  reporters.push(["json", { outputFile: process.env.PLAYWRIGHT_JSON_REPORT }])
+}
+reporters.push(process.env.CI ? ["github"] : ["list"])
+if (process.env.CI) {
+  reporters.push(["html", { outputFolder: "playwright-report", open: "never" }])
+}
 
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.PLAYWRIGHT_JSON_REPORT
-    ? [["json", { outputFile: process.env.PLAYWRIGHT_JSON_REPORT }]]
-    : process.env.CI
-      ? "github"
-      : "list",
+  reporter: reporters,
   use: {
     baseURL,
     trace: "retain-on-failure",

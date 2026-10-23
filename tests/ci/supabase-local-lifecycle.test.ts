@@ -23,6 +23,7 @@ let sandbox: string
 let calls: string
 let originalPath: string | undefined
 let originalRunnerTemp: string | undefined
+let originalStepSummary: string | undefined
 
 function installFakeSupabase(behavior: { failOn?: string; statusExit?: number; stopExit?: number } = {}) {
   const binDirectory = path.join(sandbox, "bin")
@@ -71,6 +72,7 @@ beforeEach(() => {
   writeFileSync(calls, "")
   originalPath = process.env.PATH
   originalRunnerTemp = process.env.RUNNER_TEMP
+  originalStepSummary = process.env.GITHUB_STEP_SUMMARY
   process.env.RUNNER_TEMP = sandbox
 })
 
@@ -78,6 +80,8 @@ afterEach(() => {
   process.env.PATH = originalPath
   if (originalRunnerTemp === undefined) delete process.env.RUNNER_TEMP
   else process.env.RUNNER_TEMP = originalRunnerTemp
+  if (originalStepSummary === undefined) delete process.env.GITHUB_STEP_SUMMARY
+  else process.env.GITHUB_STEP_SUMMARY = originalStepSummary
   rmSync(sandbox, { recursive: true, force: true })
 })
 
@@ -121,6 +125,30 @@ describe("withLocalSupabase", () => {
     const commands = recordedCommands().map((line) => line.split(" ").slice(0, 2).join(" "))
     expect(commands).toEqual(["start --workdir", "db reset", "db push", "status --workdir", "stop --workdir"])
     expect(recordedCommands()[0]).toContain("--exclude studio")
+  })
+
+  test("writes stage durations to the GitHub step summary without exposing Supabase keys", async () => {
+    installFakeSupabase()
+    const summary = path.join(sandbox, "step-summary.md")
+    writeFileSync(summary, "")
+    process.env.GITHUB_STEP_SUMMARY = summary
+
+    await withLocalSupabase(options(createRepository()), async () => "tests passed")
+
+    const contents = readFileSync(summary, "utf8")
+    for (const stage of [
+      "supabase start",
+      "supabase db reset",
+      "supabase db push",
+      "supabase status",
+      "test callback",
+      "supabase stop",
+    ]) {
+      expect(contents).toContain(stage)
+    }
+    expect(contents).toMatch(/\| supabase start \| \d+ ms \|/)
+    expect(contents).not.toContain(STATUS.SERVICE_ROLE_KEY)
+    expect(contents).not.toContain(STATUS.JWT_SECRET)
   })
 
   test("still stops the stack and removes the workdir when the callback throws", async () => {

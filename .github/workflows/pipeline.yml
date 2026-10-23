@@ -11,84 +11,80 @@ permissions:
   contents: read
 
 concurrency:
-  group: cheffia-ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: cheffia-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/bugfix/') }}
 
 jobs:
   branch-policy:
     name: Validate branch flow
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Enforce feature/bugfix → develop → release → main
         if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
         shell: bash
         run: |
           set -euo pipefail
-          base="${{ github.base_ref }}"
-          head="${{ github.head_ref }}"
-
+          base="${BASE_REF}"
+          head="${HEAD_REF}"
           case "${base}:${head}" in
-            develop:feature/*|develop:bugfix/*)
-              echo "Valid promotion: ${head} -> develop"
-              ;;
-            release:develop)
-              echo "Valid promotion: develop -> release"
-              ;;
-            main:release)
-              echo "Valid promotion: release -> main"
-              ;;
+            develop:feature/*|develop:bugfix/*|release:develop|main:release)
+              echo "Valid promotion: ${head} -> ${base}" ;;
             *)
               echo "Invalid promotion: ${head} -> ${base}"
               echo "Allowed: feature/* or bugfix/* -> develop -> release -> main"
-              exit 1
-              ;;
+              exit 1 ;;
           esac
       - name: Branch flow not applicable
         if: github.event_name != 'pull_request'
         run: echo "Push/workflow_dispatch does not require promotion validation."
 
-  quality:
-    name: Quality gates
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.user.login != 'github-actions[bot]'
+  quality-static:
+    name: Static quality
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login != 'github-actions[bot]'
     needs: branch-policy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      outcome: ${{ steps.classify.outputs.outcome }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.4.3"
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: "2.109.1"
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - uses: ./.github/actions/setup-bun-deps
       - name: Validate Prisma schema
+        id: prismaValidate
         run: bun run prisma:validate
       - name: Typecheck
+        id: typecheck
         run: bun run typecheck
       - name: Tests
+        id: unitTests
         run: bun run test
       - name: Component tests
+        id: componentTests
         run: bun run test:components
       - name: Backend coverage
+        id: backendCoverage
         run: bun run test:backend:coverage
       - name: Frontend coverage
+        id: frontendCoverage
         run: bun run test:frontend:coverage
-      - name: Install Playwright Chromium
-        run: bunx playwright install chromium
-      - name: E2E smoke tests
-        run: bun run test:e2e:local
-      - name: E2E coverage with local fixtures
-        run: bun run test:e2e:coverage:local
-      - name: Enforce 90 percent coverage in every test layer
-        run: bun run coverage:gate
+      - name: Cache Next.js build artifacts
+        uses: actions/cache@v5
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('bun.lock') }}-${{ hashFiles('src/**', 'next.config.*') }}
+          restore-keys: ${{ runner.os }}-next-${{ hashFiles('bun.lock') }}-
+      - name: Enforce 90 percent backend and frontend coverage
+        id: coverageGate
+        run: bun scripts/ci/coverage-gate.mjs --backend=coverage/backend/lcov.info --frontend=coverage/frontend/coverage-summary.json --threshold=90
       - name: Lint
+        id: lint
         run: bun run lint
       - name: Build application
+        id: build
         env:
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
           SUPABASE_ANON_KEY: ci-placeholder
@@ -100,26 +96,93 @@ jobs:
           NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_ASK: http://127.0.0.1
           NEXT_PUBLIC_DISCORD_WEBHOOK_CHEFFIA_WAITLIST: http://127.0.0.1
         run: bun run build
+      - name: Classify static quality result
+        if: always()
+        id: classify
+        env:
+          JOB_RESULT: ${{ job.status }}
+          STEP_OUTCOMES: ${{ toJSON(steps) }}
+        run: bun scripts/ci/quality-gate.mjs --classify-job
 
-  database:
-    name: Local database and RLS
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.user.login != 'github-actions[bot]'
+  quality-e2e:
+    name: Browser E2E and coverage
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login != 'github-actions[bot]'
     needs: branch-policy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    outputs:
+      outcome: ${{ steps.classify.outputs.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bun-deps
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: "2.109.1"
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('bun.lock') }}
+          restore-keys: ${{ runner.os }}-playwright-chromium-
+      - name: Install Playwright Chromium
+        run: bunx playwright install --with-deps chromium
+      - name: E2E tests and coverage with local fixtures
+        id: e2eTests
+        run: bun run test:e2e:coverage:local
+      - name: Enforce 90 percent E2E coverage
+        id: coverageGate
+        run: bun scripts/ci/coverage-gate.mjs --e2e=coverage/e2e/results.json --threshold=90
+      - name: Classify browser E2E result
+        if: always()
+        id: classify
+        env:
+          JOB_RESULT: ${{ job.status }}
+          STEP_OUTCOMES: ${{ toJSON(steps) }}
+        run: bun scripts/ci/quality-gate.mjs --classify-job
+      - name: Upload E2E reports and diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 7
+          path: |
+            coverage/e2e/results.json
+            playwright-report/
+            test-results/
+
+  quality:
+    name: Quality gates
+    if: always() && needs.branch-policy.result == 'success' && (needs.quality-static.result != 'skipped' || needs.quality-e2e.result != 'skipped')
+    needs: [branch-policy, quality-static, quality-e2e]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.4.3"
+      - name: Aggregate quality outcomes
+        env:
+          QUALITY_OUTCOMES: '["${{ needs.quality-static.outputs.outcome }}","${{ needs.quality-e2e.outputs.outcome }}"]'
+          QUALITY_JOB_RESULTS: '["${{ needs.quality-static.result }}","${{ needs.quality-e2e.result }}"]'
+        run: bun scripts/ci/quality-gate.mjs --aggregate
+
+  database:
+    name: Local database and RLS
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login != 'github-actions[bot]'
+    needs: branch-policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bun-deps
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: "2.109.1"
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
       - name: Reset local database
         run: bun run db:reset
       - name: Verify foundation isolation and migration tracking
@@ -127,27 +190,21 @@ jobs:
       - name: Generate Prisma client
         run: bun run prisma:generate
       - name: Run repository and SQL integration tests
-        run: bun run test:integration:local
+        run: bun scripts/ci/timed-command.mjs --label "repository and SQL integration tests" -- bun run test:integration:local
 
   realtime:
     name: Realtime integration
-    if: >-
-      github.event_name != 'pull_request' ||
-      github.event.pull_request.user.login != 'github-actions[bot]'
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login != 'github-actions[bot]'
     needs: branch-policy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.4.3"
+      - uses: ./.github/actions/setup-bun-deps
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: "2.109.1"
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
       - name: Generate Prisma client
         run: bun run prisma:generate
       - name: Run private Broadcast authorization tests against the complete local stack
@@ -155,126 +212,79 @@ jobs:
 
   promote-feature-to-develop:
     name: Promote feature/bugfix to develop
-    if: >-
-      github.event_name == 'push' &&
-      (startsWith(github.ref, 'refs/heads/feature/') ||
-      startsWith(github.ref, 'refs/heads/bugfix/'))
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/bugfix/'))
     needs: [quality, database, realtime]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
     steps:
-      - name: Create promotion pull request if missing
+      - uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.3"
+      - name: Open or update promotion PR idempotently
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
           HEAD_BRANCH: ${{ github.ref_name }}
           COMMIT_SHA: ${{ github.sha }}
           TARGET_BRANCH: develop
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          existing_pr="$(gh pr list \
-            --repo "${GH_REPOSITORY}" \
-            --head "${HEAD_BRANCH}" \
-            --base "${TARGET_BRANCH}" \
-            --state open \
-            --json number \
-            --jq '.[0].number')"
-
-          if [[ -n "${existing_pr}" ]]; then
-            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
-            exit 0
-          fi
-
-          if ! pr_output="$(gh pr create \
-            --repo "${GH_REPOSITORY}" \
-            --head "${HEAD_BRANCH}" \
-            --base "${TARGET_BRANCH}" \
-            --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" \
-            --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}." 2>&1)"; then
-            if [[ "${pr_output}" == *"No commits between"* ]]; then
-              echo "No promotion needed: ${HEAD_BRANCH} is already included in ${TARGET_BRANCH}."
-              exit 0
-            fi
-
-            echo "${pr_output}" >&2
-            exit 1
-          fi
+        run: bun scripts/ci/open-promotion-pr.mjs
 
   promote-develop-to-release:
     name: Promote develop to release
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     needs: [quality, database, realtime]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
     steps:
-      - name: Create promotion pull request if missing
+      - name: Checkout promotion script
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.3"
+      - name: Open or update promotion PR idempotently
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
           HEAD_BRANCH: ${{ github.ref_name }}
           COMMIT_SHA: ${{ github.sha }}
           TARGET_BRANCH: release
-        shell: bash
-        run: |
-          set -euo pipefail
-          existing_pr="$(gh pr list --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --state open --json number --jq '.[0].number')"
-          if [[ -n "${existing_pr}" ]]; then
-            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
-            exit 0
-          fi
-          if ! pr_output="$(gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}." 2>&1)"; then
-            if [[ "${pr_output}" == *"No commits between"* ]]; then
-              echo "No promotion needed: ${HEAD_BRANCH} is already included in ${TARGET_BRANCH}."
-              exit 0
-            fi
-
-            echo "${pr_output}" >&2
-            exit 1
-          fi
+        run: bun scripts/ci/open-promotion-pr.mjs
 
   promote-release-to-main:
     name: Promote release to main
     if: github.event_name == 'push' && github.ref == 'refs/heads/release'
     needs: [quality, database, realtime]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
     steps:
-      - name: Create promotion pull request if missing
+      - name: Checkout promotion script
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.3"
+      - name: Open or update promotion PR idempotently
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPOSITORY: ${{ github.repository }}
           HEAD_BRANCH: ${{ github.ref_name }}
           COMMIT_SHA: ${{ github.sha }}
           TARGET_BRANCH: main
-        shell: bash
-        run: |
-          set -euo pipefail
-          existing_pr="$(gh pr list --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --state open --json number --jq '.[0].number')"
-          if [[ -n "${existing_pr}" ]]; then
-            echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
-            exit 0
-          fi
-          if ! pr_output="$(gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}." 2>&1)"; then
-            if [[ "${pr_output}" == *"No commits between"* ]]; then
-              echo "No promotion needed: ${HEAD_BRANCH} is already included in ${TARGET_BRANCH}."
-              exit 0
-            fi
-
-            echo "${pr_output}" >&2
-            exit 1
-          fi
+        run: bun scripts/ci/open-promotion-pr.mjs
 
 # Deploy ownership:
-# - GitHub Actions is the single production migration orchestrator.
-# - Supabase GitHub Integration applies supabase/migrations on the configured production branch.
+# - Supabase GitHub Integration applies supabase/migrations on its configured production branch.
 # - Vercel Git Integration deploys the develop preview/staging branch and main production.
-# GitHub Actions must not apply production migrations; Prisma is ORM/client generation only.
-# The final promote job opens feature/bugfix -> develop -> release -> main PRs.
+# - GitHub Actions never applies production migrations; Prisma is ORM/client generation only.

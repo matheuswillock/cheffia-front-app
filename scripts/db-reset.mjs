@@ -3,6 +3,7 @@ import { cpSync, mkdirSync, mkdtempSync, rmSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
+import { measureCiStage } from "./lib/ci-timing.mjs"
 
 function redact(output) {
   return output
@@ -14,23 +15,24 @@ function redact(output) {
     .replace(/(eyJ[a-zA-Z0-9._-]+|sb_(?:publishable|secret)_[a-zA-Z0-9_-]+)/g, "<redacted>")
 }
 
-function run(command, args) {
-  const result = spawnSync(command, args, {
-    stdio: ["inherit", "pipe", "pipe"],
-    encoding: "utf8",
-    env: process.env,
+async function run(command, args) {
+  const stage = command === "supabase" ? `supabase ${args.slice(0, args[0] === "db" ? 2 : 1).join(" ")}` : command
+  return measureCiStage(stage, () => {
+    const result = spawnSync(command, args, {
+      stdio: ["inherit", "pipe", "pipe"],
+      encoding: "utf8",
+      env: process.env,
+    })
+
+    if (result.error) throw result.error
+
+    if (result.status !== 0) {
+      const output = redact(`${result.stdout ?? ""}\n${result.stderr ?? ""}`).trim()
+      const error = new Error(output || `${command} exited with status ${result.status ?? 1}`)
+      error.exitCode = result.status ?? 1
+      throw error
+    }
   })
-
-  if (result.error) {
-    throw result.error
-  }
-
-  if (result.status !== 0) {
-    const output = redact(`${result.stdout ?? ""}\n${result.stderr ?? ""}`).trim()
-    const error = new Error(output || `${command} exited with status ${result.status ?? 1}`)
-    error.exitCode = result.status ?? 1
-    throw error
-  }
 }
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
@@ -80,7 +82,7 @@ process.env.DATABASE_URL = LOCAL_DATABASE_URL
 process.env.DIRECT_URL = LOCAL_DATABASE_URL
 
 try {
-  createBootstrapWorkdir()
+  await measureCiStage("prepare migration bootstrap", createBootstrapWorkdir)
 
   // The database/RLS gate does not need the API, Auth, Storage, Realtime, or
   // dashboard containers. Avoid pulling those images on shared CI runners.
@@ -88,10 +90,12 @@ try {
     "--exclude",
     service,
   ])
-  run("supabase", ["start", "--workdir", bootstrapWorkdir, ...excludeServices, "--yes"])
-  run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
-  cpSync(supabaseRoot + "/migrations", migrationsDirectory, { recursive: true })
-  run("supabase", ["db", "push", "--local", "--workdir", bootstrapWorkdir, "--yes"])
+  await run("supabase", ["start", "--workdir", bootstrapWorkdir, ...excludeServices, "--yes"])
+  await run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
+  await measureCiStage("prepare Supabase migration history", () =>
+    cpSync(supabaseRoot + "/migrations", migrationsDirectory, { recursive: true }),
+  )
+  await run("supabase", ["db", "push", "--local", "--workdir", bootstrapWorkdir, "--yes"])
 
   console.log("Local database migrations applied")
 } catch (error) {
@@ -99,5 +103,5 @@ try {
   console.error(redact(message))
   process.exitCode = error?.exitCode ?? 1
 } finally {
-  cleanupBootstrapWorkdir()
+  await measureCiStage("clean up migration bootstrap", cleanupBootstrapWorkdir)
 }
