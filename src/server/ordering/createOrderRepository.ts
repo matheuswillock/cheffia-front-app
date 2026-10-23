@@ -149,7 +149,7 @@ export function createOrderRepository(prisma: PrismaClient): OrderCreationReposi
                   })),
                 },
               },
-              select: { id: true, status: true, totalCents: true },
+              select: { id: true, status: true, totalCents: true, version: true },
             })
 
             return order

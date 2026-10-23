@@ -29,8 +29,8 @@ export async function GET(
       statuses: statuses as OrderStatus[],
     })
 
-    return Response.json(result, {
-      headers: { "Cache-Control": "no-store" },
+    return Response.json(result.orders, {
+      headers: { "Cache-Control": "no-store", "X-Restaurant-Id": result.restaurantId },
     })
   } catch (error) {
     if (error instanceof KitchenOrdersError) {

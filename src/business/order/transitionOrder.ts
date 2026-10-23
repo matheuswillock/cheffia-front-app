@@ -9,6 +9,7 @@ type AuthorizedOrder = {
   restaurantId: string
   status: OrderStatus
   role: OrderRole
+  version: number
 }
 
 type TransitionTransaction = {
@@ -23,7 +24,7 @@ type TransitionTransaction = {
     restaurantId: string
     expectedStatus: OrderStatus
     nextStatus: OrderStatus
-  }): Promise<boolean>
+  }): Promise<number | null>
   createTransition(input: {
     orderId: string
     tenantId: string
@@ -40,7 +41,19 @@ type TransitionTransaction = {
     aggregateId: string
     payload: Record<string, unknown>
   }): Promise<void>
+  claimIdempotency?(input: IdempotencyInput): Promise<IdempotencyClaim>
+  completeIdempotency?(input: IdempotencyInput & { responseBody: OrderMutationResult }): Promise<void>
 }
+
+export type OrderMutationResult = { orderId: string; status: OrderStatus; version: number }
+export type IdempotencyInput = {
+  tenantId: string; restaurantId: string; method: string; endpoint: string; idempotencyKey: string; requestHash: string
+}
+export type IdempotencyClaim =
+  | { kind: "created" }
+  | { kind: "replay"; responseBody: OrderMutationResult }
+  | { kind: "conflict" }
+  | { kind: "in_progress" }
 
 export type OrderTransitionRepository = {
   transaction<T>(callback: (transaction: TransitionTransaction) => Promise<T>): Promise<T>
@@ -48,7 +61,7 @@ export type OrderTransitionRepository = {
 
 export class TransitionOrderError extends Error {
   constructor(
-    public readonly code: "ORDER_NOT_FOUND_OR_FORBIDDEN" | "ORDER_STATE_CONFLICT",
+    public readonly code: "ORDER_NOT_FOUND_OR_FORBIDDEN" | "ORDER_STATE_CONFLICT" | "IDEMPOTENCY_KEY_REUSE" | "IDEMPOTENCY_IN_PROGRESS",
   ) {
     super(code)
   }
@@ -69,6 +82,7 @@ export async function transitionOrderForStaff(input: {
   userId: string
   nextStatus: OrderStatus
   reason?: string
+  idempotency?: Omit<IdempotencyInput, "tenantId" | "restaurantId">
 }) {
   return input.repository.transaction(async (transaction) => {
     const order = await transaction.findAuthorizedOrder({
@@ -79,6 +93,13 @@ export async function transitionOrderForStaff(input: {
     if (!order) {
       throw new TransitionOrderError("ORDER_NOT_FOUND_OR_FORBIDDEN")
     }
+    if (input.idempotency) {
+      const claim = await transaction.claimIdempotency?.({ ...input.idempotency, tenantId: order.tenantId, restaurantId: order.restaurantId })
+      if (!claim) throw new Error("Idempotency repository not configured")
+      if (claim.kind === "replay") return claim.responseBody
+      if (claim.kind === "conflict") throw new TransitionOrderError("IDEMPOTENCY_KEY_REUSE")
+      if (claim.kind === "in_progress") throw new TransitionOrderError("IDEMPOTENCY_IN_PROGRESS")
+    }
 
     const decision = transitionOrder(order.status, input.nextStatus, {
       role: order.role,
@@ -88,14 +109,14 @@ export async function transitionOrderForStaff(input: {
       throw new OrderTransitionRuleError(decision.code)
     }
 
-    const updated = await transaction.updateStatus({
+    const version = await transaction.updateStatus({
       orderId: input.orderId,
       tenantId: order.tenantId,
       restaurantId: order.restaurantId,
       expectedStatus: order.status,
       nextStatus: input.nextStatus,
     })
-    if (!updated) {
+    if (version === null) {
       throw new TransitionOrderError("ORDER_STATE_CONFLICT")
     }
 
@@ -116,9 +137,14 @@ export async function transitionOrderForStaff(input: {
       payload: {
         orderId: input.orderId,
         status: input.nextStatus,
+        version,
       },
     })
 
-    return { status: input.nextStatus }
+    const response = { orderId: input.orderId, status: input.nextStatus, version }
+    if (input.idempotency) {
+      await transaction.completeIdempotency?.({ ...input.idempotency, tenantId: order.tenantId, restaurantId: order.restaurantId, responseBody: response })
+    }
+    return response
   })
 }

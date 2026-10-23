@@ -4,6 +4,7 @@ import { OrderPricingError } from "@/business/order/orderPricing"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createOrderRepository } from "@/server/ordering/createOrderRepository"
 import { jsonWithRequestId } from "@/server/ordering/requestContext"
+import { schedulePendingOutboxPublish } from "@/server/ordering/schedulePublish"
 
 export const dynamic = "force-dynamic"
 
@@ -40,6 +41,8 @@ export async function POST(request: Request) {
       request: parsed.data,
       idempotencyKey,
     })
+
+    schedulePendingOutboxPublish()
 
     return jsonWithRequestId(request, result, {
       status: 201,

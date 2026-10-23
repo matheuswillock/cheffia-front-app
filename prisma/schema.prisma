@@ -34,6 +34,7 @@ enum IdempotencyStatus {
 
 enum OutboxStatus {
   pending
+  processing
   published
   failed
 
@@ -427,6 +428,8 @@ model OutboxEvent {
   publishedAt   DateTime?    @map("published_at") @db.Timestamptz(6)
   retryCount    Int          @default(0) @map("retry_count")
   lastError     String?      @map("last_error") @db.Text
+  leaseToken    String?      @map("lease_token") @db.Uuid
+  leaseExpiresAt DateTime?   @map("lease_expires_at") @db.Timestamptz(6)
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

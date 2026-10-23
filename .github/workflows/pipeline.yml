@@ -81,7 +81,7 @@ jobs:
       - name: Install Playwright Chromium
         run: bunx playwright install chromium
       - name: E2E smoke tests
-        run: bun run test:e2e
+        run: bun run test:e2e:local
       - name: E2E coverage with local fixtures
         run: bun run test:e2e:coverage:local
       - name: Enforce 90 percent coverage in every test layer
@@ -161,12 +161,20 @@ jobs:
             exit 0
           fi
 
-          gh pr create \
+          if ! pr_output="$(gh pr create \
             --repo "${GH_REPOSITORY}" \
             --head "${HEAD_BRANCH}" \
             --base "${TARGET_BRANCH}" \
             --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" \
-            --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
+            --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}." 2>&1)"; then
+            if [[ "${pr_output}" == *"No commits between"* ]]; then
+              echo "No promotion needed: ${HEAD_BRANCH} is already included in ${TARGET_BRANCH}."
+              exit 0
+            fi
+
+            echo "${pr_output}" >&2
+            exit 1
+          fi
 
   promote-develop-to-release:
     name: Promote develop to release
@@ -192,7 +200,15 @@ jobs:
             echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
             exit 0
           fi
-          gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
+          if ! pr_output="$(gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}." 2>&1)"; then
+            if [[ "${pr_output}" == *"No commits between"* ]]; then
+              echo "No promotion needed: ${HEAD_BRANCH} is already included in ${TARGET_BRANCH}."
+              exit 0
+            fi
+
+            echo "${pr_output}" >&2
+            exit 1
+          fi
 
   promote-release-to-main:
     name: Promote release to main
@@ -218,7 +234,15 @@ jobs:
             echo "Promotion PR #${existing_pr} already exists: ${HEAD_BRANCH} -> ${TARGET_BRANCH}"
             exit 0
           fi
-          gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}."
+          if ! pr_output="$(gh pr create --repo "${GH_REPOSITORY}" --head "${HEAD_BRANCH}" --base "${TARGET_BRANCH}" --title "Promote ${HEAD_BRANCH} to ${TARGET_BRANCH}" --body "Automated promotion for commit ${COMMIT_SHA}. CI checks passed on ${HEAD_BRANCH}." 2>&1)"; then
+            if [[ "${pr_output}" == *"No commits between"* ]]; then
+              echo "No promotion needed: ${HEAD_BRANCH} is already included in ${TARGET_BRANCH}."
+              exit 0
+            fi
+
+            echo "${pr_output}" >&2
+            exit 1
+          fi
 
 # Deploy ownership:
 # - GitHub Actions is the single production migration orchestrator.

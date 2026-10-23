@@ -25,6 +25,23 @@ Supabase relational schema → Supabase RLS/triggers → verification
 
 Do not point local tests at production or at a shared database.
 
+### Real local E2E with Supabase
+
+The critical QR-to-kitchen flow runs against an isolated local Supabase stack,
+not mocks. It requires Bun, the Supabase CLI and a running Docker daemon:
+
+```bash
+bun --version
+supabase --version
+docker info
+bun run test:e2e:local
+```
+
+On Fedora, install missing prerequisites with `dnf` or the official Supabase
+CLI installation method; do not use `apt`. The command stops before creating
+fixtures when any prerequisite is unavailable. It creates and removes its own
+temporary Supabase workdir, database, Auth user, tenant, table and menu data.
+
 ## Incident: order creation failure
 
 1. Check the HTTP error code and request correlation data.
@@ -47,6 +64,14 @@ Do not point local tests at production or at a shared database.
 3. If a Realtime event has a sequence gap or duplicate, discard it and resync.
 4. Never infer a status transition from a missing or out-of-order event.
 
+## Incident: Broadcast or outbox unavailable
+
+1. The persisted order remains authoritative; reload the relevant customer or KDS snapshot.
+2. Inspect `/api/health` for pending, processing, failed and oldest pending outbox counts.
+3. The Vercel minute cron calls the authenticated publisher. A processing event with an expired lease is safely claimed again.
+4. After ten failed attempts an event becomes `failed`; fix delivery first, then replay it deliberately. Never reverse an order merely because Broadcast failed.
+5. Keep channels private and public channel access disabled in Supabase. `CRON_SECRET` and `SUPABASE_SECRET_KEY` never belong in fixtures or logs.
+
 ## Incident: migration failure
 
 1. Stop promotion; do not retry production migrations manually.
@@ -61,3 +86,25 @@ Do not point local tests at production or at a shared database.
 - Public menu and order routes require table-session context.
 - Staff routes require an active restaurant membership and role.
 - RLS and tenant-aware composite relations remain mandatory even when the server route already authorizes access.
+
+## Outbox publisher
+
+Order writes (`POST /api/public/orders`, the customer cancel route and the staff
+transition route) publish their own Outbox events right after the response
+(`after()` in `src/server/ordering/schedulePublish.ts`). The Vercel cron in
+`vercel.json` calls `GET /api/internal/outbox/publish` every minute as a safety
+net for events that an immediate attempt could not deliver; `POST` stays
+available for manual runs. Both require `Authorization: Bearer $CRON_SECRET`.
+
+- `CRON_SECRET` must be set in the Vercel project (name only; never commit the value).
+- A per-minute schedule must be accepted by the project's Vercel plan. After the
+  first production deploy, check the Crons tab; if the plan only allows daily
+  runs, change the schedule in `vercel.json`. Latency then comes from the
+  immediate publish, and the clients keep the periodic snapshot resync.
+- A stuck event shows `status = 'processing'` with an expired `lease_expires_at`
+  (reclaimed by the next run) or `status = 'failed'` after 10 attempts with
+  `last_error` set. Do not edit rows by hand; fix the cause and let the publisher retry.
+- On Fedora with Podman, the Supabase CLI needs the user socket. If
+  `bun run test:e2e:local` reports it cannot reach the Docker daemon, run
+  `systemctl --user restart podman.socket` and export
+  `DOCKER_HOST=unix:///run/user/1000/podman/podman.sock`.
