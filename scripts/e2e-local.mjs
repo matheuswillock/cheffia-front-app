@@ -1,40 +1,21 @@
 import { spawnSync } from "node:child_process"
 import { createHash, createHmac, randomUUID } from "node:crypto"
-import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
-import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { createClient } from "@supabase/supabase-js"
 import pg from "pg"
 import { assertLocalE2EPrerequisites } from "./e2e-preflight.mjs"
+import { EXCLUDED_LOCAL_SERVICES, withLocalSupabase } from "./lib/supabase-local.mjs"
 
 const { Client } = pg
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
-const temporaryRoot = process.env.RUNNER_TEMP ?? os.tmpdir()
 assertLocalE2EPrerequisites()
-const workdir = mkdtempSync(path.join(temporaryRoot, "cheffia-e2e-supabase-"))
-const supabaseWorkdir = path.join(workdir, "supabase")
-const migrationsDirectory = path.join(supabaseWorkdir, "migrations")
-const apiPort = 55721
-const databasePort = 55722
-const shadowPort = 55720
+const ports = { api: 55721, database: 55722, shadow: 55720 }
 const e2eBaseUrl = "http://localhost:3100"
 const tableSigningSecret = "e2e-table-secret"
 const staffEmail = "kitchen.e2e@cheffia.local"
 const staffPassword = "E2eKitchenPassword123!"
-let supabaseStarted = false
-
-function run(command, args, env = {}) {
-  const result = spawnSync(command, args, {
-    cwd: repositoryRoot,
-    env: { ...process.env, ...env },
-    stdio: "inherit",
-  })
-  if (result.status !== 0) {
-    throw new Error(`${command} ${args.join(" ")} exited with ${result.status ?? 1}`)
-  }
-}
 
 function createTableToken(tableId) {
   const payload = Buffer.from(
@@ -45,26 +26,7 @@ function createTableToken(tableId) {
   return `${unsigned}.${signature}`
 }
 
-function configureSupabase() {
-  mkdirSync(migrationsDirectory, { recursive: true })
-  cpSync(path.join(repositoryRoot, "supabase/config.toml"), path.join(supabaseWorkdir, "config.toml"))
-  const configPath = path.join(supabaseWorkdir, "config.toml")
-  return Bun.file(configPath).text().then((text) => {
-    text = text
-      .replace('project_id = "cheffia-front-app"', 'project_id = "cheffia-front-app-e2e"')
-      .replace("port = 54321", `port = ${apiPort}`)
-      .replace("port = 54322", `port = ${databasePort}`)
-      .replace("shadow_port = 54320", `shadow_port = ${shadowPort}`)
-    writeFileSync(configPath, text)
-    cpSync(
-      path.join(repositoryRoot, "supabase/migrations/00000000000000_prisma_baseline.sql"),
-      path.join(migrationsDirectory, "00000000000000_prisma_baseline.sql"),
-    )
-  })
-}
-
-async function seedFixtures(status) {
-  const databaseUrl = `postgresql://postgres:postgres@127.0.0.1:${databasePort}/postgres`
+async function seedFixtures(status, databaseUrl) {
   const supabase = createClient(status.API_URL, status.SERVICE_ROLE_KEY)
   const created = await supabase.auth.admin.createUser({
     email: staffEmail,
@@ -125,72 +87,37 @@ async function seedFixtures(status) {
   }
 }
 
-try {
-  await configureSupabase()
-  run("supabase", [
-    "start",
-    "--workdir",
-    workdir,
-    "--exclude",
-    "edge-runtime",
-    "--exclude",
-    "imgproxy",
-    "--exclude",
-    "logflare",
-    "--exclude",
-    "mailpit",
-    "--exclude",
-    "postgres-meta",
-    "--exclude",
-    "storage-api",
-    "--exclude",
-    "studio",
-    "--exclude",
-    "supavisor",
-    "--exclude",
-    "vector",
-    "--yes",
-  ])
-  supabaseStarted = true
-  run("supabase", ["db", "reset", "--local", "--workdir", workdir, "--no-seed", "--yes"])
-
-  const databaseUrl = `postgresql://postgres:postgres@127.0.0.1:${databasePort}/postgres`
-  cpSync(path.join(repositoryRoot, "supabase/migrations"), migrationsDirectory, { recursive: true })
-  run("supabase", ["db", "push", "--local", "--workdir", workdir, "--yes"])
-
-  const status = JSON.parse(
-    Bun.spawnSync(["supabase", "status", "--workdir", workdir, "-o", "json"], {
-      cwd: repositoryRoot,
-      stdout: "pipe",
-      stderr: "inherit",
-    }).stdout.toString(),
-  )
-  const fixtures = await seedFixtures(status)
-  const env = {
-    E2E_BASE_URL: e2eBaseUrl,
-    E2E_DATABASE_URL: fixtures.databaseUrl,
-    E2E_TABLE_QR_SIGNING_SECRET: tableSigningSecret,
-    E2E_SUPABASE_JWT_SECRET: status.JWT_SECRET,
-    E2E_SUPABASE_URL: fixtures.apiUrl,
-    E2E_SUPABASE_ANON_KEY: fixtures.anonKey,
-    E2E_SUPABASE_SECRET_KEY: status.SERVICE_ROLE_KEY,
-    E2E_CRON_SECRET: "e2e-cron-secret",
-    E2E_TABLE_TOKEN: fixtures.token,
-    E2E_STAFF_EMAIL: staffEmail,
-    E2E_STAFF_PASSWORD: staffPassword,
-    PLAYWRIGHT_JSON_REPORT: process.env.PLAYWRIGHT_JSON_REPORT ?? "",
-  }
-  run("bun", ["run", "test:e2e"], env)
-} finally {
-  if (supabaseStarted) {
-    const stopResult = spawnSync(
-      "supabase",
-      ["stop", "--workdir", workdir, "--no-backup"],
-      { cwd: repositoryRoot, env: process.env, stdio: "inherit" },
-    )
-    if (stopResult.status !== 0) {
-      console.warn("Supabase cleanup returned a non-zero status; test results are preserved.")
+await withLocalSupabase(
+  {
+    repositoryRoot,
+    prefix: "cheffia-e2e-supabase-",
+    projectId: "cheffia-front-app-e2e",
+    ports,
+    excludedServices: EXCLUDED_LOCAL_SERVICES,
+  },
+  async ({ status, databaseUrl }) => {
+    const fixtures = await seedFixtures(status, databaseUrl)
+    const env = {
+      E2E_BASE_URL: e2eBaseUrl,
+      E2E_DATABASE_URL: fixtures.databaseUrl,
+      E2E_TABLE_QR_SIGNING_SECRET: tableSigningSecret,
+      E2E_SUPABASE_JWT_SECRET: status.JWT_SECRET,
+      E2E_SUPABASE_URL: fixtures.apiUrl,
+      E2E_SUPABASE_ANON_KEY: fixtures.anonKey,
+      E2E_SUPABASE_SECRET_KEY: status.SERVICE_ROLE_KEY,
+      E2E_CRON_SECRET: "e2e-cron-secret",
+      E2E_TABLE_TOKEN: fixtures.token,
+      E2E_STAFF_EMAIL: staffEmail,
+      E2E_STAFF_PASSWORD: staffPassword,
+      PLAYWRIGHT_JSON_REPORT: process.env.PLAYWRIGHT_JSON_REPORT ?? "",
     }
-  }
-  rmSync(workdir, { recursive: true, force: true })
-}
+    const result = spawnSync("bun", ["run", "test:e2e"], {
+      cwd: repositoryRoot,
+      env: { ...process.env, ...env },
+      stdio: "inherit",
+    })
+    if (result.status !== 0) {
+      throw new Error(`bun run test:e2e exited with ${result.status ?? 1}`)
+    }
+  },
+)

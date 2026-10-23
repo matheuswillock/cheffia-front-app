@@ -12,6 +12,7 @@ const supabase = vi.hoisted(() => {
   const client = {
     channel: vi.fn(() => channel),
     removeChannel: vi.fn(),
+    realtime: { setAuth: vi.fn(async () => undefined) },
   }
   return {
     channel,
@@ -84,6 +85,7 @@ afterEach(() => {
   supabase.createClient.mockClear()
   supabase.client.channel.mockClear()
   supabase.client.removeChannel.mockClear()
+  supabase.client.realtime.setAuth.mockClear()
   supabase.channel.on.mockClear()
   supabase.channel.subscribe.mockClear()
 })
@@ -134,6 +136,23 @@ describe("useOrderRealtime", () => {
 
     cleanup()
     expect(supabase.client.removeChannel).toHaveBeenCalledTimes(1)
+  })
+
+  it("resolves the session token before the first join so Realtime never sees the anon key", async () => {
+    mockFetch(() => ({ status: "pending", version: 1 }))
+    const order: string[] = []
+    supabase.client.realtime.setAuth.mockImplementationOnce(async () => {
+      order.push("setAuth")
+    })
+    supabase.channel.subscribe.mockImplementationOnce(() => {
+      order.push("subscribe")
+      return supabase.channel
+    })
+
+    render(<Probe onStatus={vi.fn()} onSnapshot={vi.fn()} />)
+
+    await waitFor(() => expect(supabase.channel.subscribe).toHaveBeenCalledTimes(1))
+    expect(order).toEqual(["setAuth", "subscribe"])
   })
 
   it("falls back to a persisted snapshot when token issuance is denied", async () => {

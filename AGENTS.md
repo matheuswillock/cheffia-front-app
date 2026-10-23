@@ -11,7 +11,9 @@
 
 ## Camadas obrigatórias
 
-- `bun test`: regras de domínio, validações, casos de uso e integrações de backend com Supabase local.
+- `bun run test` (`bun test tests/ci tests/unit`): regras de domínio, validações e casos de uso, sem banco.
+- `bun run test:integration:local` (`tests/integration` e `tests/regressions`): repositórios, SQL, RLS e regressões contra o Supabase local (`bun run db:reset` antes). Esses testes apagam linhas e só rodam contra `127.0.0.1`/`localhost`.
+- `bun run test:realtime:local` (`tests/integration/realtime-*.test.ts`): autorização de Broadcast privado (mesa e cozinha). Exige o stack local completo (Realtime, Auth, API gateway e PostgREST), não só o banco: o runner sobe o stack, aplica as migrations, exporta `API_URL`, `ANON_KEY`, `SERVICE_ROLE_KEY`, `JWT_SECRET` e `DB_URL` ao processo de teste e remove containers e workdir ao final. Por isso `test:integration:local` ignora esses arquivos.
 - Vitest + React Testing Library + user-event: componentes, hooks, formulários, estados de loading/erro/sucesso e acessibilidade do frontend.
 - Playwright: fluxos E2E reais no Next.js, incluindo autenticação, onboarding, cardápio, carrinho, checkout, pedidos, cozinha e bloqueios de assinatura.
 - Supabase local: migrations, RLS, autorização e isolamento por tenant.
@@ -23,15 +25,16 @@ Use testes unitários para regras rápidas, testes de integração para contrato
 ```text
 tests/
   unit/         # domínio e backend puro
-  integration/  # API, Prisma, Supabase local e RLS
+  integration/  # repositórios, Prisma, Supabase local e RLS (precisam de banco)
   components/   # React Testing Library
   e2e/          # Playwright
-  regressions/  # bugs corrigidos, identificados por issue
+  regressions/  # bugs corrigidos, identificados por issue (os que precisam de banco rodam junto da integração)
 ```
 
 ## CI e segurança
 
-- O CI deve executar `bun run test`, `bun run test:components` e `bun run test:e2e` antes do build/deploy.
+- O CI deve executar `bun run test`, `bun run test:components` e `bun run test:e2e` antes do build/deploy, `bun run test:integration:local` no job de banco e `bun run test:realtime:local` no job `Realtime integration`, em paralelo com o banco. Ambos são gates de promoção.
+- O gate de cobertura (`bun run coverage:gate`) exige 90% em backend, frontend e E2E; a cobertura de backend conta só `tests/ci` e `tests/unit`.
 - O job final do CI deve criar automaticamente PRs `feature/bugfix` → `develop` e `develop` → `main`, de forma idempotente.
 - Testes de componentes, integração e E2E críticos devem ser gates de promoção.
 - Testes não podem usar credenciais, dados ou serviços de produção.

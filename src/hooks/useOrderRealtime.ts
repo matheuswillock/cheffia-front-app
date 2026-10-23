@@ -81,6 +81,10 @@ export function useOrderRealtime(input: {
         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
         accessToken: requestToken,
       })
+      // Without this the first join carries the anon key, Realtime denies it, and the client
+      // only recovers on its own rejoin seconds later.
+      await client.realtime.setAuth()
+      if (disposed) return
       channel = client
         .channel(`order:${input.orderId}`, { config: { private: true } })
         .on(

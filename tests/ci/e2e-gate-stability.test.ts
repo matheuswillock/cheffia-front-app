@@ -48,10 +48,13 @@ test("starts an isolated application server instead of reusing another worktree"
 test("checks local E2E prerequisites before allocating Supabase fixtures", () => {
   const bootstrap = readFileSync(path.join(repositoryRoot, "scripts/e2e-local.mjs"), "utf8")
 
-  expect(bootstrap.lastIndexOf("assertLocalE2EPrerequisites()")).toBeLessThan(
-    bootstrap.indexOf("const workdir = mkdtempSync"),
+  const lifecycle = readFileSync(path.join(repositoryRoot, "scripts/lib/supabase-local.mjs"), "utf8")
+
+  // The workdir is allocated by the shared lifecycle, so the preflight must run before it is called.
+  expect(bootstrap.indexOf("assertLocalE2EPrerequisites()")).toBeLessThan(
+    bootstrap.indexOf("withLocalSupabase("),
   )
-  expect(bootstrap).toContain("os.tmpdir()")
+  expect(lifecycle).toContain("os.tmpdir()")
 })
 
 test("documents the local Supabase E2E prerequisites for Fedora contributors", () => {
