@@ -16,3 +16,16 @@ export function jsonWithRequestId(
   headers.set("X-Request-Id", getRequestId(request.headers))
   return Response.json(body, { ...init, headers })
 }
+
+export function redirectWithRequestId(request: Request, location: string, status = 307) {
+  return new Response(null, {
+    status,
+    headers: { Location: location, "X-Request-Id": getRequestId(request.headers) },
+  })
+}
+
+// For responses built elsewhere (e.g. NextResponse.redirect) that must still carry the id.
+export function withRequestId<T extends Response>(request: Request, response: T): T {
+  response.headers.set("X-Request-Id", getRequestId(request.headers))
+  return response
+}
