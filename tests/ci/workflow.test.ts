@@ -120,6 +120,17 @@ test("CI runs E2E once with both readable and JSON reporters", async () => {
   expect(config).toContain('reporters.push(["html", { outputFolder: "playwright-report", open: "never" }])')
 })
 
+test("E2E generates the Prisma client before loading API routes", () => {
+  const e2eStart = workflow.indexOf("  quality-e2e:\n")
+  const e2eEnd = workflow.indexOf("\n  quality:\n", e2eStart)
+  const e2eJob = workflow.slice(e2eStart, e2eEnd)
+
+  expect(e2eJob).toContain("bun run prisma:generate")
+  expect(e2eJob.indexOf("bun run prisma:generate")).toBeLessThan(
+    e2eJob.indexOf("bun run test:e2e:coverage:local"),
+  )
+})
+
 test("CI preserves check identities while splitting and aggregating quality jobs", () => {
   expect(workflow).toContain("name: Validate branch flow")
   expect(workflow).toContain("name: Quality gates")

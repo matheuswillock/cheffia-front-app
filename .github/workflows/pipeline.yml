@@ -149,6 +149,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-bun-deps
+      - name: Generate Prisma client
+        run: bun run prisma:generate
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:

@@ -1,8 +1,9 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function ErrorPage() {
+function ErrorContent() {
   const searchParams = useSearchParams()
   const code = searchParams.get('code')
   const message = code === 'invalid-credentials'
@@ -12,4 +13,8 @@ export default function ErrorPage() {
       : 'Não foi possível concluir agora. Tente novamente.'
 
   return <main className="flex min-h-svh items-center justify-center bg-background-default px-6 text-center text-foreground-default"><p className="font-inter text-base">{message}</p></main>
+}
+
+export default function ErrorPage() {
+  return <Suspense fallback={null}><ErrorContent /></Suspense>
 }
