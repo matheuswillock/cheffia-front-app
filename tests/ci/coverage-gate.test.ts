@@ -4,6 +4,7 @@ import {
   calculateE2ECoverage,
   calculateLcovCoverage,
   calculateSummaryCoverage,
+  formatCoverageDetails,
 } from "../../scripts/coverage-gate.mjs"
 
 test("calculates backend LCOV coverage", () => {
@@ -33,4 +34,21 @@ test("formats a coverage summary that identifies each layer and its gate result"
       ],
       90,
   )).toContain("| frontend | 89.99% | 90.00% | FAIL |")
+})
+
+test("formats exact per-file coverage gaps for backend and frontend", () => {
+  const details = formatCoverageDetails({
+    backendLcov: "SF:src/a.ts\nDA:10,1\nDA:11,0\nDA:12,0\nLF:3\nLH:1\nend_of_record\n",
+    frontendSummary: {
+      "src/B.tsx": { lines: { total: 4, covered: 3, pct: 75 } },
+      "src/C.tsx": { lines: { total: 2, covered: 2, pct: 100 } },
+    },
+    threshold: 90,
+  })
+
+  expect(details).toContain("src/a.ts")
+  expect(details).toContain("10, 11, 12")
+  expect(details).toContain("src/B.tsx")
+  expect(details).toContain("3/4")
+  expect(details).not.toContain("src/C.tsx")
 })

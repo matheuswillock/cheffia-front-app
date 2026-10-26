@@ -104,6 +104,7 @@ test("CI publishes static and E2E diagnostics when quality gates fail", () => {
   expect(workflow).toContain("name: Publish static quality diagnostics")
   expect(workflow).toContain("name: Upload static quality diagnostics")
   expect(workflow).toContain("diagnostics/coverage-gate.log")
+  expect(workflow).toContain("--details 2>&1 | tee diagnostics/coverage-gate.log")
   expect(workflow).toContain("name: Publish E2E diagnostics")
   expect(workflow).toContain("diagnostics/e2e.log")
   expect(workflow).toContain("tail -200 diagnostics/e2e.log")

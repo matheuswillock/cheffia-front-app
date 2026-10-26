@@ -94,7 +94,8 @@ jobs:
               bun scripts/coverage-gate.mjs \
                 --backend=coverage/backend/lcov.info \
                 --frontend=coverage/frontend/coverage-summary.json \
-                --threshold=90 2>&1 | tee diagnostics/coverage-gate.log || true
+                --threshold=90 \
+                --details 2>&1 | tee diagnostics/coverage-gate.log || true
             else
               echo "Coverage files were not generated."
             fi
