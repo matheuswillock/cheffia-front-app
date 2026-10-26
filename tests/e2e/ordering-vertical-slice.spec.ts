@@ -51,7 +51,7 @@ test.describe("ordering vertical slice with local fixtures", () => {
     await kitchen.goto("/sign-in")
     await kitchen.getByLabel("Email").fill(staffEmail)
     await kitchen.getByLabel("Senha", { exact: true }).fill(staffPassword)
-    await kitchen.getByRole("button", { name: "Login", exact: true }).click()
+    await kitchen.getByRole("button", { name: "Entrar no app", exact: true }).click()
     await kitchen.waitForURL(/\/dashboard/)
     await kitchen.goto("/restaurant/order-hub/e2e-demo")
 
