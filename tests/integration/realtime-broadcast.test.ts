@@ -32,7 +32,16 @@ const DELIVERY_TIMEOUT_MS = 10_000
 const DENIAL_WINDOW_MS = 2_500
 const SUBSCRIBE_TIMEOUT_MS = 8_000
 
-const clientOptions = { auth: { persistSession: false, autoRefreshToken: false } }
+const clientOptions = {
+  auth: { persistSession: false, autoRefreshToken: false },
+  realtime: {
+    logger(kind: string, message: string, data?: unknown) {
+      if (kind === "error" || message.includes("error") || message.includes("close")) {
+        console.error(`[realtime:${kind}] ${message}`, data ?? "")
+      }
+    },
+  },
+}
 const server = createClient(API_URL, SERVICE_ROLE_KEY, clientOptions)
 const openClients: SupabaseClient[] = []
 
