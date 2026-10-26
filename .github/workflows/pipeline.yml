@@ -79,7 +79,7 @@ jobs:
           restore-keys: ${{ runner.os }}-next-${{ hashFiles('bun.lock') }}-
       - name: Enforce 90 percent backend and frontend coverage
         id: coverageGate
-        run: bun scripts/ci/coverage-gate.mjs --backend=coverage/backend/lcov.info --frontend=coverage/frontend/coverage-summary.json --threshold=90
+        run: bun scripts/coverage-gate.mjs --backend=coverage/backend/lcov.info --frontend=coverage/frontend/coverage-summary.json --threshold=90
       - name: Lint
         id: lint
         run: bun run lint
@@ -118,7 +118,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: "2.109.1"
+          version: "2.122.0"
       - name: Cache Playwright Chromium
         uses: actions/cache@v5
         with:
@@ -132,7 +132,7 @@ jobs:
         run: bun run test:e2e:coverage:local
       - name: Enforce 90 percent E2E coverage
         id: coverageGate
-        run: bun scripts/ci/coverage-gate.mjs --e2e=coverage/e2e/results.json --threshold=90
+        run: bun scripts/coverage-gate.mjs --e2e=coverage/e2e/results.json --threshold=90
       - name: Classify browser E2E result
         if: always()
         id: classify
@@ -182,7 +182,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: "2.109.1"
+          version: "2.122.0"
       - name: Reset local database
         run: bun run db:reset
       - name: Verify foundation isolation and migration tracking
@@ -204,7 +204,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: "2.109.1"
+          version: "2.122.0"
       - name: Generate Prisma client
         run: bun run prisma:generate
       - name: Run private Broadcast authorization tests against the complete local stack
