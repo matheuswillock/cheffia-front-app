@@ -1,7 +1,8 @@
 import { afterEach, expect, mock, test } from "bun:test"
 
-const signInWithPassword = mock(async () => ({ error: { code: "invalid_credentials", message: "provider internals" } }))
-const signUp = mock(async () => ({ error: null }))
+type AuthError = { code?: string; message: string }
+const signInWithPassword = mock(async (): Promise<{ error: AuthError | null }> => ({ error: { code: "invalid_credentials", message: "provider internals" } }))
+const signUp = mock(async (): Promise<{ error: AuthError | null }> => ({ error: null }))
 const resetPasswordForEmail = mock(async () => undefined)
 const createClient = mock(async () => ({ auth: { signInWithPassword, signUp, resetPasswordForEmail } }))
 const redirect = mock((path: string): never => { throw new Error(`redirect:${path}`) })

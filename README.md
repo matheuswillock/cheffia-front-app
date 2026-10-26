@@ -78,6 +78,19 @@ bun run lint
 bun run build
 ```
 
+Instale o hook local que bloqueia pushes quando os gates de qualidade falham:
+
+```bash
+bun run hooks:install
+```
+
+O `pre-push` executa Prisma, typecheck, lint, testes unitários/componentes e
+cobertura backend/frontend. Para incluir também integração, Realtime e E2E:
+
+```bash
+CHEFFIA_PRE_PUSH_FULL=1 git push
+```
+
 O fluxo de branches é `feature/*` ou `bugfix/*` → `develop` → `release` → `main`.
 O GitHub Actions executa qualidade e validação local de migrations/RLS em cada
 push e, ao final dos gates, abre automaticamente o PR de promoção da branch

@@ -23,10 +23,19 @@ test("requires every E2E value before a browser flow consumes it", () => {
   expect(() => requireE2EEnvironment({}, "E2E_STAFF_EMAIL")).toThrow(
     "Missing required E2E environment variable: E2E_STAFF_EMAIL",
   )
+  expect(() => requireE2EEnvironment({ E2E_STAFF_EMAIL: "" }, "E2E_STAFF_EMAIL")).toThrow(
+    "Missing required E2E environment variable: E2E_STAFF_EMAIL",
+  )
+  expect(() => requireE2EEnvironment({ E2E_STAFF_EMAIL: 42 }, "E2E_STAFF_EMAIL")).toThrow(
+    "Missing required E2E environment variable: E2E_STAFF_EMAIL",
+  )
 })
 
 test("rejects an order response that omits the server order identity", () => {
   expect(() => requireCreatedOrder({ status: "pending" })).toThrow(
+    "Order creation response does not include orderId and status strings.",
+  )
+  expect(() => requireCreatedOrder({ orderId: "order-1", status: 200 })).toThrow(
     "Order creation response does not include orderId and status strings.",
   )
 })
@@ -55,6 +64,19 @@ test("checks local E2E prerequisites before allocating Supabase fixtures", () =>
     bootstrap.indexOf("withLocalSupabase("),
   )
   expect(lifecycle).toContain("os.tmpdir()")
+})
+
+test("reports every missing local E2E prerequisite", () => {
+  expect(() => assertLocalE2EPrerequisites({ findCommand: () => null })).toThrow(
+    "bun, supabase, docker",
+  )
+})
+
+test("accepts available local E2E prerequisites", () => {
+  expect(() => assertLocalE2EPrerequisites({
+    findCommand: () => "/usr/bin/available-command",
+    canReachDocker: () => true,
+  })).not.toThrow()
 })
 
 test("documents the local Supabase E2E prerequisites for Fedora contributors", () => {

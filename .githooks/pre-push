@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "pre-push: Bun is required. Install Bun before pushing." >&2
+  exit 1
+fi
+
+run() {
+  echo
+  echo ">>> $*"
+  "$@"
+}
+
+run bun run prisma:validate
+run bun run typecheck
+run bun run lint
+run bun run test
+run bun run test:components
+run bun run test:backend:coverage
+run bun run test:frontend:coverage
+run bun scripts/coverage-gate.mjs \
+  --backend=coverage/backend/lcov.info \
+  --frontend=coverage/frontend/coverage-summary.json \
+  --threshold=90
+
+if [[ "${CHEFFIA_PRE_PUSH_FULL:-0}" == "1" ]]; then
+  run bun run test:integration:local
+  run bun run test:realtime:local
+  run bun run test:e2e:coverage:local
+fi
+
+echo
+echo "pre-push: local quality gates passed."

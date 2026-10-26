@@ -14,6 +14,12 @@ describe("getAuthErrorMessage", () => {
     )
   })
 
+  test("does not expose whether a sign-up email already exists", () => {
+    expect(getAuthErrorMessage({ code: "email_exists" }, "sign-up")).toBe(
+      "Não foi possível criar a conta com esses dados. Confira o email ou tente entrar.",
+    )
+  })
+
   test("maps rate limits and network failures without exposing provider text", () => {
     expect(getAuthErrorMessage({ status: 429, message: "private provider details" })).toBe(
       "Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.",

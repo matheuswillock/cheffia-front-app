@@ -39,3 +39,12 @@ test("returns a safe failure when the reset session is invalid", async () => {
 
   await expect(updatePassword(formData)).resolves.toEqual({ success: false, error: "invalid-or-expired-link" })
 })
+
+test("returns a safe failure when the auth client cannot be created", async () => {
+  createClient.mockRejectedValueOnce(new Error("session unavailable"))
+  const formData = new FormData()
+  formData.set("password", "SenhaSegura1!")
+  formData.set("confirmPassword", "SenhaSegura1!")
+
+  await expect(updatePassword(formData)).resolves.toEqual({ success: false, error: "invalid-or-expired-link" })
+})
