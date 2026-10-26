@@ -80,6 +80,39 @@ jobs:
       - name: Enforce 90 percent backend and frontend coverage
         id: coverageGate
         run: bun scripts/coverage-gate.mjs --backend=coverage/backend/lcov.info --frontend=coverage/frontend/coverage-summary.json --threshold=90
+      - name: Publish static quality diagnostics
+        if: always()
+        env:
+          STEP_OUTCOMES: ${{ toJSON(steps) }}
+        run: |
+          mkdir -p diagnostics
+          {
+            echo "## Static quality diagnostics"
+            echo
+            echo "### Coverage gate output"
+            if [ -f coverage/backend/lcov.info ] && [ -f coverage/frontend/coverage-summary.json ]; then
+              bun scripts/coverage-gate.mjs \
+                --backend=coverage/backend/lcov.info \
+                --frontend=coverage/frontend/coverage-summary.json \
+                --threshold=90 2>&1 | tee diagnostics/coverage-gate.log || true
+            else
+              echo "Coverage files were not generated."
+            fi
+            echo
+            echo "### Failed step outcomes"
+            echo "$STEP_OUTCOMES" | jq '[to_entries[] | select(.value.conclusion == "failure") | {step: .key, name: .value.name, conclusion: .value.conclusion}]'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload static quality diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-quality-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 7
+          path: |
+            diagnostics/
+            coverage/backend/lcov.info
+            coverage/frontend/coverage-summary.json
       - name: Lint
         id: lint
         run: bun run lint
@@ -129,10 +162,33 @@ jobs:
         run: bunx playwright install --with-deps chromium
       - name: E2E tests and coverage with local fixtures
         id: e2eTests
-        run: bun run test:e2e:coverage:local
+        run: |
+          mkdir -p diagnostics
+          set -o pipefail
+          bun run test:e2e:coverage:local 2>&1 | tee diagnostics/e2e.log
       - name: Enforce 90 percent E2E coverage
         id: coverageGate
         run: bun scripts/coverage-gate.mjs --e2e=coverage/e2e/results.json --threshold=90
+      - name: Publish E2E diagnostics
+        if: always()
+        run: |
+          {
+            echo "## E2E diagnostics"
+            echo
+            if [ -f coverage/e2e/results.json ]; then
+              echo "### Playwright statistics"
+              jq '.stats' coverage/e2e/results.json
+            else
+              echo "Playwright JSON report was not generated."
+            fi
+            echo
+            echo "### Last E2E log lines"
+            if [ -f diagnostics/e2e.log ]; then
+              tail -200 diagnostics/e2e.log
+            else
+              echo "E2E log was not generated."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Classify browser E2E result
         if: always()
         id: classify
@@ -151,6 +207,7 @@ jobs:
             coverage/e2e/results.json
             playwright-report/
             test-results/
+            diagnostics/
 
   quality:
     name: Quality gates

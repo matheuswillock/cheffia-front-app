@@ -100,6 +100,16 @@ test("CI writes local database integration test duration to the step summary", (
   )
 })
 
+test("CI publishes static and E2E diagnostics when quality gates fail", () => {
+  expect(workflow).toContain("name: Publish static quality diagnostics")
+  expect(workflow).toContain("name: Upload static quality diagnostics")
+  expect(workflow).toContain("diagnostics/coverage-gate.log")
+  expect(workflow).toContain("name: Publish E2E diagnostics")
+  expect(workflow).toContain("diagnostics/e2e.log")
+  expect(workflow).toContain("tail -200 diagnostics/e2e.log")
+  expect(workflow).toContain("if: always()")
+})
+
 test("CI runs E2E once with both readable and JSON reporters", async () => {
   expect(workflow).not.toContain("run: bun run test:e2e:local\n")
   expect(workflow).toContain("run: bun run test:e2e:coverage:local")
