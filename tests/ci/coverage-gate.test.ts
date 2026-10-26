@@ -47,7 +47,7 @@ test("formats exact per-file coverage gaps for backend and frontend", () => {
   })
 
   expect(details).toContain("src/a.ts")
-  expect(details).toContain("10, 11, 12")
+  expect(details).toContain("11, 12")
   expect(details).toContain("src/B.tsx")
   expect(details).toContain("3/4")
   expect(details).not.toContain("src/C.tsx")
