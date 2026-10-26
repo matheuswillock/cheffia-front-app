@@ -1,43 +1,22 @@
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface ButtonCtaProps {
   setIsModalOpen: () => void;
+  label?: string;
 }
 
-export default function ButtonCta({ setIsModalOpen }: ButtonCtaProps) {
+export default function ButtonCta({
+  setIsModalOpen,
+  label = "Entrar na lista de espera",
+}: ButtonCtaProps) {
   return (
-    <button
-      aria-label="Entrar na lista de espera"
+    <Button
       onClick={setIsModalOpen}
       type="button"
-      className="
-        bg-button
-        text-foreground-aboutBlack
-          px-6
-          h-9
-          md:h-10
-          xl:h-11
-          2xl:h-12
-          text-center
-          text-base
-          sm:text-lg
-          lg:text-xl
-          xl:text-[22px]
-          2xl:text-2xl
-          font-medium
-          font-inter
-          rounded-full
-          shadow-md
-          hover:bg-button-dark
-          hover:text-foreground-pureWhite
-          hover:shadow-lg
-          active:bg-button-dark
-          transition
-          duration-300
-          ease-in-out
-        "
+      size="lg"
+      className="font-inter"
     >
-      Entrar na lista de espera
-    </button>
+      {label}
+    </Button>
   );
 }

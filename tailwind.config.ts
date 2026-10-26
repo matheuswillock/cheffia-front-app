@@ -41,7 +41,10 @@ export default {
         'h3': ['28px', '20px'],   // Título h3
       },
   		colors: {
-        primary: "#01FBA1",     // Tom principal de verde-água (inovação)
+        primary: {
+          DEFAULT: "#01FBA1",
+          foreground: "#181818",
+        },
         secondary: "#22CF90",   // Verde mais vivo para destacar CTAs ou hover
         support1: "#3D7A64",    // Estabilidade
         support2: "#355046",    // Resiliência

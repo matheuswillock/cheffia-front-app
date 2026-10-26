@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+BUN_BIN="${BUN_INSTALL:-$HOME/.bun}/bin/bun"
+if [[ ! -x "$BUN_BIN" ]]; then
+  BUN_BIN="$(command -v bun || true)"
+fi
+
+if [[ -z "$BUN_BIN" || ! -x "$BUN_BIN" ]]; then
+  echo "pre-push: Bun is required. Install Bun before pushing." >&2
+  exit 1
+fi
+
+run() {
+  echo
+  echo ">>> $*"
+  "$@"
+}
+
+run_bun() {
+  run "$BUN_BIN" "$@"
+}
+
+run_bun run prisma:validate
+run_bun run typecheck
+run_bun run lint
+run_bun run test
+run_bun run test:components
+run_bun run test:backend:coverage
+run_bun run test:frontend:coverage
+run_bun scripts/coverage-gate.mjs \
+  --backend=coverage/backend/lcov.info \
+  --frontend=coverage/frontend/coverage-summary.json \
+  --threshold=90
+
+if [[ "${CHEFFIA_PRE_PUSH_FULL:-0}" == "1" ]]; then
+  run_bun run test:integration:local
+  run_bun run test:realtime:local
+  run_bun run test:e2e:coverage:local
+fi
+
+echo
+echo "pre-push: local quality gates passed."

@@ -28,7 +28,8 @@
     "prisma:generate": "prisma generate",
     "supabase:migrate:push": "supabase db push --linked",
     "db:reset": "bun scripts/db-reset.mjs",
-    "db:verify": "bun scripts/verify-foundation.mjs"
+    "db:verify": "bun scripts/verify-foundation.mjs",
+    "hooks:install": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

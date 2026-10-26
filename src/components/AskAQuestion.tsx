@@ -85,18 +85,22 @@ export default function AskAQuestion({ isOpen, onClose }: AskAQuestionProps) {
           gap-8
         "
       >
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="absolute top-5 right-5 transition-transform duration-300 hover:scale-110"
+          aria-label="Fechar formulário de pergunta"
+          type="button"
+          className="absolute right-5 top-5 min-h-11 min-w-11"
         >
           <Image
             src={closeIcon}
-            alt="Fechar"
+            alt=""
             width={24}
             height={24}
             className="w-4 h-4 filter grayscale hover:filter-none"
           />
-        </button>
+        </Button>
 
         <div className="flex flex-col items-center justify-center gap-2 md:gap-[9px]">
           <div className="text-4xl md:text-5xl font-medium xl:text-6xl flex flex-col items-center justify-center">
@@ -290,36 +294,8 @@ export default function AskAQuestion({ isOpen, onClose }: AskAQuestionProps) {
               <Button
                 type="submit"
                 disabled={!form.formState.isValid}
-                className="
-                  w-full
-                  rounded-xl
-                  text-lg
-                  md:text-xl
-                  xl:text-2xl
-                  h-9
-                  md:h-10
-                  xl:h-11
-                  2xl:h-12
-                  px-6
-                  xl:px-8
-                  2xl:px-10
-                  text-center
-                  font-inter
-                  font-semibold
-                  bg-button
-                  text-foreground-aboutBlack
-                  hover:bg-button-solid
-                  hover:text-background
-                  mouse-pointer
-                  hover:shadow-2xl
-                  shadow-md
-                  hover:bg-button-dark
-                  hover:text-foreground-pureWhite
-                  active:bg-button-dark
-                  transition
-                  duration-300
-                  ease-in-out
-                "
+                size="lg"
+                className="w-full font-inter"
               >
                 Enviar Pergunta
               </Button>

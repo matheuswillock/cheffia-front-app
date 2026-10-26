@@ -1,0 +1,20 @@
+name: Setup Bun dependencies
+description: Set up the pinned Bun runtime and restore/install frozen dependencies.
+runs:
+  using: composite
+  steps:
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: "1.4.3"
+    - name: Cache Bun packages and node_modules
+      id: dependencies-cache
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.bun/install/cache
+          node_modules
+        key: ${{ runner.os }}-bun-1.4.3-${{ hashFiles('bun.lock') }}
+    - name: Install dependencies
+      if: steps.dependencies-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: bun install --frozen-lockfile
