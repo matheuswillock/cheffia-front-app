@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process"
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import os from "node:os"
 import path from "node:path"
+import { measureCiStage } from "./ci-timing.mjs"
 
 // Services that the database-backed suites never use. Realtime, Auth, the API
 // gateway and PostgREST stay up because Broadcast authorization depends on them.
@@ -49,7 +50,15 @@ export function createSupabaseTestEnvironment(status, { databaseUrl }) {
 }
 
 export function assertLocalSupabasePrerequisites(findCommand = Bun.which) {
-  if (!findCommand("supabase")) {
+  // Resolve against the process environment rather than Bun's cached PATH
+  // lookup. This matters for hermetic CI tests that install a fake CLI after
+  // the Bun process has started, and still preserves Bun.which as the default
+  // production lookup.
+  const resolved = findCommand === Bun.which
+    ? spawnSync("which", ["supabase"], { env: process.env, stdio: "ignore" }).status === 0
+    : findCommand("supabase")
+
+  if (!resolved) {
     throw new Error("Local Supabase requires the supabase CLI and a reachable container runtime.")
   }
 }
@@ -105,33 +114,43 @@ export async function withLocalSupabase(
     )
 
     started = true
-    runCommand("supabase", [
-      "start",
-      "--workdir",
-      workdir,
-      ...excludedServices.flatMap((service) => ["--exclude", service]),
-      "--yes",
-    ], { cwd: repositoryRoot })
-    runCommand("supabase", ["db", "reset", "--local", "--workdir", workdir, "--no-seed", "--yes"], {
-      cwd: repositoryRoot,
-    })
+    await measureCiStage("supabase start", () =>
+      runCommand("supabase", [
+        "start",
+        "--workdir",
+        workdir,
+        ...excludedServices.flatMap((service) => ["--exclude", service]),
+        "--yes",
+      ], { cwd: repositoryRoot }),
+    )
+    await measureCiStage("supabase db reset", () =>
+      runCommand("supabase", ["db", "reset", "--local", "--workdir", workdir, "--no-seed", "--yes"], {
+        cwd: repositoryRoot,
+      }),
+    )
     cpSync(path.join(repositoryRoot, "supabase/migrations"), migrationsDirectory, { recursive: true })
-    runCommand("supabase", ["db", "push", "--local", "--workdir", workdir, "--yes"], {
-      cwd: repositoryRoot,
-    })
+    await measureCiStage("supabase db push", () =>
+      runCommand("supabase", ["db", "push", "--local", "--workdir", workdir, "--yes"], {
+        cwd: repositoryRoot,
+      }),
+    )
 
-    const status = readStatus(workdir, repositoryRoot)
-    return await use({ status, databaseUrl, workdir })
+    const status = await measureCiStage("supabase status", () =>
+      readStatus(workdir, repositoryRoot),
+    )
+    return await measureCiStage("test callback", () => use({ status, databaseUrl, workdir }))
   } finally {
     if (started) {
-      const stopped = spawnSync("supabase", ["stop", "--workdir", workdir, "--no-backup"], {
-        cwd: repositoryRoot,
-        env: process.env,
-        stdio: "inherit",
+      await measureCiStage("supabase stop", () => {
+        const stopped = spawnSync("supabase", ["stop", "--workdir", workdir, "--no-backup"], {
+          cwd: repositoryRoot,
+          env: process.env,
+          stdio: "inherit",
+        })
+        if (stopped.status !== 0) {
+          console.warn("Supabase cleanup returned a non-zero status; test results are preserved.")
+        }
       })
-      if (stopped.status !== 0) {
-        console.warn("Supabase cleanup returned a non-zero status; test results are preserved.")
-      }
     }
     rmSync(workdir, { recursive: true, force: true })
   }

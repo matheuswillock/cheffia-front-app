@@ -87,6 +87,13 @@ Ainda não há evidências aprovadas de métricas, clientes, depoimentos, preço
 4. **Estados reais, não aparências de estado:** menu, pedido e status só são considerados prontos quando conectados a dados e eventos confiáveis.
 5. **Financeiro exige confiança verificável:** pagamentos só entram no produto quando criação, confirmação, estorno, repasse e conciliação forem comprovadamente seguros.
 
+## Interface Context for Design Work
+
+- O Cheffia reúne superfícies com objetivos diferentes: descoberta/marketing, pedido do cliente, execução da cozinha e gestão do restaurante. Determine o objetivo da rota e a tarefa do usuário antes de escolher uma abordagem visual; não aplique um único padrão de página a todo o produto.
+- Em telas de operação, priorize contexto correto do pedido, leitura rápida, ações claras, prevenção de erro e estados recuperáveis. Em páginas persuasivas ou de apresentação, a composição pode variar desde que preserve fatos, identidade e fluxo real do produto.
+- Não invente funcionalidades, dados, disponibilidade, métricas, preços, depoimentos ou evidências de clientes. Quando o conteúdo ou comportamento necessário não estiver confirmado por este arquivo, especificações do produto ou implementação real, marque a lacuna e pergunte antes de apresentá-lo como fato.
+- O sistema visual oficial está documentado em `DESIGN.md` e no Figma CHEFFIA 2.0; este arquivo define contexto e compromissos de produto, não substitui essas referências visuais.
+
 ## Accessibility & Inclusion
 
 - O fluxo do cliente deve funcionar em smartphone sem exigir aplicativo instalado.

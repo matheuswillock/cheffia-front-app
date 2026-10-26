@@ -57,22 +57,6 @@
   },
   "components": [
     {
-      "name": "Primary Button",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "The single affirmative action in a local decision group.",
-      "html": "<button class=\"ds-btn-primary\">CONFIRMAR PEDIDO</button>",
-      "css": ".ds-btn-primary { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: var(--radius-sm, 6px); padding: 8px 16px; background: var(--primary, #01FBA1); color: var(--primary-foreground, #181818); font: 500 14px/1 var(--font-inter-tight, Inter Tight, sans-serif); cursor: pointer; transition: background-color 160ms ease, transform 160ms ease; } .ds-btn-primary:hover { background: color-mix(in srgb, var(--primary, #01FBA1) 90%, #000); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring, #62FFC6); outline-offset: 2px; }"
-    },
-    {
-      "name": "Outline Button",
-      "kind": "button",
-      "refersTo": "button-outline",
-      "description": "A secondary action that stays quiet beside one primary action.",
-      "html": "<button class=\"ds-btn-outline\">VOLTAR</button>",
-      "css": ".ds-btn-outline { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--input, #434343); border-radius: var(--radius-sm, 6px); padding: 8px 16px; background: transparent; color: var(--foreground, #EAEAEA); font: 500 14px/1 var(--font-inter-tight, Inter Tight, sans-serif); cursor: pointer; transition: background-color 160ms ease; } .ds-btn-outline:hover { background: var(--accent, #355047); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ring, #62FFC6); outline-offset: 2px; }"
-    },
-    {
       "name": "Operational Input",
       "kind": "input",
       "refersTo": "input-default",

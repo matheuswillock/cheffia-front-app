@@ -1,11 +1,15 @@
-import { readFileSync } from "node:fs"
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import os from "node:os"
+import path from "node:path"
 import { fileURLToPath } from "node:url"
+import { spawnSync } from "node:child_process"
 import { expect, test } from "bun:test"
 
 const resetScript = readFileSync(
   fileURLToPath(new URL("../../scripts/db-reset.mjs", import.meta.url)),
   "utf8",
 )
+const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url))
 const verifyScript = readFileSync(
   fileURLToPath(new URL("../../scripts/verify-foundation.mjs", import.meta.url)),
   "utf8",
@@ -43,6 +47,40 @@ test("local reset bootstraps the complete Supabase migration history", () => {
   expect(resetScript).toContain("process.env.DIRECT_URL = LOCAL_DATABASE_URL")
   expect(resetScript).toContain('"db", "push"')
   expect(resetScript).not.toContain("prisma:migrate:deploy")
+})
+
+test("local reset reports boot, reset, and migration-push durations to the step summary", () => {
+  const sandbox = mkdtempSync(path.join(os.tmpdir(), "cheffia-db-reset-timing-"))
+  const bin = path.join(sandbox, "bin")
+  const summary = path.join(sandbox, "summary.md")
+  const calls = path.join(sandbox, "supabase-calls.log")
+  mkdirSync(bin, { recursive: true })
+  writeFileSync(calls, "")
+  const fakeCli = path.join(bin, "supabase")
+  writeFileSync(fakeCli, `#!/bin/sh\necho "$@" >> "${calls}"\n`)
+  chmodSync(fakeCli, 0o755)
+
+  try {
+    const result = spawnSync("bun", ["scripts/db-reset.mjs"], {
+      cwd: repositoryRoot,
+      env: {
+        ...process.env,
+        PATH: `${bin}:${process.env.PATH}`,
+        RUNNER_TEMP: sandbox,
+        GITHUB_STEP_SUMMARY: summary,
+      },
+      encoding: "utf8",
+    })
+
+    expect(result.status).toBe(0)
+    const summaryText = readFileSync(summary, "utf8")
+    expect(summaryText).toMatch(/\| supabase start \| \d+ ms \|/)
+    expect(summaryText).toMatch(/\| supabase db reset \| \d+ ms \|/)
+    expect(summaryText).toMatch(/\| supabase db push \| \d+ ms \|/)
+    expect(readFileSync(calls, "utf8")).toContain("db push")
+  } finally {
+    rmSync(sandbox, { recursive: true, force: true })
+  }
 })
 
 test("CI starts only the Supabase database container", () => {

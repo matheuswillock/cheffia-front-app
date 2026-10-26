@@ -3,6 +3,7 @@ import { expect, test } from "bun:test"
 import {
   applyOrderRealtimeEvent,
   createOrderRealtimeState,
+  reconcileOrderRealtimeSnapshot,
   type OrderRealtimeEvent,
 } from "@/business/order/orderRealtime"
 
@@ -43,5 +44,21 @@ test("requests a snapshot resync when a sequence gap is detected", () => {
   expect(applyOrderRealtimeEvent(initial, event(3, "preparing"))).toEqual({
     action: "resync",
     state: { ...initial, needsResync: true },
+  })
+})
+
+test("reconciles a snapshot without moving the cursor backwards", () => {
+  const state = {
+    ...createOrderRealtimeState("pending"),
+    lastSequence: 4,
+    lastEventId: "event-4",
+    needsResync: true,
+  }
+
+  expect(reconcileOrderRealtimeSnapshot(state, { status: "preparing", version: 2 })).toEqual({
+    status: "preparing",
+    lastSequence: 4,
+    lastEventId: "event-4",
+    needsResync: false,
   })
 })

@@ -67,15 +67,10 @@ components:
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.primary-foreground}"
-    rounded: "{rounded.sm}"
-    padding: "8px 16px"
-    height: "36px"
+    specification: "Usar a variante correspondente no Figma; não assumir raio, padding ou altura universais."
   button-outline:
     backgroundColor: "transparent"
-    textColor: "{colors.text-dark}"
-    rounded: "{rounded.sm}"
-    padding: "8px 16px"
-    height: "36px"
+    specification: "Usar a variante correspondente no Figma; não assumir raio, padding ou altura universais."
   input-default:
     backgroundColor: "transparent"
     textColor: "{colors.text-dark}"
@@ -90,6 +85,14 @@ components:
 ---
 
 # Design System: Cheffia
+
+## Fonte de verdade e consulta obrigatória
+
+O arquivo [CHEFFIA 2.0 no Figma](https://www.figma.com/design/AuL2Q3F2Sp00zcB84lyMzr/CHEFFIA-2.0) é a fonte visual de verdade. Consulte a página **DESIGN SYSTEM** para tokens e componentes e as páginas **MOBILE** e **DESKTOP** para composição e comportamento responsivo. Este documento registra princípios e tokens confirmados; não substitui a inspeção da variante Figma específica.
+
+Antes de implementar ou alterar UI, confirme no Figma o componente, variante, estado e breakpoint relevantes. Não extrapole medidas de uma variante para as demais. Se a tela/variante não existir ou a referência estiver inacessível, não pare apenas para perguntar se pode propor: formule uma proposta claramente identificada como não confirmada pelo Figma, usando o contexto de `PRODUCT.md`, Impeccable e a pesquisa de reuso Smooth UI; aplique Taste somente quando pertinente. Peça aprovação antes de implementar. Pergunte antes de propor quando faltar um fato de produto ou comportamento que possa mudar materialmente a solução, ou quando fontes vigentes entrarem em conflito. Preserve componentes e tokens existentes e mantenha este documento atualizado quando uma decisão visual for confirmada.
+
+`DESIGN.md` é a síntese revisável do sistema, não uma licença para preencher lacunas por inferência. `PRODUCT.md` descreve público, objetivos, contexto e restrições do produto. O código e os componentes existentes também são evidência; se houver conflito real entre código, documentação e Figma, identifique-o e resolva com a referência atual ou com o usuário, em vez de escolher silenciosamente. Metadados gerados para ferramentas são auxiliares e precisam permanecer coerentes com as decisões confirmadas aqui e no Figma.
 
 ## Overview
 
@@ -159,7 +162,7 @@ Cheffia é plano por padrão. A profundidade vem de mudança tonal entre fundo, 
 
 ## Shapes
 
-As formas são suavemente curvadas e precisas: controles compactos usam `rounded-sm`/`rounded-md`, superfícies usam `rounded-lg` e cards principais usam `rounded-xl`. Bordas são finas e sem ornamento; o raio ajuda a agrupar e tocar, nunca a transformar a interface em um mosaico de cápsulas.
+As formas são suaves e precisas. Use os raios definidos para cada componente no Figma: controles compactos, botões, superfícies e cards podem ter tratamentos diferentes. Bordas são finas e sem ornamento; não imponha um raio global nem descarte formatos de cápsula quando eles fizerem parte da variante especificada.
 
 ## Components
 
@@ -167,8 +170,8 @@ As formas são suavemente curvadas e precisas: controles compactos usam `rounded
 
 ### Buttons
 - **Character:** comandos claros, compactos e fáceis de localizar.
-- **Shape:** cantos pequenos e precisos (`6px` no botão base).
-- **Primary:** fundo `primary`, texto `primary-foreground`, altura padrão de `36px` e padding horizontal de `16px`.
+- **Variants:** use a variante exata definida no Figma (primária, secundária, outline, estados e demais propriedades); `primary` usa `{colors.primary}` e `{colors.primary-foreground}` quando aplicável.
+- **Shape / dimensions:** não há um único raio, altura ou padding universal. Siga os valores do componente e da variante selecionados no Figma, respeitando MOBILE/DESKTOP; não aplique automaticamente o raio global de controles compactos.
 - **Hover / Focus:** hover reduz levemente a intensidade do fundo; foco usa `focus` por meio do ring compartilhado.
 - **Secondary / Ghost / Outline:** mantêm a hierarquia com superfície neutra, borda ou mudança tonal. Não competir visualmente com o CTA primário.
 

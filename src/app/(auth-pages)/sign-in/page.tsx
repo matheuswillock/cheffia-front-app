@@ -1,25 +1,32 @@
 "use client"
-import { SignInForm } from "@/components/SignInContent/SignInForm";
-import { signIn, signInActionWithProvider } from "@/business/auth/actions";
+
+import { AuthForm } from "@/components/AuthContent/AuthForm"
+import { requestPasswordRecovery, signIn, signUp } from "@/business/auth/actions"
 
 export default function SignInPage() {
+  return <AuthForm
+    initialMode="sign-in"
+    onSignIn={async (credentials) => {
+      const result = await signIn(toFormData(credentials))
+      if (!result.success) throw result
+    }}
+    onSignUp={(credentials) => signUp(toFormData(credentials))}
+    onRequestPasswordReset={async (email) => {
+      const result = await requestPasswordRecovery(toEmailFormData(email))
+      if (!result.success) throw result
+    }}
+  />
+}
 
-  const handleSignIn = async (formData: FormData) => {
-    await signIn(formData);
-  };
+function toEmailFormData(email: string) {
+  const formData = new FormData()
+  formData.set("email", email)
+  return formData
+}
 
-  const handleGoogleSignIn = async () => {
-    await signInActionWithProvider();
-  };
-
-  return (
-    <div className="flex min-h-svh flex-col items-center bg-background-default-default justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-3xl">
-        <SignInForm
-          onSignIn={handleSignIn} 
-          googleSignIn={handleGoogleSignIn}
-        />
-      </div>
-    </div>
-  );
+function toFormData(credentials: { email: string; password: string }) {
+  const formData = new FormData()
+  formData.set("email", credentials.email)
+  formData.set("password", credentials.password)
+  return formData
 }

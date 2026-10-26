@@ -1,0 +1,16 @@
+/* Load on auth routes and add `auth-page` to the AuthForm <main> root. */
+.auth-page p:not([role="alert"]):not([role="status"]) {
+  color: hsl(var(--muted-foreground));
+}
+
+.auth-page input::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 1;
+}
+
+/* The final paragraph in the form container is the terms/privacy notice. */
+.auth-page > section:last-child > div > p:last-child {
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  line-height: 1.5;
+}
