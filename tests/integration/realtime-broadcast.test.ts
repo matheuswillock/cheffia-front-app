@@ -94,6 +94,14 @@ async function deliveredWithin(listener: Listener, marker: string, timeoutMs: nu
   return listener.received.some((payload) => payload.marker === marker)
 }
 
+function expectSubscribed(listener: Listener, topic: string) {
+  if (listener.state !== "SUBSCRIBED") {
+    throw new Error(
+      `Realtime subscription failed for ${topic}: state=${listener.state}; reason=${listener.error ?? "unavailable"}`,
+    )
+  }
+}
+
 async function attempt(listener: Listener, topic: string, timeoutMs: number) {
   const marker = randomUUID()
   await broadcastFromServer(topic, marker)
@@ -200,15 +208,15 @@ describe("private Broadcast authorization against the local Supabase stack", () 
   function ensureControl() {
     control ??= (async () => {
       const ownTableSession = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderA}`)
-      expect(ownTableSession.state, ownTableSession.error).toBe("SUBSCRIBED")
+      expectSubscribed(ownTableSession, `order:${orderA}`)
       expect(await attempt(ownTableSession, `order:${orderA}`, DELIVERY_TIMEOUT_MS)).toBe(true)
 
       const otherTableSession = await subscribe(await tableSessionClient(tenantB.sessionId), `order:${orderB}`)
-      expect(otherTableSession.state, otherTableSession.error).toBe("SUBSCRIBED")
+      expectSubscribed(otherTableSession, `order:${orderB}`)
       expect(await attempt(otherTableSession, `order:${orderB}`, DELIVERY_TIMEOUT_MS)).toBe(true)
 
       const ownKitchen = await subscribe(kitchenA, `restaurant:${tenantA.restaurantId}:orders`)
-      expect(ownKitchen.state, ownKitchen.error).toBe("SUBSCRIBED")
+      expectSubscribed(ownKitchen, `restaurant:${tenantA.restaurantId}:orders`)
       expect(await attempt(ownKitchen, `restaurant:${tenantA.restaurantId}:orders`, DELIVERY_TIMEOUT_MS)).toBe(true)
     })()
     return control
@@ -217,14 +225,14 @@ describe("private Broadcast authorization against the local Supabase stack", () 
   describe("positive control", () => {
     test("a table session receives a broadcast on its own order topic", async () => {
       const listener = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderA}`)
-      expect(listener.state, listener.error).toBe("SUBSCRIBED")
+      expectSubscribed(listener, `order:${orderA}`)
       expect(await attempt(listener, `order:${orderA}`, DELIVERY_TIMEOUT_MS)).toBe(true)
     })
 
     test("an active kitchen member receives a broadcast on its own restaurant topic", async () => {
       const topic = `restaurant:${tenantA.restaurantId}:orders`
       const listener = await subscribe(kitchenA, topic)
-      expect(listener.state, listener.error).toBe("SUBSCRIBED")
+      expectSubscribed(listener, topic)
       expect(await attempt(listener, topic, DELIVERY_TIMEOUT_MS)).toBe(true)
     })
   })
