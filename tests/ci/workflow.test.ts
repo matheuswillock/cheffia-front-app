@@ -112,7 +112,7 @@ test("CI publishes static and E2E diagnostics when quality gates fail", () => {
 
 test("CI runs E2E once with both readable and JSON reporters", async () => {
   expect(workflow).not.toContain("run: bun run test:e2e:local\n")
-  expect(workflow).toContain("run: bun run test:e2e:coverage:local")
+  expect(workflow).toContain("bun run test:e2e:coverage:local")
   const config = await Bun.file(new URL("../../playwright.config.ts", import.meta.url)).text()
   expect(config).toContain('reporters.push(["json", { outputFile: process.env.PLAYWRIGHT_JSON_REPORT }])')
   expect(config).toContain('reporters.push(process.env.CI ? ["github"] : ["list"])')

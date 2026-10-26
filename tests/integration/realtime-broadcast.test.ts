@@ -42,7 +42,12 @@ function anonymousClient() {
   return client
 }
 
-type Listener = { channel: RealtimeChannel; received: Array<{ marker?: string }>; state: string }
+type Listener = {
+  channel: RealtimeChannel
+  received: Array<{ marker?: string }>
+  state: string
+  error?: string
+}
 
 async function subscribe(client: SupabaseClient, topic: string): Promise<Listener> {
   const received: Array<{ marker?: string }> = []
@@ -55,16 +60,18 @@ async function subscribe(client: SupabaseClient, topic: string): Promise<Listene
   channel.on("broadcast", { event: EVENT }, (message) => {
     received.push(message.payload as { marker?: string })
   })
+  let error: string | undefined
   const state = await new Promise<string>((resolve) => {
     const timer = setTimeout(() => resolve("LOCAL_TIMEOUT"), SUBSCRIBE_TIMEOUT_MS)
-    channel.subscribe((status) => {
+    channel.subscribe((status, reason) => {
+      if (reason) error = reason.message
       if (status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
         clearTimeout(timer)
         resolve(status)
       }
     })
   })
-  return { channel, received, state }
+  return { channel, received, state, error }
 }
 
 async function broadcastFromServer(topic: string, marker: string) {
@@ -193,15 +200,15 @@ describe("private Broadcast authorization against the local Supabase stack", () 
   function ensureControl() {
     control ??= (async () => {
       const ownTableSession = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderA}`)
-      expect(ownTableSession.state).toBe("SUBSCRIBED")
+      expect(ownTableSession.state, ownTableSession.error).toBe("SUBSCRIBED")
       expect(await attempt(ownTableSession, `order:${orderA}`, DELIVERY_TIMEOUT_MS)).toBe(true)
 
       const otherTableSession = await subscribe(await tableSessionClient(tenantB.sessionId), `order:${orderB}`)
-      expect(otherTableSession.state).toBe("SUBSCRIBED")
+      expect(otherTableSession.state, otherTableSession.error).toBe("SUBSCRIBED")
       expect(await attempt(otherTableSession, `order:${orderB}`, DELIVERY_TIMEOUT_MS)).toBe(true)
 
       const ownKitchen = await subscribe(kitchenA, `restaurant:${tenantA.restaurantId}:orders`)
-      expect(ownKitchen.state).toBe("SUBSCRIBED")
+      expect(ownKitchen.state, ownKitchen.error).toBe("SUBSCRIBED")
       expect(await attempt(ownKitchen, `restaurant:${tenantA.restaurantId}:orders`, DELIVERY_TIMEOUT_MS)).toBe(true)
     })()
     return control
@@ -210,14 +217,14 @@ describe("private Broadcast authorization against the local Supabase stack", () 
   describe("positive control", () => {
     test("a table session receives a broadcast on its own order topic", async () => {
       const listener = await subscribe(await tableSessionClient(tenantA.sessionId), `order:${orderA}`)
-      expect(listener.state).toBe("SUBSCRIBED")
+      expect(listener.state, listener.error).toBe("SUBSCRIBED")
       expect(await attempt(listener, `order:${orderA}`, DELIVERY_TIMEOUT_MS)).toBe(true)
     })
 
     test("an active kitchen member receives a broadcast on its own restaurant topic", async () => {
       const topic = `restaurant:${tenantA.restaurantId}:orders`
       const listener = await subscribe(kitchenA, topic)
-      expect(listener.state).toBe("SUBSCRIBED")
+      expect(listener.state, listener.error).toBe("SUBSCRIBED")
       expect(await attempt(listener, topic, DELIVERY_TIMEOUT_MS)).toBe(true)
     })
   })

@@ -6,6 +6,11 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // API handlers own their authentication/error contracts and request IDs. The page
+  // middleware must not turn an API response into a login redirect before the handler
+  // can return its documented 4xx response.
+  const isApiRequest = request.nextUrl.pathname.startsWith('/api/')
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_ANON_KEY!,
@@ -39,6 +44,7 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
+    !isApiRequest &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth')
   ) {
