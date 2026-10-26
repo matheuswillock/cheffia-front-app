@@ -50,7 +50,15 @@ export function createSupabaseTestEnvironment(status, { databaseUrl }) {
 }
 
 export function assertLocalSupabasePrerequisites(findCommand = Bun.which) {
-  if (!findCommand("supabase")) {
+  // Resolve against the process environment rather than Bun's cached PATH
+  // lookup. This matters for hermetic CI tests that install a fake CLI after
+  // the Bun process has started, and still preserves Bun.which as the default
+  // production lookup.
+  const resolved = findCommand === Bun.which
+    ? spawnSync("which", ["supabase"], { env: process.env, stdio: "ignore" }).status === 0
+    : findCommand("supabase")
+
+  if (!resolved) {
     throw new Error("Local Supabase requires the supabase CLI and a reachable container runtime.")
   }
 }
