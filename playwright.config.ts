@@ -33,6 +33,8 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: false,
     timeout: 120_000,
+    stdout: "pipe",
+    stderr: "pipe",
     env: {
       STRIPE_PUBLISHABLE_KEY: "pk_test_ci_placeholder",
       STRIPE_SECRET_KEY: "sk_test_ci_placeholder",
