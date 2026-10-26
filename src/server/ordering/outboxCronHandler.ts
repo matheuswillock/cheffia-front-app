@@ -1,3 +1,4 @@
+import { jsonWithRequestId } from "./requestContext"
 import { timingSafeEqual } from "node:crypto"
 
 function authorized(secret: string | undefined, header: string | null) {
@@ -13,14 +14,14 @@ export function createOutboxCronHandler(input: {
 }) {
   return async function handle(request: Request) {
     if (!authorized(input.secret, request.headers.get("authorization"))) {
-      return Response.json({ code: "UNAUTHORIZED" }, { status: 401 })
+      return jsonWithRequestId(request, { code: "UNAUTHORIZED" }, { status: 401 })
     }
 
     try {
-      return Response.json(await input.publish(), { headers: { "Cache-Control": "no-store" } })
+      return jsonWithRequestId(request, await input.publish(), { headers: { "Cache-Control": "no-store" } })
     } catch {
       console.error("Outbox publisher unavailable")
-      return Response.json({ code: "OUTBOX_PUBLISHER_UNAVAILABLE" }, { status: 503 })
+      return jsonWithRequestId(request, { code: "OUTBOX_PUBLISHER_UNAVAILABLE" }, { status: 503 })
     }
   }
 }

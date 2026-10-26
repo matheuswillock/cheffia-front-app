@@ -7,12 +7,14 @@
     "prebuild": "bun run prisma:generate",
     "build": "next build",
     "start": "next start",
-    "test": "bun test tests/ci tests/unit tests/integration tests/regressions",
+    "test": "bun test tests/ci tests/unit",
+    "test:integration:local": "bun test tests/integration tests/regressions --path-ignore-patterns \"**/realtime-*.test.ts\"",
+    "test:realtime:local": "bun scripts/integration-local.mjs --realtime",
     "test:components": "vitest run --config vitest.config.mts",
     "test:components:watch": "vitest --config vitest.config.mts",
     "test:e2e": "playwright test --config=playwright.config.ts",
     "test:e2e:local": "bun scripts/e2e-local.mjs",
-    "test:backend:coverage": "bun test tests/ci tests/unit tests/integration tests/regressions --coverage --coverage-reporter=lcov --coverage-dir=coverage/backend",
+    "test:backend:coverage": "bun test tests/ci tests/unit --coverage --coverage-reporter=lcov --coverage-dir=coverage/backend",
     "test:frontend:coverage": "vitest run --config vitest.config.mts --coverage",
     "test:e2e:coverage": "PLAYWRIGHT_JSON_REPORT=coverage/e2e/results.json playwright test --config=playwright.config.ts",
     "test:e2e:coverage:local": "PLAYWRIGHT_JSON_REPORT=coverage/e2e/results.json bun scripts/e2e-local.mjs",
@@ -26,7 +28,8 @@
     "prisma:generate": "prisma generate",
     "supabase:migrate:push": "supabase db push --linked",
     "db:reset": "bun scripts/db-reset.mjs",
-    "db:verify": "bun scripts/verify-foundation.mjs"
+    "db:verify": "bun scripts/verify-foundation.mjs",
+    "hooks:install": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

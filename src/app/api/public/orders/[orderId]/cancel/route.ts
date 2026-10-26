@@ -1,3 +1,4 @@
+import { jsonWithRequestId } from "@/server/ordering/requestContext"
 import { getIdempotencyKey } from "@/business/order/orderContracts"
 import { CancelOrderError, CancelOrderRuleError, cancelOrderForCustomer } from "@/business/order/cancelOrder"
 import { getPrismaClient } from "@/server/infra/prisma/client"
@@ -11,8 +12,8 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
   const idempotencyKey = getIdempotencyKey(request.headers)
   const sessionId = request.headers.get("X-Table-Session-Id")
   const sessionToken = request.headers.get("X-Table-Session-Token")
-  if (!idempotencyKey) return Response.json({ code: "IDEMPOTENCY_KEY_REQUIRED" }, { status: 400 })
-  if (!sessionId || !sessionToken) return Response.json({ code: "ORDER_SESSION_REQUIRED" }, { status: 401 })
+  if (!idempotencyKey) return jsonWithRequestId(request, { code: "IDEMPOTENCY_KEY_REQUIRED" }, { status: 400 })
+  if (!sessionId || !sessionToken) return jsonWithRequestId(request, { code: "ORDER_SESSION_REQUIRED" }, { status: 401 })
   const { orderId } = await context.params
 
   try {
@@ -24,13 +25,13 @@ export async function POST(request: Request, context: { params: Promise<{ orderI
       },
     })
     schedulePendingOutboxPublish()
-    return Response.json(result, { headers: { "Cache-Control": "no-store", "Idempotency-Key": idempotencyKey } })
+    return jsonWithRequestId(request, result, { headers: { "Cache-Control": "no-store", "Idempotency-Key": idempotencyKey } })
   } catch (error) {
     if (error instanceof CancelOrderError) {
-      return Response.json({ code: error.code }, { status: error.code === "ORDER_NOT_FOUND_OR_FORBIDDEN" ? 404 : 409 })
+      return jsonWithRequestId(request, { code: error.code }, { status: error.code === "ORDER_NOT_FOUND_OR_FORBIDDEN" ? 404 : 409 })
     }
-    if (error instanceof CancelOrderRuleError) return Response.json({ code: error.code }, { status: 409 })
+    if (error instanceof CancelOrderRuleError) return jsonWithRequestId(request, { code: error.code }, { status: 409 })
     console.error("Order cancellation failed")
-    return Response.json({ code: "ORDER_CANCELLATION_UNAVAILABLE" }, { status: 503 })
+    return jsonWithRequestId(request, { code: "ORDER_CANCELLATION_UNAVAILABLE" }, { status: 503 })
   }
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import OpenCardIcon from "../../public/assets/Icons/icon-open-card.svg"
 import { useState } from "react";
+import ButtonCta from "./ButtonCta";
 
 interface ApresentationQuestionsAndAsnwersProps {
   setIsModalOpen: () => void;
@@ -95,41 +96,7 @@ export default function ApresentationQuestionsAndAsnwers({
         </p>
       </div>
 
-      <button
-        aria-label="Entrar na lista de espera"
-        onClick={setIsModalOpen}
-        type="button"
-        className="
-          bg-button
-          text-foreground-aboutBlack
-            px-6
-            xl:px-8
-            2xl:px-10
-            h-9
-            md:h-10
-            xl:h-11
-            2xl:h-12
-            text-center
-            text-base
-            sm:text-lg
-            lg:text-xl
-            xl:text-[22px]
-            2xl:text-2xl
-            font-medium
-            font-inter
-            rounded-full
-            shadow-md
-            hover:bg-button-dark
-            hover:text-foreground-pureWhite
-            hover:shadow-lg
-            active:bg-button-dark
-            transition
-            duration-300
-            ease-in-out
-          "
-      >
-        Faça uma pergunta
-      </button>
+      <ButtonCta setIsModalOpen={setIsModalOpen} label="Faça uma pergunta" />
 
       <div className="flex items-center justify-center flex-col gap-4 w-full mb-6">
         {itemsQA.map((item, index) => (

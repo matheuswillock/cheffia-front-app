@@ -1,10 +1,22 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const requestIdPattern = /^[A-Za-z0-9._:-]{1,128}$/
+
+function requestId(request: NextRequest) {
+  const candidate = request.headers.get('X-Request-Id')?.trim()
+  return candidate && requestIdPattern.test(candidate) ? candidate : crypto.randomUUID()
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
+
+  // API handlers own their authentication/error contracts and request IDs. The page
+  // middleware must not turn an API response into a login redirect before the handler
+  // can return its documented 4xx response.
+  if (request.nextUrl.pathname.startsWith('/api/')) return supabaseResponse
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -45,7 +57,9 @@ export async function updateSession(request: NextRequest) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/login'
-    return NextResponse.redirect(url)
+    const redirect = NextResponse.redirect(url)
+    redirect.headers.set('X-Request-Id', requestId(request))
+    return redirect
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

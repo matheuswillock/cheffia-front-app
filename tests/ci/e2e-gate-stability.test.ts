@@ -23,10 +23,19 @@ test("requires every E2E value before a browser flow consumes it", () => {
   expect(() => requireE2EEnvironment({}, "E2E_STAFF_EMAIL")).toThrow(
     "Missing required E2E environment variable: E2E_STAFF_EMAIL",
   )
+  expect(() => requireE2EEnvironment({ E2E_STAFF_EMAIL: "" }, "E2E_STAFF_EMAIL")).toThrow(
+    "Missing required E2E environment variable: E2E_STAFF_EMAIL",
+  )
+  expect(() => requireE2EEnvironment({ E2E_STAFF_EMAIL: 42 }, "E2E_STAFF_EMAIL")).toThrow(
+    "Missing required E2E environment variable: E2E_STAFF_EMAIL",
+  )
 })
 
 test("rejects an order response that omits the server order identity", () => {
   expect(() => requireCreatedOrder({ status: "pending" })).toThrow(
+    "Order creation response does not include orderId and status strings.",
+  )
+  expect(() => requireCreatedOrder({ orderId: "order-1", status: 200 })).toThrow(
     "Order creation response does not include orderId and status strings.",
   )
 })
@@ -48,10 +57,26 @@ test("starts an isolated application server instead of reusing another worktree"
 test("checks local E2E prerequisites before allocating Supabase fixtures", () => {
   const bootstrap = readFileSync(path.join(repositoryRoot, "scripts/e2e-local.mjs"), "utf8")
 
-  expect(bootstrap.lastIndexOf("assertLocalE2EPrerequisites()")).toBeLessThan(
-    bootstrap.indexOf("const workdir = mkdtempSync"),
+  const lifecycle = readFileSync(path.join(repositoryRoot, "scripts/lib/supabase-local.mjs"), "utf8")
+
+  // The workdir is allocated by the shared lifecycle, so the preflight must run before it is called.
+  expect(bootstrap.indexOf("assertLocalE2EPrerequisites()")).toBeLessThan(
+    bootstrap.indexOf("withLocalSupabase("),
   )
-  expect(bootstrap).toContain("os.tmpdir()")
+  expect(lifecycle).toContain("os.tmpdir()")
+})
+
+test("reports every missing local E2E prerequisite", () => {
+  expect(() => assertLocalE2EPrerequisites({ findCommand: () => null })).toThrow(
+    "bun, supabase, docker",
+  )
+})
+
+test("accepts available local E2E prerequisites", () => {
+  expect(() => assertLocalE2EPrerequisites({
+    findCommand: () => "/usr/bin/available-command",
+    canReachDocker: () => true,
+  })).not.toThrow()
 })
 
 test("documents the local Supabase E2E prerequisites for Fedora contributors", () => {
@@ -59,4 +84,13 @@ test("documents the local Supabase E2E prerequisites for Fedora contributors", (
 
   expect(runbook).toContain("bun run test:e2e:local")
   expect(runbook).toContain("Fedora")
+})
+
+test("kitchen sign-in uses an exact password-field label", () => {
+  const spec = readFileSync(
+    path.join(repositoryRoot, "tests/e2e/ordering-vertical-slice.spec.ts"),
+    "utf8",
+  )
+
+  expect(spec).toContain('kitchen.getByLabel("Senha", { exact: true }).fill(staffPassword)')
 })

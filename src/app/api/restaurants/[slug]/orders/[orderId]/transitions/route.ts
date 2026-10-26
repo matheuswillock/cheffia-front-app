@@ -1,4 +1,5 @@
-import { verifySessionServer } from "@/utils/supabase/server"
+import { requireRouteSession } from "@/server/auth/routeSession"
+import { jsonWithRequestId } from "@/server/ordering/requestContext"
 import {
   OrderTransitionRuleError,
   TransitionOrderError,
@@ -17,15 +18,17 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ slug: string; orderId: string }> },
 ) {
-  const user = await verifySessionServer()
+  const session = await requireRouteSession(request)
+  if (!session.ok) return session.response
+  const user = session.user
   const { slug, orderId } = await context.params
   const idempotencyKey = getIdempotencyKey(request.headers)
-  if (!idempotencyKey) return Response.json({ code: "IDEMPOTENCY_KEY_REQUIRED" }, { status: 400 })
+  if (!idempotencyKey) return jsonWithRequestId(request, { code: "IDEMPOTENCY_KEY_REQUIRED" }, { status: 400 })
   let body: unknown
   try {
     body = await request.json()
   } catch {
-    return Response.json({ code: "INVALID_TRANSITION_REQUEST" }, { status: 400 })
+    return jsonWithRequestId(request, { code: "INVALID_TRANSITION_REQUEST" }, { status: 400 })
   }
 
   const nextStatus = (body as { status?: unknown })?.status
@@ -35,7 +38,7 @@ export async function POST(
     !orderStatuses.includes(nextStatus as OrderStatus) ||
     (reason !== undefined && typeof reason !== "string")
   ) {
-    return Response.json({ code: "INVALID_TRANSITION_REQUEST" }, { status: 400 })
+    return jsonWithRequestId(request, { code: "INVALID_TRANSITION_REQUEST" }, { status: 400 })
   }
 
   try {
@@ -52,15 +55,15 @@ export async function POST(
       },
     })
     schedulePendingOutboxPublish()
-    return Response.json(result, { status: 200, headers: { "Cache-Control": "no-store" } })
+    return jsonWithRequestId(request, result, { status: 200, headers: { "Cache-Control": "no-store" } })
   } catch (error) {
     if (error instanceof TransitionOrderError) {
-      return Response.json({ code: error.code }, { status: error.code === "ORDER_NOT_FOUND_OR_FORBIDDEN" ? 404 : 409 })
+      return jsonWithRequestId(request, { code: error.code }, { status: error.code === "ORDER_NOT_FOUND_OR_FORBIDDEN" ? 404 : 409 })
     }
     if (error instanceof OrderTransitionRuleError) {
-      return Response.json({ code: error.code }, { status: 409 })
+      return jsonWithRequestId(request, { code: error.code }, { status: 409 })
     }
     console.error("Order transition failed")
-    return Response.json({ code: "ORDER_TRANSITION_UNAVAILABLE" }, { status: 503 })
+    return jsonWithRequestId(request, { code: "ORDER_TRANSITION_UNAVAILABLE" }, { status: 503 })
   }
 }
