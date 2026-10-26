@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import Logo from "../../public/assets/Icons/logo-horizontal.svg"
 import Close from "../../public/assets/Icons/close.svg";
 import Menu from "../../public/assets/Icons/menu.svg";
@@ -89,40 +90,22 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* <Link href="/sign-in">
-            <button
-              className="
-                h-8
-                text-center
-                justify-center
-                items-center
-                bg-transparent
-                text-foreground-green
-                border
-                border-primary
-                px-4
-                rounded-full
-                text-base
-                font-medium
-                font-inter
-                hover:bg-background-green
-                hover:text-foreground-black
-                transition-all
-                duration-300
-              "
-            >
-              Área do cliente
-            </button>
-          </Link> */}
+          <Button asChild variant="outline" className="h-10 px-5 font-inter text-primary">
+            <Link href="/sign-in">Entrar no App</Link>
+          </Button>
         </div>
 
         {/* Botão de menu para mobile */}
-        <button
-          className="block md:hidden text-foreground-default p-2"
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={menuOpen}
           onClick={() => setMenuOpen(!menuOpen)}
+          className="min-h-11 min-w-11 md:hidden"
         >
-          {!menuOpen && <Image src={Menu} alt="Open menu" width={33} />}
-        </button>
+          <Image src={menuOpen ? Close : Menu} alt="" aria-hidden="true" width={24} height={24} />
+        </Button>
       </nav>
 
       {/* Menu mobile */}
@@ -136,18 +119,21 @@ export function Navbar() {
                 className="w-44 ml-[-14px]"
                 priority={true}
               />
-              <button
-                className="text-primary"
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Fechar menu"
                 onClick={() => setMenuOpen(false)}
+                className="min-h-11 min-w-11"
               >
                 <Image
                   src={Close}
-                  alt="Close menu"
-                  width={14}
-                  height={14}
-                  className="sm:w-4"
+                  alt=""
+                  aria-hidden="true"
+                  width={16}
+                  height={16}
                 />
-              </button>
+              </Button>
             </li>
             {items.map((item) => (
               <li key={item.label}>
@@ -161,30 +147,8 @@ export function Navbar() {
               </li>
             ))}
             <li>
-              <Link href="/sign-in">
-                <button
-                  className="
-                    h-7
-                    text-center
-                    justify-center
-                    items-center
-                    bg-transparent
-                    text-foreground-green
-                    border
-                    border-primary
-                    px-4
-                    rounded-full
-                    text-base
-                    font-medium
-                    font-inter
-                    hover:bg-background-green
-                    hover:text-foreground-black
-                    transition-all
-                    duration-300
-                  "
-                >
-                  Área do cliente
-                </button>
+              <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center justify-center rounded-md border border-primary px-4 font-inter text-base font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                Entrar no App
               </Link>
             </li>
           </ul>
