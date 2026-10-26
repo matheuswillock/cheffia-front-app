@@ -85,3 +85,12 @@ test("documents the local Supabase E2E prerequisites for Fedora contributors", (
   expect(runbook).toContain("bun run test:e2e:local")
   expect(runbook).toContain("Fedora")
 })
+
+test("kitchen sign-in uses an exact password-field label", () => {
+  const spec = readFileSync(
+    path.join(repositoryRoot, "tests/e2e/ordering-vertical-slice.spec.ts"),
+    "utf8",
+  )
+
+  expect(spec).toContain('kitchen.getByLabel("Senha", { exact: true }).fill(staffPassword)')
+})
