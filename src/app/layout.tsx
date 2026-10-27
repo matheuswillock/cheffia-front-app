@@ -50,9 +50,9 @@ const inter = Inter_Tight({
 });
 
 const data = {
-  title: "Cheffia",
+  title: "Cheffia — Da mesa à cozinha",
   description:
-    "A revolução do cardápio digital. Transforme a experiência gastronômica com Cheffia.",
+    "Pedidos à mesa em um fluxo digital que conecta cliente, operação e cozinha.",
   keywords:
     "Cheffia, Cardápio Digital, Cardápio Online, Cardápio Interativo, Cardápio Virtual, Cardápio Inteligente, Cardápio Personalizado, Cardápio para Restaurantes, Cardápio para Bares, Cardápio para Cafés",
   url: "https://www.cheffia.com",
@@ -145,10 +145,8 @@ export default function RootLayout({
           ${inter.variable}
           bg-background-default
           text-foreground-default
-          container
           font-clash
           min-h-screen
-          min-w-screen
           w-full
           subpixel-antialiased`}
       >

@@ -9,15 +9,59 @@
   text-decoration: none;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 body,
 input,
 button,
 textarea {
-  font: 400 1.8rem/1 'Nunito', sans-serif;
+  font-family: var(--font-inter), sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  .section-kicker {
+    @apply mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#01FBA1];
+  }
+
+  .section-title {
+    @apply font-clash text-4xl font-medium leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl lg:text-6xl;
+  }
+
+  .section-copy {
+    @apply mt-5 max-w-2xl text-base leading-7 text-white/55;
+  }
+
+  .landing-glow {
+    position: absolute;
+    right: -12rem;
+    top: -8rem;
+    width: 42rem;
+    height: 42rem;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgb(1 251 161 / 0.14), transparent 64%);
+    pointer-events: none;
+  }
 }
 
 @layer base {
