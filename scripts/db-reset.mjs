@@ -15,13 +15,13 @@ function redact(output) {
     .replace(/(eyJ[a-zA-Z0-9._-]+|sb_(?:publishable|secret)_[a-zA-Z0-9_-]+)/g, "<redacted>")
 }
 
-async function run(command, args) {
+async function run(command, args, env = process.env) {
   const stage = command === "supabase" ? `supabase ${args.slice(0, args[0] === "db" ? 2 : 1).join(" ")}` : command
   return measureCiStage(stage, () => {
     const result = spawnSync(command, args, {
       stdio: ["inherit", "pipe", "pipe"],
       encoding: "utf8",
-      env: process.env,
+      env,
     })
 
     if (result.error) throw result.error
@@ -80,6 +80,10 @@ const LOCAL_DATABASE_URL =
   process.env.LOCAL_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 process.env.DATABASE_URL = LOCAL_DATABASE_URL
 process.env.DIRECT_URL = LOCAL_DATABASE_URL
+const supabaseEnv = {
+  ...process.env,
+  SUPABASE_PROJECT_ID: `cheffia-db-reset-${process.pid}`,
+}
 
 try {
   await measureCiStage("prepare migration bootstrap", createBootstrapWorkdir)
@@ -90,12 +94,12 @@ try {
     "--exclude",
     service,
   ])
-  await run("supabase", ["start", "--workdir", bootstrapWorkdir, ...excludeServices, "--yes"])
-  await run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"])
+  await run("supabase", ["start", "--workdir", bootstrapWorkdir, ...excludeServices, "--yes"], supabaseEnv)
+  await run("supabase", ["db", "reset", "--local", "--workdir", bootstrapWorkdir, "--no-seed", "--yes"], supabaseEnv)
   await measureCiStage("prepare Supabase migration history", () =>
     cpSync(supabaseRoot + "/migrations", migrationsDirectory, { recursive: true }),
   )
-  await run("supabase", ["db", "push", "--local", "--workdir", bootstrapWorkdir, "--yes"])
+  await run("supabase", ["db", "push", "--local", "--workdir", bootstrapWorkdir, "--yes"], supabaseEnv)
 
   console.log("Local database migrations applied")
 } catch (error) {
