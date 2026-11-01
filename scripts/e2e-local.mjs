@@ -56,6 +56,20 @@ async function seedFixtures(status, databaseUrl) {
       [restaurantId, tenantId],
     )
     await client.query(
+      `INSERT INTO public.subscriptions (
+        tenant_id, restaurant_id, stripe_customer_id, stripe_subscription_id,
+        stripe_price_id, plan, billing_cycle, status,
+        current_period_start, current_period_end
+      ) VALUES ($1, $2, $3, $4, $5, 'basic', 'monthly', 'active', now(), now() + interval '30 days')`,
+      [
+        tenantId,
+        restaurantId,
+        `cus_e2e_${restaurantId}`,
+        `sub_e2e_${restaurantId}`,
+        "price_e2e_basic_monthly",
+      ],
+    )
+    await client.query(
       "INSERT INTO public.restaurant_memberships (tenant_id, restaurant_id, user_id, role, status) VALUES ($1, $2, $3, 'kitchen', 'active')",
       [tenantId, restaurantId, created.data.user.id],
     )

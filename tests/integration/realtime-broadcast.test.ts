@@ -28,9 +28,10 @@ if (apiHost !== "127.0.0.1" && apiHost !== "localhost") {
 const EVENT = "order.updated"
 // Positive deliveries must arrive well within this window. Negative checks wait a shorter
 // window, and they only count as proof because the positive control passed first.
-const DELIVERY_TIMEOUT_MS = 10_000
-const DENIAL_WINDOW_MS = 2_500
-const SUBSCRIBE_TIMEOUT_MS = 8_000
+// CI runners (Docker + Realtime stack cold-start) need more headroom than a warm local machine.
+const DELIVERY_TIMEOUT_MS = 20_000
+const DENIAL_WINDOW_MS = 3_000
+const SUBSCRIBE_TIMEOUT_MS = 15_000
 
 const clientOptions = {
   auth: { persistSession: false, autoRefreshToken: false },

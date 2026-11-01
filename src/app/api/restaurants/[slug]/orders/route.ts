@@ -4,6 +4,7 @@ import { listKitchenOrders, KitchenOrdersError } from "@/business/order/kitchenO
 import { orderStatuses, type OrderStatus } from "@/business/order/orderState"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createKitchenOrdersRepository } from "@/server/ordering/kitchenOrdersRepository"
+import { assertPlan } from "@/server/billing/planGate"
 
 export const dynamic = "force-dynamic"
 
@@ -23,6 +24,17 @@ export async function GET(
   if (statuses.some((status) => !orderStatuses.includes(status as OrderStatus))) {
     return jsonWithRequestId(request, { code: "INVALID_ORDER_STATUS_FILTER" }, { status: 400 })
   }
+
+  const db = getPrismaClient()
+  const membership = await db.restaurantMembership.findFirst({
+    where: { userId: user.id, status: "active", restaurant: { is: { slug, isActive: true } } },
+    select: { tenantId: true, restaurantId: true },
+  })
+  if (!membership) {
+    return jsonWithRequestId(request, { code: "RESTAURANT_NOT_FOUND_OR_FORBIDDEN" }, { status: 403 })
+  }
+  const gate = await assertPlan(membership.tenantId, membership.restaurantId, "basic")
+  if (!gate.ok) return jsonWithRequestId(request, { code: gate.code }, { status: gate.status })
 
   try {
     const result = await listKitchenOrders({

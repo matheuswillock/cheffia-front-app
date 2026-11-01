@@ -53,3 +53,6 @@ next-env.d.ts
 
 # local feature worktrees
 /.worktrees/
+
+# VSCode MCP config (tokens e endpoints locais)
+.vscode/mcp.json

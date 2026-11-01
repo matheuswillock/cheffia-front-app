@@ -70,9 +70,10 @@ export function runCommand(command, args, { cwd, env = process.env } = {}) {
   }
 }
 
-function readStatus(workdir, repositoryRoot) {
+function readStatus(workdir, repositoryRoot, env) {
   const result = spawnSync("supabase", ["status", "--workdir", workdir, "-o", "json"], {
     cwd: repositoryRoot,
+    env,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "inherit"],
   })
@@ -93,6 +94,7 @@ export async function withLocalSupabase(
   const supabaseWorkdir = path.join(workdir, "supabase")
   const migrationsDirectory = path.join(supabaseWorkdir, "migrations")
   const databaseUrl = localDatabaseUrl(ports.database)
+  const localEnv = { ...process.env, SUPABASE_PROJECT_ID: projectId }
   let started = false
 
   try {
@@ -121,22 +123,24 @@ export async function withLocalSupabase(
         workdir,
         ...excludedServices.flatMap((service) => ["--exclude", service]),
         "--yes",
-      ], { cwd: repositoryRoot }),
+      ], { cwd: repositoryRoot, env: localEnv }),
     )
     await measureCiStage("supabase db reset", () =>
       runCommand("supabase", ["db", "reset", "--local", "--workdir", workdir, "--no-seed", "--yes"], {
         cwd: repositoryRoot,
+        env: localEnv,
       }),
     )
     cpSync(path.join(repositoryRoot, "supabase/migrations"), migrationsDirectory, { recursive: true })
     await measureCiStage("supabase db push", () =>
       runCommand("supabase", ["db", "push", "--local", "--workdir", workdir, "--yes"], {
         cwd: repositoryRoot,
+        env: localEnv,
       }),
     )
 
     const status = await measureCiStage("supabase status", () =>
-      readStatus(workdir, repositoryRoot),
+      readStatus(workdir, repositoryRoot, localEnv),
     )
     return await measureCiStage("test callback", () => use({ status, databaseUrl, workdir }))
   } finally {
@@ -144,7 +148,7 @@ export async function withLocalSupabase(
       await measureCiStage("supabase stop", () => {
         const stopped = spawnSync("supabase", ["stop", "--workdir", workdir, "--no-backup"], {
           cwd: repositoryRoot,
-          env: process.env,
+          env: localEnv,
           stdio: "inherit",
         })
         if (stopped.status !== 0) {
