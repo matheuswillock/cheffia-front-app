@@ -50,8 +50,49 @@ export function createCheckoutRepository(): CheckoutSessionRepository {
       return PLAN_CYCLE_TO_PRICE[`${plan}_${billingCycle}`] ?? null
     },
 
-    async createSession({ priceId, customerEmail, metadata, successUrl, cancelUrl }) {
+    async createSession({ priceId, customerEmail, metadata, successUrl, cancelUrl, paymentMethod, plan, billingCycle }) {
       const stripe = getStripeClient()
+
+      if (paymentMethod === "pix") {
+        // Full cycle prices in BRL cents (from PRODUCT.md — must stay in sync)
+        const PLAN_CYCLE_CENTS: Record<string, number> = {
+          basic_monthly:       9900,
+          basic_quarterly:    27000,
+          basic_semiannual:   48000,
+          basic_annual:       90000,
+          pro_monthly:        14900,
+          pro_quarterly:      40000,
+          pro_semiannual:     72000,
+          pro_annual:        134000,
+          complete_monthly:   24900,
+          complete_quarterly: 67000,
+          complete_semiannual: 120000,
+          complete_annual:   224000,
+        }
+        const unitAmount = PLAN_CYCLE_CENTS[`${plan}_${billingCycle}`] ?? 9900
+
+        const pixSession = await stripe.checkout.sessions.create({
+          mode: "payment",
+          payment_method_types: ["pix"],
+          line_items: [
+            {
+              quantity: 1,
+              price_data: {
+                currency: "brl",
+                unit_amount: unitAmount,
+                product_data: { name: `Cheffia ${plan} — ${billingCycle}` },
+              },
+            },
+          ],
+          customer_email: customerEmail,
+          metadata,
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+        })
+
+        if (!pixSession.url) throw new Error("Stripe did not return a session URL")
+        return { url: pixSession.url }
+      }
 
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
@@ -68,6 +109,22 @@ export function createCheckoutRepository(): CheckoutSessionRepository {
       }
 
       return { url: session.url }
+    },
+
+    async updateSubscription({ stripeSubscriptionId, priceId, metadata }) {
+      const stripe = getStripeClient()
+
+      const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId)
+      const itemId = subscription.items.data[0]?.id
+      if (!itemId) throw new Error("Subscription has no items")
+
+      await stripe.subscriptions.update(stripeSubscriptionId, {
+        items: [{ id: itemId, price: priceId }],
+        metadata,
+        proration_behavior: "create_prorations",
+      })
+
+      return { subscriptionId: stripeSubscriptionId }
     },
   }
 }

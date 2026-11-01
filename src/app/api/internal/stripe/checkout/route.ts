@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     return jsonWithRequestId(request, { code: "INVALID_JSON" }, { status: 400 })
   }
 
-  const { plan, billingCycle, restaurantId, tenantId } = body as Record<string, unknown>
+  const { plan, billingCycle, restaurantId, tenantId, paymentMethod } = body as Record<string, unknown>
 
   if (typeof plan !== "string" || !VALID_PLANS.has(plan as SubscriptionPlan)) {
     return jsonWithRequestId(request, { code: "INVALID_PLAN" }, { status: 400 })
@@ -57,13 +57,19 @@ export async function POST(request: Request) {
   // Para upgrade/downgrade, envie o novo plan+billingCycle; o Stripe aplica prorate via subscription existente.
   const existingSub = await db.subscription.findUnique({
     where: { tenantId_restaurantId: { tenantId, restaurantId } },
-    select: { plan: true, billingCycle: true, status: true },
+    select: { plan: true, billingCycle: true, status: true, stripeSubscriptionId: true },
   })
   if (isSamePlanCycle(existingSub, { plan: plan as SubscriptionPlan, billingCycle: billingCycle as BillingCycle })) {
     return jsonWithRequestId(request, { code: "SAME_PLAN_CYCLE" }, { status: 409 })
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+  const isPixPayment = paymentMethod === "pix"
+  const isUpgradeDowngrade =
+    !isPixPayment &&
+    existingSub != null &&
+    ["active", "past_due"].includes(existingSub.status) &&
+    typeof existingSub.stripeSubscriptionId === "string"
 
   try {
     const result = await createCheckoutSession(
@@ -75,6 +81,10 @@ export async function POST(request: Request) {
         userEmail: session.user.email ?? "",
         successUrl: `${appUrl}/restaurant/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${appUrl}/restaurant/subscription`,
+        existingStripeSubscriptionId: isUpgradeDowngrade
+          ? (existingSub.stripeSubscriptionId as string)
+          : undefined,
+        paymentMethod: isPixPayment ? "pix" : "card",
       },
       createCheckoutRepository()
     )

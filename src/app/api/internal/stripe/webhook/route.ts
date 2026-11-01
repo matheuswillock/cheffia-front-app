@@ -15,6 +15,8 @@ const HANDLED_EVENTS = new Set([
   "customer.subscription.updated",
   "customer.subscription.deleted",
   "invoice.payment_failed",
+  "checkout.session.completed",
+  "checkout.session.async_payment_succeeded",
 ])
 
 function stripeStatusToPrisma(status: Stripe.Subscription.Status): SubscriptionStatus {
@@ -80,6 +82,40 @@ async function handleSubscriptionEvent(
   })
 }
 
+async function handlePixCheckoutSession(session: Stripe.Checkout.Session, mustBePaid: boolean) {
+  if (session.mode !== "payment") return
+
+  const meta = session.metadata ?? {}
+  const tenantId = meta.tenant_id
+  const restaurantId = meta.restaurant_id
+  const plan = meta.plan as import("@/generated/prisma/client").SubscriptionPlan | undefined
+  const billingCycle = meta.billing_cycle as import("@/generated/prisma/client").BillingCycle | undefined
+
+  if (!tenantId || !restaurantId || !plan || !billingCycle) return
+
+  // Only activate on confirmed payment; ignore unpaid completed sessions
+  if (!mustBePaid || session.payment_status !== "paid") return
+
+  const db = getPrismaClient()
+  const now = new Date()
+  // PIX one-time: record access directly; no Stripe subscription object exists
+  await db.subscription.create({
+    data: {
+      stripeSubscriptionId: session.id,
+      stripeCustomerId: typeof session.customer === "string" ? session.customer : session.id,
+      stripePriceId: "",
+      plan,
+      billingCycle,
+      status: "active",
+      currentPeriodStart: now,
+      currentPeriodEnd: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+      cancelAtPeriodEnd: false,
+      tenantId,
+      restaurantId,
+    },
+  })
+}
+
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   // In the current Stripe API, the subscription reference lives under invoice.parent
   const subscriptionRef = invoice.parent?.subscription_details?.subscription
@@ -135,6 +171,14 @@ export async function POST(request: Request) {
 
       case "invoice.payment_failed":
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice)
+        break
+
+      case "checkout.session.completed":
+        await handlePixCheckoutSession(event.data.object as Stripe.Checkout.Session, false)
+        break
+
+      case "checkout.session.async_payment_succeeded":
+        await handlePixCheckoutSession(event.data.object as Stripe.Checkout.Session, true)
         break
     }
   } catch (err) {

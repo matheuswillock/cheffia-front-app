@@ -21,6 +21,7 @@ function makeRepository(
   return {
     resolvePriceId: mock(() => "price_1UX47FFZH3QKEcmX8tK1ghi0"),
     createSession: mock(async () => ({ url: "https://checkout.stripe.com/pay/cs_test_abc" })),
+    updateSubscription: mock(async ({ stripeSubscriptionId }) => ({ subscriptionId: stripeSubscriptionId })),
     ...overrides,
   }
 }

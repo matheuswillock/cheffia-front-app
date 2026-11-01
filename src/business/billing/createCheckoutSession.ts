@@ -8,6 +8,8 @@ export type CheckoutSessionInput = {
   userEmail: string
   successUrl: string
   cancelUrl: string
+  existingStripeSubscriptionId?: string
+  paymentMethod?: "card" | "pix"
 }
 
 export type CheckoutSessionResult = {
@@ -22,7 +24,15 @@ export type CheckoutSessionRepository = {
     metadata: Record<string, string>
     successUrl: string
     cancelUrl: string
+    paymentMethod?: "card" | "pix"
+    plan?: SubscriptionPlan
+    billingCycle?: BillingCycle
   }): Promise<{ url: string }>
+  updateSubscription(input: {
+    stripeSubscriptionId: string
+    priceId: string
+    metadata: Record<string, string>
+  }): Promise<{ subscriptionId: string }>
 }
 
 export class CheckoutSessionError extends Error {
@@ -55,15 +65,26 @@ export async function createCheckoutSession(
     throw new CheckoutSessionError("UNKNOWN_PLAN_CYCLE")
   }
 
+  const metadata = { tenant_id: input.tenantId, restaurant_id: input.restaurantId }
+
+  if (input.existingStripeSubscriptionId) {
+    await repository.updateSubscription({
+      stripeSubscriptionId: input.existingStripeSubscriptionId,
+      priceId,
+      metadata,
+    })
+    return { url: input.cancelUrl }
+  }
+
   const session = await repository.createSession({
     priceId,
     customerEmail: input.userEmail,
-    metadata: {
-      tenant_id: input.tenantId,
-      restaurant_id: input.restaurantId,
-    },
+    metadata,
     successUrl: input.successUrl,
     cancelUrl: input.cancelUrl,
+    paymentMethod: input.paymentMethod,
+    plan: input.plan,
+    billingCycle: input.billingCycle,
   })
 
   return { url: session.url }

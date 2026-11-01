@@ -42,3 +42,84 @@ test("rejects blank or oversized labels before persistence", async () => {
     }),
   ).rejects.toMatchObject({ code: "INVALID_TABLE_LABEL" })
 })
+
+test("accepts label with exactly 80 characters (boundary)", async () => {
+  const label80 = "A".repeat(80)
+  const repoOk: RestaurantTableRepository = {
+    async createTable(input) {
+      return { id: "id-80", label: input.label }
+    },
+  }
+  const result = await createRestaurantTable({
+    repository: repoOk,
+    restaurantSlug: "demo",
+    userId: "user-1",
+    label: label80,
+    signingSecret: "table-secret",
+  })
+  expect(result.label).toBe(label80)
+})
+
+test("rejects label with 81 characters", async () => {
+  const repoUnreachable: RestaurantTableRepository = {
+    async createTable() {
+      throw new Error("should not reach repository")
+    },
+  }
+  await expect(
+    createRestaurantTable({
+      repository: repoUnreachable,
+      restaurantSlug: "demo",
+      userId: "user-1",
+      label: "A".repeat(81),
+      signingSecret: "table-secret",
+    }),
+  ).rejects.toMatchObject({ code: "INVALID_TABLE_LABEL" })
+})
+
+test("throws TABLE_MANAGEMENT_FORBIDDEN when repository returns null (membership not found)", async () => {
+  const repoNull: RestaurantTableRepository = {
+    async createTable() {
+      return null
+    },
+  }
+  await expect(
+    createRestaurantTable({
+      repository: repoNull,
+      restaurantSlug: "demo",
+      userId: "user-1",
+      label: "Mesa 2",
+      signingSecret: "table-secret",
+    }),
+  ).rejects.toMatchObject({ code: "TABLE_MANAGEMENT_FORBIDDEN" })
+})
+
+test("throws TABLE_MANAGEMENT_FORBIDDEN when signingSecret is empty", async () => {
+  await expect(
+    createRestaurantTable({
+      repository,
+      restaurantSlug: "demo",
+      userId: "user-1",
+      label: "Mesa 3",
+      signingSecret: "",
+    }),
+  ).rejects.toMatchObject({ code: "TABLE_MANAGEMENT_FORBIDDEN" })
+})
+
+test("generated tableId is used in result when createTableId is provided", async () => {
+  const fixedId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+  const repoOk: RestaurantTableRepository = {
+    async createTable(input) {
+      return { id: input.tableId, label: input.label }
+    },
+  }
+  const result = await createRestaurantTable({
+    repository: repoOk,
+    restaurantSlug: "demo",
+    userId: "user-1",
+    label: "Mesa 4",
+    signingSecret: "table-secret",
+    createTableId: () => fixedId,
+  })
+  expect(result.tableId).toBe(fixedId)
+})

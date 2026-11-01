@@ -3,7 +3,10 @@ import { expect, test, describe, mock } from "bun:test"
 import { createSubscriptionRepository } from "@/server/billing/subscriptionRepository"
 import type { SubscriptionPlan, BillingCycle, SubscriptionStatus } from "@/generated/prisma/client"
 
-function makeFakeDb(existingPeriodStart: Date | null = null) {
+function makeFakeDb(
+  existingPeriodStart: Date | null = null,
+  existingStatus: SubscriptionStatus = "active",
+) {
   const createCalls: unknown[] = []
   const updateManyCalls: unknown[] = []
 
@@ -11,9 +14,12 @@ function makeFakeDb(existingPeriodStart: Date | null = null) {
     subscription: {
       create: mock(async (args: unknown) => { createCalls.push(args) }),
       updateMany: mock(async (args: unknown) => { updateManyCalls.push(args) }),
-      findUnique: mock(async () =>
-        existingPeriodStart ? { currentPeriodStart: existingPeriodStart } : null
-      ),
+      findUnique: mock(async (args: unknown) => {
+        if (!existingPeriodStart) return null
+        const select = (args as { select?: Record<string, boolean> }).select
+        const selected: Record<string, unknown> = { currentPeriodStart: existingPeriodStart, status: existingStatus }
+        return Object.fromEntries(Object.entries(selected).filter(([key]) => select?.[key]))
+      }),
     },
     _calls: { createCalls, updateManyCalls },
   }
@@ -96,6 +102,16 @@ describe("T13 — out-of-order event does not downgrade active subscription", ()
     const call = db._calls.updateManyCalls[0] as { data: Record<string, unknown> }
     expect("plan" in call.data).toBe(false)
     expect("billingCycle" in call.data).toBe(false)
+  })
+
+  test("does not reactivate a canceled subscription from a same-period update event", async () => {
+    const db = makeFakeDb(CURRENT_PERIOD_START, "canceled")
+    const repo = createSubscriptionRepository(db as never)
+
+    await repo.upsertByStripeSubscriptionId({ ...BASE_INPUT, status: "active" })
+
+    const call = db._calls.updateManyCalls[0] as { data: Record<string, unknown> }
+    expect("status" in call.data).toBe(false)
   })
 
   test("creates subscription from scratch when none exists (no existing record)", async () => {

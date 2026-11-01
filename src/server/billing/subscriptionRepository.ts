@@ -21,7 +21,7 @@ export function createSubscriptionRepository(db: PrismaClient) {
       // This prevents out-of-order Stripe events from downgrading an active subscription.
       const existing = await db.subscription.findUnique({
         where: { stripeSubscriptionId: input.stripeSubscriptionId },
-        select: { currentPeriodStart: true },
+        select: { currentPeriodStart: true, status: true },
       })
 
       if (!existing) {
@@ -43,14 +43,17 @@ export function createSubscriptionRepository(db: PrismaClient) {
         return
       }
 
-      // Always update idempotency-safe fields; only update period-bound fields when the event is current or newer.
+      // Always update idempotency-safe fields; only update period-bound fields when the event is current or
+      // newer AND would not revert a terminal cancellation with a stale active-status event.
       const isNewerOrSamePeriod = input.currentPeriodStart >= existing.currentPeriodStart
+      const wouldRevertCancellation = existing.status === "canceled" && input.status !== "canceled"
+      const shouldUpdatePeriodFields = isNewerOrSamePeriod && !wouldRevertCancellation
       await db.subscription.updateMany({
         where: { stripeSubscriptionId: input.stripeSubscriptionId },
         data: {
           stripeCustomerId: input.stripeCustomerId,
           cancelAtPeriodEnd: input.cancelAtPeriodEnd,
-          ...(isNewerOrSamePeriod
+          ...(shouldUpdatePeriodFields
             ? {
                 stripePriceId: input.stripePriceId,
                 plan: input.plan,
