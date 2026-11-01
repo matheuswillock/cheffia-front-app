@@ -182,3 +182,62 @@ describe("Stripe checkout payment and plan-change behavior", () => {
     })
   })
 })
+
+describe("Stripe checkout route — input validation", () => {
+  test("returns 400 for invalid JSON body", async () => {
+    const req = new Request("https://app/api/internal/stripe/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "not-json",
+    })
+    const res = await postCheckout(req)
+    expect(res.status).toBe(400)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("INVALID_JSON")
+  })
+
+  test("returns 400 for invalid plan", async () => {
+    const res = await postCheckout(checkoutRequest({ plan: "enterprise" }))
+    expect(res.status).toBe(400)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("INVALID_PLAN")
+  })
+
+  test("returns 400 for invalid billingCycle", async () => {
+    const res = await postCheckout(checkoutRequest({ billingCycle: "weekly" }))
+    expect(res.status).toBe(400)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("INVALID_BILLING_CYCLE")
+  })
+
+  test("returns 400 when restaurantId is missing", async () => {
+    const res = await postCheckout(checkoutRequest({ restaurantId: "" }))
+    expect(res.status).toBe(400)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("RESTAURANT_ID_REQUIRED")
+  })
+
+  test("returns 400 when tenantId is missing", async () => {
+    const res = await postCheckout(checkoutRequest({ tenantId: "" }))
+    expect(res.status).toBe(400)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("TENANT_ID_REQUIRED")
+  })
+
+  test("returns 403 when membership not found", async () => {
+    db.restaurantMembership.findFirst.mockImplementationOnce(async () => null)
+    const res = await postCheckout(checkoutRequest({}))
+    expect(res.status).toBe(403)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("FORBIDDEN")
+  })
+
+  test("returns 503 when Stripe throws", async () => {
+    db.subscription.findUnique.mockImplementationOnce(async () => null)
+    stripeSessionCreate.mockImplementationOnce(async () => { throw new Error("Stripe down") })
+    const res = await postCheckout(checkoutRequest({ plan: "pro" }))
+    expect(res.status).toBe(503)
+    const body = await res.json() as Record<string, unknown>
+    expect(body.code).toBe("CHECKOUT_UNAVAILABLE")
+  })
+})
