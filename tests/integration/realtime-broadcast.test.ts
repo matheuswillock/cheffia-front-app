@@ -59,7 +59,7 @@ type Listener = {
   error?: string
 }
 
-async function subscribe(client: SupabaseClient, topic: string, attempt = 1): Promise<Listener> {
+async function subscribe(client: SupabaseClient, topic: string): Promise<Listener> {
   const received: Array<{ marker?: string }> = []
   // supabase-js cannot subscribe the same topic twice on one client. Shared staff clients reach
   // here again from the control, so drop the earlier test's channel first.
@@ -81,12 +81,6 @@ async function subscribe(client: SupabaseClient, topic: string, attempt = 1): Pr
       }
     })
   })
-  // Retry once on LOCAL_TIMEOUT: CI cold-start may need more time for the Realtime container.
-  if (state === "LOCAL_TIMEOUT" && attempt === 1) {
-    await client.removeChannel(channel)
-    await new Promise((r) => setTimeout(r, 3_000))
-    return subscribe(client, topic, 2)
-  }
   return { channel, received, state, error }
 }
 

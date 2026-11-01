@@ -38,6 +38,32 @@ if (!process.argv.includes("--realtime")) {
       },
       async ({ status, databaseUrl }) => {
         const environment = createSupabaseTestEnvironment(status, { databaseUrl })
+
+        // Wait for the Realtime WebSocket endpoint to be ready before running tests.
+        // The Elixir/Phoenix process may take several seconds to accept connections
+        // after `supabase start` reports success, especially on CI cold-start.
+        const realtimeUrl = status.API_URL.replace(/^http/, "ws") + "/realtime/v1/websocket?apikey=" + status.ANON_KEY
+        const warmupDeadline = Date.now() + 30_000
+        let realtimeReady = false
+        while (Date.now() < warmupDeadline) {
+          try {
+            const ws = new WebSocket(realtimeUrl)
+            await new Promise((resolve, reject) => {
+              const t = setTimeout(() => { ws.close(); reject(new Error("ws timeout")) }, 5_000)
+              ws.onopen = () => { clearTimeout(t); ws.close(); resolve() }
+              ws.onerror = () => { clearTimeout(t); reject(new Error("ws error")) }
+            })
+            realtimeReady = true
+            break
+          } catch {
+            await new Promise((r) => setTimeout(r, 2_000))
+          }
+        }
+        if (!realtimeReady) {
+          throw new Error("Realtime WebSocket did not become ready within 30 seconds")
+        }
+        console.log("[realtime-warm-up] WebSocket ready")
+
         const result = spawnSync("bun", ["test", "--timeout", "60000", ...files], {
           cwd: repositoryRoot,
           env: { ...process.env, ...environment },
