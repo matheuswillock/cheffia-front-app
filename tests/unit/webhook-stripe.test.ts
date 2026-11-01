@@ -121,7 +121,7 @@ describe("Stripe webhook — subscription events", () => {
     stripeEvent = makeSubscriptionEvent("customer.subscription.updated", { status: "past_due" })
     const res = await POST(webhookRequest())
     expect(res.status).toBe(200)
-    const call = upsertByStripeSubscriptionId.mock.calls[0]?.[0] as Record<string, unknown>
+    const call = (upsertByStripeSubscriptionId.mock.calls[0] as unknown as [Record<string, unknown>])[0]
     expect(call.status).toBe("past_due")
   })
 
@@ -330,7 +330,7 @@ describe("Stripe webhook — stripeStatusToPrisma edge cases", () => {
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test"
     stripeEvent = makeSubEvent("incomplete_expired")
     await POST(webhookRequest())
-    const call = upsertByStripeSubscriptionId.mock.calls[0]?.[0] as Record<string, unknown>
+    const call = (upsertByStripeSubscriptionId.mock.calls[0] as unknown as [Record<string, unknown>])[0]
     expect(call.status).toBe("incomplete_expired")
   })
 
@@ -338,7 +338,7 @@ describe("Stripe webhook — stripeStatusToPrisma edge cases", () => {
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test"
     stripeEvent = makeSubEvent("unpaid")
     await POST(webhookRequest())
-    const call = upsertByStripeSubscriptionId.mock.calls[0]?.[0] as Record<string, unknown>
+    const call = (upsertByStripeSubscriptionId.mock.calls[0] as unknown as [Record<string, unknown>])[0]
     expect(call.status).toBe("unpaid")
   })
 
@@ -346,7 +346,7 @@ describe("Stripe webhook — stripeStatusToPrisma edge cases", () => {
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test"
     stripeEvent = makeSubEvent("trialing")
     await POST(webhookRequest())
-    const call = upsertByStripeSubscriptionId.mock.calls[0]?.[0] as Record<string, unknown>
+    const call = (upsertByStripeSubscriptionId.mock.calls[0] as unknown as [Record<string, unknown>])[0]
     expect(call.status).toBe("active")
   })
 })

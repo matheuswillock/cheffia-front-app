@@ -225,7 +225,7 @@ describe("Stripe checkout route — input validation", () => {
   })
 
   test("returns 403 when membership not found", async () => {
-    db.restaurantMembership.findFirst.mockImplementationOnce(async () => null)
+    db.restaurantMembership.findFirst.mockImplementationOnce(async () => null as unknown as { role: string })
     const res = await postCheckout(checkoutRequest({}))
     expect(res.status).toBe(403)
     const body = await res.json() as Record<string, unknown>
