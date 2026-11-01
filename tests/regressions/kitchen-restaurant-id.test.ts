@@ -4,7 +4,13 @@ import type pg from "pg"
 import { listKitchenOrders } from "@/business/order/kitchenOrders"
 import { createKitchenOrdersRepository } from "@/server/ordering/kitchenOrdersRepository"
 
-import { createFixture, createTestPool, createTestPrisma, databaseUrl } from "../integration/support/database"
+import {
+  createFixture,
+  createSubscription,
+  createTestPool,
+  createTestPrisma,
+  databaseUrl,
+} from "../integration/support/database"
 
 // Regression for the X-Restaurant-Id leak fixed in 8374dce: the header was resolved by slug alone,
 // and slugs are unique only per tenant. Only the Supabase Auth boundary is replaced; the route and
@@ -34,6 +40,8 @@ beforeAll(async () => {
   // The other tenant is created first, so a slug-only lookup would find its restaurant.
   otherTenant = await createFixture(pool, { role: "kitchen", slug: sharedSlug })
   member = await createFixture(pool, { role: "kitchen", slug: sharedSlug })
+  await createSubscription(pool, otherTenant)
+  await createSubscription(pool, member)
 })
 
 afterAll(async () => {

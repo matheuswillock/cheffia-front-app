@@ -36,10 +36,42 @@ O compromisso central do produto é conectar a mesa à cozinha em um único flux
 
 ## Capabilities and Constraints
 
+## Planos e Preços
+
+O Cheffia opera em três planos de assinatura, sem fidelidade, pagos via Stripe Billing (cartão recorrente ou PIX de ciclo único):
+
+### Features por plano
+
+| | **Básico** | **Pro** | **Complete** |
+|---|---|---|---|
+| Cardápio digital QR | ✓ | ✓ | ✓ |
+| Pedidos automatizados | ✓ | ✓ | ✓ |
+| Kitchen Hub | ✓ | ✓ | ✓ |
+| Gestão de mesas | ✓ | ✓ | ✓ |
+| Relatórios | ✓ | ✓ | ✓ |
+| Reservas | — | ✓ | ✓ |
+| Fila de espera | — | — | ✓ |
+| Integração Google | — | — | ✓ |
+| URL do menu | `restaurante.cheffia.app` | `restaurante.cheffia.app` | Domínio próprio |
+| **NFC (add-on)** | pós-MVP | pós-MVP | pós-MVP |
+
+### Preços por ciclo de cobrança
+
+| Ciclo | **Básico** | **Pro** | **Complete** | Desconto |
+|---|---|---|---|---|
+| **Mensal** | R$ 99/mês | R$ 149/mês | R$ 249/mês | — |
+| **Trimestral** | R$ 270/tri | R$ 400/tri | R$ 670/tri | ~9% |
+| **Semestral** | R$ 480/sem | R$ 720/sem | R$ 1.200/sem | ~19% |
+| **Anual** | R$ 900/ano | R$ 1.340/ano | R$ 2.240/ano | ~24% |
+
+Setup: R$ 0 (onboarding gratuito). Sem trial. Sem reembolso no cancelamento.
+
+**Complete é roadmap pós-MVP.** MVP lança com Básico + Pro.
+
 ### MVP inicial
 
 - Cardápio digital por restaurante e mesa.
-- Hub público com identidade do restaurante (logo, capa, tagline e CTA).
+- Hub público com identidade do restaurante (logo, capa, tagline e CTA) em subdomínio `restaurante.cheffia.app`.
 - Acesso por QR e NFC com QR como fallback.
 - Modo visual opcional do cardápio, sempre acompanhado de modo lista acessível.
 - Criação de pedido pelo cliente.
@@ -47,14 +79,20 @@ O compromisso central do produto é conectar a mesa à cozinha em um único flux
 - Atualização e acompanhamento do status do pedido.
 - Avaliação pós-entrega com nota, tags rápidas e comentário opcional.
 - Analytics mínimo do funil de entrada até pedido e avaliação.
-- Gestão mínima de cardápio, QR code e operação pelo restaurante.
+- Gestão de cardápio, mesas, QR code e operação pelo restaurante.
+- Reservas (plano Pro).
+- Assinatura e cobrança via Stripe Billing.
 
-### Fora do MVP inicial
+### Fora do MVP inicial (Complete — roadmap)
 
-- Pagamento dentro do app.
+- Fila de espera.
+- Integração Google (Reserve with Google).
+- Domínio próprio para o menu digital.
 - Split de pagamento ou repasse a restaurantes.
 
-Esses fluxos continuam como decisões futuras. A linha de migração contém trabalho técnico com Asaas, PIX, conta financeira e ledger, mas split e transferência não estão implementados ponta a ponta e não devem ser oferecidos como funcionalidade pronta.
+### Backlog técnico associado
+
+- Wildcard DNS `*.cheffia.app` + middleware de roteamento por tenant no Next.js (necessário para subdomínios dinâmicos de todos os planos).
 
 ### Restrições técnicas confirmadas
 
@@ -63,6 +101,72 @@ Esses fluxos continuam como decisões futuras. A linha de migração contém tra
 - Prisma é usado para schema e migrations.
 - Atualizações operacionais devem usar Outbox + Supabase Realtime, não um servidor de WebSocket próprio hospedado em funções Vercel.
 - As novas interfaces devem seguir a arquitetura feature-local e os tokens de `app/globals.css`.
+
+## Fases de Desenvolvimento
+
+### Fase 0 — Fundação ✅ concluída
+- Migração full-stack para Next.js (frontend + backend unificados)
+- Supabase Auth, Postgres, Storage e Realtime
+- Prisma schema + migrations
+- RLS e isolamento por tenant
+- CI/CD básico
+
+### Fase 1 — Ordering vertical slice ✅ concluída (M5 pendente: smoke + promoção)
+- Cardápio digital por restaurante e mesa (publicado via QR/NFC)
+- Hub público do restaurante (`restaurante.cheffia.app` — subdomain routing necessário)
+- Acesso por QR com NFC como add-on
+- Criação de pedido pelo cliente
+- Kitchen Hub: recebimento e transição de estado em tempo real (Outbox + Supabase Realtime)
+- Acompanhamento de status pelo cliente
+- Gestão de mesas e QR codes pelo restaurante
+- Cobertura: unit 91%, frontend 91%, E2E 100%
+
+### Fase 2 — Auth + Assinatura 🔄 em andamento (`feature/m4-auth-assinatura`)
+- Autenticação de restaurantes (Supabase Auth — cadastro, login, reset)
+- Stripe Billing: assinatura dos planos Básico (R$99) e Pro (R$149)
+- Pagamento: cartão recorrente + PIX de ciclo único
+- Feature gating por plano (Pro habilita reservas)
+- Onboarding do restaurante via Stripe Connect (`accounts.create`)
+- Setup gratuito; sem trial; sem fidelidade
+
+### Fase 3 — Reservas + Subdomain routing 📋 MVP, não iniciada
+- Reservas de mesa (plano Pro)
+- Wildcard DNS `*.cheffia.app` + middleware de roteamento por tenant no Next.js
+- Subdomínios dinâmicos `restaurante.cheffia.app` para todos os planos
+
+> **MVP = Fases 0 + 1 + 2 + 3.** Lançamento após Fase 3 completa com planos Básico + Pro.
+
+### Fase 4 — Relatórios e Analytics 📋 pós-MVP
+- Relatórios por restaurante (faturamento, pedidos, itens mais vendidos)
+- Analytics do funil cliente (entrada → pedido → avaliação)
+
+### Fase 5 — Pagamento de comanda 📋 pós-MVP
+- Stripe Payment Element na comanda do cliente (Apple Pay, Google Pay, cartão)
+- Stripe Connect para split de pagamento restaurante/Cheffia
+- PIX direto na conta do restaurante como fallback (se MCC 5813 bloquear)
+
+### Fase 6 — Plano Complete + NFC 📋 pós-MVP
+- Fila de espera digital
+- Integração Google (Reserve with Google)
+- Domínio próprio para o menu digital
+- **Add-on NFC comanda:** tags reutilizáveis por cliente (qtd = capacidade do restaurante), leitura por garçom/caixa em qualquer dispositivo NFC, consulta de pedido individual em mesa com múltiplos clientes, pagamento no app ou físico no caixa; modo premium sem QR (cliente toca tag → menu direto)
+
+### Add-on NFC (todos os planos — Fase 6, pós-MVP)
+
+O add-on NFC evolui o produto para dois modos simultâneos:
+
+- **Modo premium sem app:** cliente toca a tag NFC → acessa menu e acompanha pedido diretamente, sem QR scan. Experiência mais refinada para restaurantes que querem eliminar o QR code.
+- **Modo comanda digital:** garçom ou caixa toca a tag do cliente em qualquer dispositivo NFC → consulta pedido individual em tempo real, mesmo em mesa com múltiplos clientes. Pagamento: pelo app ou o operador cobra fisicamente após a leitura.
+
+**Operação:**
+- Restaurante recebe kit de tags reutilizáveis (quantidade = capacidade do estabelecimento)
+- Cada cliente recebe uma tag ao sentar; devolve ao sair
+- Tags NTAG213 reutilizáveis por sessão; qualquer dispositivo NFC lê (Android/iOS)
+- QR code é sempre o fallback incluso em todos os planos, sem custo adicional
+
+**Precificação (a fechar na Fase 6):**
+- Mensalidade do serviço: a definir (escopo de comanda digital justifica valor maior que R$49)
+- Hardware: kit one-time baseado na capacidade do restaurante (cotação em lote)
 
 ## Brand Commitments
 

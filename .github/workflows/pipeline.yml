@@ -122,8 +122,9 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
           SUPABASE_ANON_KEY: ci-placeholder
-          STRIPE_PUBLISHABLE_KEY: pk_test_ci_placeholder
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ci_placeholder
           STRIPE_SECRET_KEY: sk_test_ci_placeholder
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
           NEXT_PUBLIC_API_URL: http://127.0.0.1:3001
           NEXT_PUBLIC_API_URL_WEBSOCKET: ws://127.0.0.1:3001
           NEXT_PUBLIC_DISCORD_WEBHOOK_URL: http://127.0.0.1

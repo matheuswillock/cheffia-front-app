@@ -57,7 +57,7 @@ test("local reset reports boot, reset, and migration-push durations to the step 
   mkdirSync(bin, { recursive: true })
   writeFileSync(calls, "")
   const fakeCli = path.join(bin, "supabase")
-  writeFileSync(fakeCli, `#!/bin/sh\necho "$@" >> "${calls}"\n`)
+  writeFileSync(fakeCli, `#!/bin/sh\necho "$SUPABASE_PROJECT_ID $@" >> "${calls}"\n`)
   chmodSync(fakeCli, 0o755)
 
   try {
@@ -65,6 +65,7 @@ test("local reset reports boot, reset, and migration-push durations to the step 
       cwd: repositoryRoot,
       env: {
         ...process.env,
+        SUPABASE_PROJECT_ID: "linked-remote-ref",
         PATH: `${bin}:${process.env.PATH}`,
         RUNNER_TEMP: sandbox,
         GITHUB_STEP_SUMMARY: summary,
@@ -77,7 +78,10 @@ test("local reset reports boot, reset, and migration-push durations to the step 
     expect(summaryText).toMatch(/\| supabase start \| \d+ ms \|/)
     expect(summaryText).toMatch(/\| supabase db reset \| \d+ ms \|/)
     expect(summaryText).toMatch(/\| supabase db push \| \d+ ms \|/)
-    expect(readFileSync(calls, "utf8")).toContain("db push")
+    const recordedCalls = readFileSync(calls, "utf8").trim().split("\n")
+    expect(recordedCalls).toHaveLength(3)
+    expect(recordedCalls.every((call) => /^cheffia-db-reset-\d+ /.test(call))).toBe(true)
+    expect(recordedCalls.some((call) => call.includes("linked-remote-ref"))).toBe(false)
   } finally {
     rmSync(sandbox, { recursive: true, force: true })
   }

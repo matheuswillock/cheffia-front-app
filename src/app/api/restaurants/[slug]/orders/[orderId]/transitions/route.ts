@@ -11,6 +11,7 @@ import { orderStatuses, type OrderStatus } from "@/business/order/orderState"
 import { createHash } from "node:crypto"
 import { getIdempotencyKey } from "@/business/order/orderContracts"
 import { schedulePendingOutboxPublish } from "@/server/ordering/schedulePublish"
+import { assertPlan } from "@/server/billing/planGate"
 
 export const dynamic = "force-dynamic"
 
@@ -40,6 +41,17 @@ export async function POST(
   ) {
     return jsonWithRequestId(request, { code: "INVALID_TRANSITION_REQUEST" }, { status: 400 })
   }
+
+  const db = getPrismaClient()
+  const membership = await db.restaurantMembership.findFirst({
+    where: { userId: user.id, status: "active", restaurant: { is: { slug, isActive: true } } },
+    select: { tenantId: true, restaurantId: true },
+  })
+  if (!membership) {
+    return jsonWithRequestId(request, { code: "RESTAURANT_NOT_FOUND_OR_FORBIDDEN" }, { status: 403 })
+  }
+  const gate = await assertPlan(membership.tenantId, membership.restaurantId, "basic")
+  if (!gate.ok) return jsonWithRequestId(request, { code: gate.code }, { status: gate.status })
 
   try {
     const result = await transitionOrderForStaff({

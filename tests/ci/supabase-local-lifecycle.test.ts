@@ -21,15 +21,18 @@ const STATUS = {
 
 let sandbox: string
 let calls: string
+let projectIds: string
 let originalPath: string | undefined
 let originalRunnerTemp: string | undefined
 let originalStepSummary: string | undefined
+let originalSupabaseProjectId: string | undefined
 
 function installFakeSupabase(behavior: { failOn?: string; statusExit?: number; stopExit?: number } = {}) {
   const binDirectory = path.join(sandbox, "bin")
   mkdirSync(binDirectory, { recursive: true })
   const script = `#!/bin/sh
 echo "$@" >> "${calls}"
+echo "$SUPABASE_PROJECT_ID" >> "${projectIds}"
 case "$1" in
   ${behavior.failOn ?? "__none__"}) exit 7 ;;
   status) [ ${behavior.statusExit ?? 0} -ne 0 ] && exit ${behavior.statusExit ?? 0}; echo '${JSON.stringify(STATUS)}' ;;
@@ -69,11 +72,15 @@ function recordedCommands() {
 beforeEach(() => {
   sandbox = mkdtempSync(path.join(os.tmpdir(), "cheffia-supabase-lifecycle-"))
   calls = path.join(sandbox, "calls.log")
+  projectIds = path.join(sandbox, "project-ids.log")
   writeFileSync(calls, "")
+  writeFileSync(projectIds, "")
   originalPath = process.env.PATH
   originalRunnerTemp = process.env.RUNNER_TEMP
   originalStepSummary = process.env.GITHUB_STEP_SUMMARY
+  originalSupabaseProjectId = process.env.SUPABASE_PROJECT_ID
   process.env.RUNNER_TEMP = sandbox
+  process.env.SUPABASE_PROJECT_ID = "linked-remote-ref"
 })
 
 afterEach(() => {
@@ -82,6 +89,8 @@ afterEach(() => {
   else process.env.RUNNER_TEMP = originalRunnerTemp
   if (originalStepSummary === undefined) delete process.env.GITHUB_STEP_SUMMARY
   else process.env.GITHUB_STEP_SUMMARY = originalStepSummary
+  if (originalSupabaseProjectId === undefined) delete process.env.SUPABASE_PROJECT_ID
+  else process.env.SUPABASE_PROJECT_ID = originalSupabaseProjectId
   rmSync(sandbox, { recursive: true, force: true })
 })
 
@@ -125,6 +134,9 @@ describe("withLocalSupabase", () => {
     const commands = recordedCommands().map((line) => line.split(" ").slice(0, 2).join(" "))
     expect(commands).toEqual(["start --workdir", "db reset", "db push", "status --workdir", "stop --workdir"])
     expect(recordedCommands()[0]).toContain("--exclude studio")
+    expect(readFileSync(projectIds, "utf8").trim().split("\n")).toEqual(
+      Array(5).fill("lifecycle-test"),
+    )
   })
 
   test("writes stage durations to the GitHub step summary without exposing Supabase keys", async () => {
