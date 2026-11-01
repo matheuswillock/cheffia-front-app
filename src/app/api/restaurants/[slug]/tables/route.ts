@@ -3,6 +3,7 @@ import { jsonWithRequestId } from "@/server/ordering/requestContext"
 import { CreateTableError, createRestaurantTable } from "@/business/order/createTable"
 import { getPrismaClient } from "@/server/infra/prisma/client"
 import { createRestaurantTableRepository } from "@/server/ordering/createTableRepository"
+import { assertPlan } from "@/server/billing/planGate"
 
 export const dynamic = "force-dynamic"
 
@@ -30,6 +31,17 @@ export async function POST(
   if (!signingSecret) {
     return jsonWithRequestId(request, { code: "TABLE_MANAGEMENT_UNAVAILABLE" }, { status: 503 })
   }
+
+  const db = getPrismaClient()
+  const membership = await db.restaurantMembership.findFirst({
+    where: { userId: user.id, status: "active", restaurant: { is: { slug, isActive: true } } },
+    select: { tenantId: true, restaurantId: true },
+  })
+  if (!membership) {
+    return jsonWithRequestId(request, { code: "RESTAURANT_NOT_FOUND_OR_FORBIDDEN" }, { status: 403 })
+  }
+  const gate = await assertPlan(membership.tenantId, membership.restaurantId, "basic")
+  if (!gate.ok) return jsonWithRequestId(request, { code: gate.code }, { status: gate.status })
 
   try {
     const table = await createRestaurantTable({
