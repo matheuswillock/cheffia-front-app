@@ -1,8 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test"
 import type pg from "pg"
 
-import { getRestaurantPlanFromDb } from "@/server/billing/planGate"
-import { requiresPlan } from "@/business/billing/getRestaurantPlan"
+import {
+  getRestaurantPlan,
+  requiresPlan,
+  type PlanGateRepository,
+} from "@/business/billing/getRestaurantPlan"
 
 import { createFixture, createSubscription, createTestPool, createTestPrisma } from "./support/database"
 
@@ -18,45 +21,56 @@ afterAll(async () => {
   await pool.end()
 })
 
-describe("getRestaurantPlanFromDb", () => {
+function createRepo(tenantId: string, restaurantId: string): PlanGateRepository {
+  return {
+    async findActiveSubscription(tid, rid) {
+      return prisma.subscription.findUnique({
+        where: { tenantId_restaurantId: { tenantId: tid, restaurantId: rid } },
+        select: { plan: true, status: true, cancelAtPeriodEnd: true, currentPeriodEnd: true },
+      })
+    },
+  }
+}
+
+describe("getRestaurantPlan (integration)", () => {
   test("returns NO_SUBSCRIPTION when restaurant has no subscription", async () => {
     const fixture = await createFixture(pool)
-    const result = await getRestaurantPlanFromDb(fixture.tenantId, fixture.restaurantId)
+    const result = await getRestaurantPlan(fixture.tenantId, fixture.restaurantId, createRepo(fixture.tenantId, fixture.restaurantId))
     expect(result).toEqual({ allowed: false, reason: "NO_SUBSCRIPTION" })
   })
 
   test("returns allowed with plan and status for active basic subscription", async () => {
     const fixture = await createFixture(pool)
     await createSubscription(pool, fixture, { plan: "basic", status: "active" })
-    const result = await getRestaurantPlanFromDb(fixture.tenantId, fixture.restaurantId)
+    const result = await getRestaurantPlan(fixture.tenantId, fixture.restaurantId, createRepo(fixture.tenantId, fixture.restaurantId))
     expect(result).toMatchObject({ allowed: true, plan: "basic", status: "active" })
   })
 
   test("returns allowed for active pro subscription", async () => {
     const fixture = await createFixture(pool)
     await createSubscription(pool, fixture, { plan: "pro", status: "active" })
-    const result = await getRestaurantPlanFromDb(fixture.tenantId, fixture.restaurantId)
+    const result = await getRestaurantPlan(fixture.tenantId, fixture.restaurantId, createRepo(fixture.tenantId, fixture.restaurantId))
     expect(result).toMatchObject({ allowed: true, plan: "pro" })
   })
 
   test("returns allowed for past_due subscription (grace period)", async () => {
     const fixture = await createFixture(pool)
     await createSubscription(pool, fixture, { plan: "basic", status: "past_due" })
-    const result = await getRestaurantPlanFromDb(fixture.tenantId, fixture.restaurantId)
+    const result = await getRestaurantPlan(fixture.tenantId, fixture.restaurantId, createRepo(fixture.tenantId, fixture.restaurantId))
     expect(result).toMatchObject({ allowed: true })
   })
 
   test("returns SUBSCRIPTION_INACTIVE for canceled subscription", async () => {
     const fixture = await createFixture(pool)
     await createSubscription(pool, fixture, { plan: "basic", status: "canceled" })
-    const result = await getRestaurantPlanFromDb(fixture.tenantId, fixture.restaurantId)
+    const result = await getRestaurantPlan(fixture.tenantId, fixture.restaurantId, createRepo(fixture.tenantId, fixture.restaurantId))
     expect(result).toEqual({ allowed: false, reason: "SUBSCRIPTION_INACTIVE" })
   })
 
   test("returns SUBSCRIPTION_INACTIVE for incomplete subscription", async () => {
     const fixture = await createFixture(pool)
     await createSubscription(pool, fixture, { plan: "pro", status: "incomplete" })
-    const result = await getRestaurantPlanFromDb(fixture.tenantId, fixture.restaurantId)
+    const result = await getRestaurantPlan(fixture.tenantId, fixture.restaurantId, createRepo(fixture.tenantId, fixture.restaurantId))
     expect(result).toEqual({ allowed: false, reason: "SUBSCRIPTION_INACTIVE" })
   })
 })
