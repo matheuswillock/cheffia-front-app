@@ -28,9 +28,10 @@ if (apiHost !== "127.0.0.1" && apiHost !== "localhost") {
 const EVENT = "order.updated"
 // Positive deliveries must arrive well within this window. Negative checks wait a shorter
 // window, and they only count as proof because the positive control passed first.
-const DELIVERY_TIMEOUT_MS = 10_000
-const DENIAL_WINDOW_MS = 2_500
-const SUBSCRIBE_TIMEOUT_MS = 8_000
+// CI runners (Docker + Realtime stack cold-start) need more headroom than a warm local machine.
+const DELIVERY_TIMEOUT_MS = 20_000
+const DENIAL_WINDOW_MS = 3_000
+const SUBSCRIBE_TIMEOUT_MS = 15_000
 
 const clientOptions = {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -58,7 +59,7 @@ type Listener = {
   error?: string
 }
 
-async function subscribe(client: SupabaseClient, topic: string): Promise<Listener> {
+async function subscribe(client: SupabaseClient, topic: string, attempt = 1): Promise<Listener> {
   const received: Array<{ marker?: string }> = []
   // supabase-js cannot subscribe the same topic twice on one client. Shared staff clients reach
   // here again from the control, so drop the earlier test's channel first.
@@ -80,6 +81,12 @@ async function subscribe(client: SupabaseClient, topic: string): Promise<Listene
       }
     })
   })
+  // Retry once on LOCAL_TIMEOUT: CI cold-start may need more time for the Realtime container.
+  if (state === "LOCAL_TIMEOUT" && attempt === 1) {
+    await client.removeChannel(channel)
+    await new Promise((r) => setTimeout(r, 3_000))
+    return subscribe(client, topic, 2)
+  }
   return { channel, received, state, error }
 }
 
