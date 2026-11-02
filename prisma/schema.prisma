@@ -61,6 +61,34 @@ enum OrderStatus {
   @@map("order_status")
 }
 
+enum SubscriptionPlan {
+  basic
+  pro
+  complete
+
+  @@map("subscription_plan")
+}
+
+enum BillingCycle {
+  monthly
+  quarterly
+  semiannual
+  annual
+
+  @@map("billing_cycle")
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  incomplete
+  incomplete_expired
+  unpaid
+
+  @@map("subscription_status")
+}
+
 model Tenant {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   slug      String   @unique @db.Text
@@ -85,6 +113,7 @@ model Tenant {
   idempotencyKeys        IdempotencyKey[]
   outboxEvents           OutboxEvent[]
   auditLogs              AuditLog[]
+  subscriptions          Subscription[]
 
   @@map("tenants")
 }
@@ -114,6 +143,7 @@ model Restaurant {
   idempotencyKeys        IdempotencyKey[]
   outboxEvents           OutboxEvent[]
   auditLogs              AuditLog[]
+  subscription           Subscription?
 
   @@unique([tenantId, id], map: "restaurants_tenant_id_uk")
   @@unique([tenantId, slug], map: "restaurants_tenant_slug_uk")
@@ -460,4 +490,30 @@ model AuditLog {
   @@index([tenantId, createdAt], map: "audit_tenant_created_at_idx")
   @@index([tenantId, entityType, entityId], map: "audit_tenant_entity_idx")
   @@map("audit_logs")
+}
+
+model Subscription {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId             String             @map("tenant_id") @db.Uuid
+  restaurantId         String             @map("restaurant_id") @db.Uuid
+  stripeCustomerId     String             @map("stripe_customer_id") @db.Text
+  stripeSubscriptionId String             @unique @map("stripe_subscription_id") @db.Text
+  stripePriceId        String             @map("stripe_price_id") @db.Text
+  plan                 SubscriptionPlan
+  billingCycle         BillingCycle       @map("billing_cycle")
+  status               SubscriptionStatus
+  currentPeriodStart   DateTime           @map("current_period_start") @db.Timestamptz(6)
+  currentPeriodEnd     DateTime           @map("current_period_end") @db.Timestamptz(6)
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [tenantId, restaurantId], references: [tenantId, id], onDelete: Cascade)
+
+  @@unique([tenantId, restaurantId], map: "subscriptions_tenant_restaurant_uk")
+  @@unique([tenantId, stripeCustomerId], map: "subscriptions_tenant_stripe_customer_uk")
+  @@index([tenantId, restaurantId], map: "subscriptions_tenant_restaurant_idx")
+  @@index([stripeSubscriptionId], map: "subscriptions_stripe_subscription_id_idx")
+  @@map("subscriptions")
 }

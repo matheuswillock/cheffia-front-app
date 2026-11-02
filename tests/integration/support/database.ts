@@ -120,3 +120,43 @@ export async function readOutboxEvent(pool: pg.Pool, id: string) {
 export async function clearOutbox(pool: pg.Pool) {
   await pool.query("delete from public.outbox_events")
 }
+
+export async function createSubscription(
+  pool: pg.Pool,
+  fixture: Fixture,
+  overrides: {
+    plan?: "basic" | "pro" | "complete"
+    status?: "active" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "trialing" | "unpaid" | "paused"
+    currentPeriodStart?: Date
+    currentPeriodEnd?: Date
+    cancelAtPeriodEnd?: boolean
+  } = {},
+) {
+  const now = new Date()
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate())
+  const suffix = randomUUID().slice(0, 8)
+
+  const result = await pool.query<{ id: string }>(
+    `INSERT INTO public.subscriptions (
+      tenant_id, restaurant_id,
+      stripe_customer_id, stripe_subscription_id, stripe_price_id,
+      plan, billing_cycle, status,
+      current_period_start, current_period_end,
+      cancel_at_period_end
+    ) VALUES ($1, $2, $3, $4, $5, $6::public.subscription_plan, 'monthly'::public.billing_cycle, $7::public.subscription_status, $8, $9, $10)
+    RETURNING id`,
+    [
+      fixture.tenantId,
+      fixture.restaurantId,
+      `cus_test_${suffix}`,
+      `sub_test_${suffix}`,
+      `price_test_${suffix}`,
+      overrides.plan ?? "basic",
+      overrides.status ?? "active",
+      overrides.currentPeriodStart ?? now,
+      overrides.currentPeriodEnd ?? nextMonth,
+      overrides.cancelAtPeriodEnd ?? false,
+    ],
+  )
+  return result.rows[0].id
+}
